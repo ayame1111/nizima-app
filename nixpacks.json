@@ -2,7 +2,7 @@
   "providers": ["node"],
   "phases": {
     "setup": {
-      "nixPkgs": ["nodejs_23", "npm-9_x", "openssl"]
+      "nixPkgs": ["nodejs_20", "npm-9_x", "openssl"]
     },
     "install": {
       "cmds": ["npm ci"]
