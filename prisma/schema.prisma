@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  previewUrl  String   // Path to the model3.json file relative to public folder or S3 URL
+  fileUrl     String   // Path to the downloadable zip file (secure location)
+  iconUrl     String?  // Path to the icon image
+  isSold      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Order       Order[]
+}
+
+model Order {
+  id            String   @id @default(uuid())
+  product       Product  @relation(fields: [productId], references: [id])
+  productId     String
+  buyerEmail    String
+  status        String   // PENDING, COMPLETED
+  transactionId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

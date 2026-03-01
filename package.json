@@ -1,0 +1,53 @@
+{
+  "name": "nizima-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@paypal/react-paypal-js": "^9.0.0",
+    "@pixi/app": "^7.4.3",
+    "@pixi/constants": "^7.4.3",
+    "@pixi/core": "^7.4.3",
+    "@pixi/display": "^7.4.3",
+    "@pixi/math": "^7.4.3",
+    "@pixi/ticker": "^7.4.3",
+    "@pixi/utils": "^7.4.3",
+    "@prisma/adapter-better-sqlite3": "^7.4.2",
+    "@prisma/client": "^7.4.2",
+    "@types/adm-zip": "^0.5.7",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/emscripten": "^1.41.5",
+    "@types/uuid": "^10.0.0",
+    "adm-zip": "^0.5.16",
+    "axios": "^1.13.6",
+    "better-sqlite3": "^12.6.2",
+    "clsx": "^2.1.1",
+    "dotenv": "^17.3.1",
+    "kalidokit": "^1.1.5",
+    "lucide-react": "^0.575.0",
+    "next": "16.1.6",
+    "pixi-live2d-display": "^0.5.0-beta",
+    "pixi.js": "^7.4.3",
+    "prisma": "^7.4.2",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "tailwind-merge": "^3.5.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

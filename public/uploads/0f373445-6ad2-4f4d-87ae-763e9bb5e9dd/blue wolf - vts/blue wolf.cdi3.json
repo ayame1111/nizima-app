@@ -1,0 +1,564 @@
+{
+	"Version": 3,
+	"Parameters": [
+		{
+			"Id": "ParamAngleX",
+			"GroupId": "",
+			"Name": "ParamAngleX"
+		},
+		{
+			"Id": "ParamAngleY",
+			"GroupId": "",
+			"Name": "ParamAngleY"
+		},
+		{
+			"Id": "ParamAngleZ",
+			"GroupId": "",
+			"Name": "ParamAngleZ"
+		},
+		{
+			"Id": "ParamEyeLOpen",
+			"GroupId": "",
+			"Name": "ParamEyeLOpen"
+		},
+		{
+			"Id": "ParamEyeLSmile",
+			"GroupId": "",
+			"Name": "ParamEyeLSmile"
+		},
+		{
+			"Id": "ParamEyeROpen",
+			"GroupId": "",
+			"Name": "ParamEyeROpen"
+		},
+		{
+			"Id": "ParamEyeRSmile",
+			"GroupId": "",
+			"Name": "ParamEyeRSmile"
+		},
+		{
+			"Id": "ParamEyeBallX",
+			"GroupId": "",
+			"Name": "ParamEyeBallX"
+		},
+		{
+			"Id": "ParamEyeBallY",
+			"GroupId": "",
+			"Name": "ParamEyeBallY"
+		},
+		{
+			"Id": "ParamBrowLY",
+			"GroupId": "",
+			"Name": "ParamBrowLY"
+		},
+		{
+			"Id": "ParamBrowRY",
+			"GroupId": "",
+			"Name": "ParamBrowRY"
+		},
+		{
+			"Id": "ParamBrowLX",
+			"GroupId": "",
+			"Name": "ParamBrowLX"
+		},
+		{
+			"Id": "ParamBrowRX",
+			"GroupId": "",
+			"Name": "ParamBrowRX"
+		},
+		{
+			"Id": "ParamBrowLAngle",
+			"GroupId": "",
+			"Name": "ParamBrowLAngle"
+		},
+		{
+			"Id": "ParamBrowRAngle",
+			"GroupId": "",
+			"Name": "ParamBrowRAngle"
+		},
+		{
+			"Id": "ParamBrowLForm",
+			"GroupId": "",
+			"Name": "ParamBrowLForm"
+		},
+		{
+			"Id": "ParamBrowRForm",
+			"GroupId": "",
+			"Name": "ParamBrowRForm"
+		},
+		{
+			"Id": "ParamMouthForm",
+			"GroupId": "",
+			"Name": "ParamMouthForm"
+		},
+		{
+			"Id": "ParamMouthOpenY",
+			"GroupId": "",
+			"Name": "ParamMouthOpenY"
+		},
+		{
+			"Id": "Param9",
+			"GroupId": "",
+			"Name": "MOUTH X"
+		},
+		{
+			"Id": "Param12",
+			"GroupId": "",
+			"Name": "TONGUE"
+		},
+		{
+			"Id": "Param11",
+			"GroupId": "",
+			"Name": "ANGRY"
+		},
+		{
+			"Id": "Param10",
+			"GroupId": "",
+			"Name": "PUFF"
+		},
+		{
+			"Id": "ParamCheek",
+			"GroupId": "",
+			"Name": "ParamCheek"
+		},
+		{
+			"Id": "ParamBodyAngleX",
+			"GroupId": "",
+			"Name": "ParamBodyAngleX"
+		},
+		{
+			"Id": "ParamBodyAngleY",
+			"GroupId": "",
+			"Name": "ParamBodyAngleY"
+		},
+		{
+			"Id": "ParamBodyAngleZ",
+			"GroupId": "",
+			"Name": "ParamBodyAngleZ"
+		},
+		{
+			"Id": "ParamBreath",
+			"GroupId": "",
+			"Name": "ParamBreath"
+		},
+		{
+			"Id": "Param14",
+			"GroupId": "",
+			"Name": "front"
+		},
+		{
+			"Id": "Param",
+			"GroupId": "",
+			"Name": "E1"
+		},
+		{
+			"Id": "Param2",
+			"GroupId": "",
+			"Name": "E2"
+		},
+		{
+			"Id": "Param8",
+			"GroupId": "",
+			"Name": "e3"
+		},
+		{
+			"Id": "Param13",
+			"GroupId": "",
+			"Name": "e4"
+		},
+		{
+			"Id": "Param19",
+			"GroupId": "",
+			"Name": "H1"
+		},
+		{
+			"Id": "Param20",
+			"GroupId": "",
+			"Name": "H2"
+		},
+		{
+			"Id": "Param23",
+			"GroupId": "",
+			"Name": "U1"
+		},
+		{
+			"Id": "Param24",
+			"GroupId": "",
+			"Name": "U2"
+		},
+		{
+			"Id": "Param29",
+			"GroupId": "",
+			"Name": "H1"
+		},
+		{
+			"Id": "Param30",
+			"GroupId": "",
+			"Name": "H2"
+		},
+		{
+			"Id": "Param28",
+			"GroupId": "",
+			"Name": "FEET0"
+		},
+		{
+			"Id": "Param37",
+			"GroupId": "",
+			"Name": "P"
+		},
+		{
+			"Id": "Param3",
+			"GroupId": "",
+			"Name": "GURUGURU"
+		},
+		{
+			"Id": "Param4",
+			"GroupId": "",
+			"Name": "Masuku"
+		},
+		{
+			"Id": "Param5",
+			"GroupId": "",
+			"Name": "STAR"
+		},
+		{
+			"Id": "Param6",
+			"GroupId": "",
+			"Name": "HEART"
+		},
+		{
+			"Id": "Param7",
+			"GroupId": "",
+			"Name": "TEAR"
+		},
+		{
+			"Id": "Param35",
+			"GroupId": "",
+			"Name": "BLUSH"
+		},
+		{
+			"Id": "Param36",
+			"GroupId": "",
+			"Name": "BLUE"
+		},
+		{
+			"Id": "Param15",
+			"GroupId": "",
+			"Name": "glasses"
+		},
+		{
+			"Id": "Param_Angle_Rotation_1_ArtMesh189",
+			"GroupId": "ParamGroup",
+			"Name": "[0]圖層 53"
+		},
+		{
+			"Id": "Param_Angle_Rotation_2_ArtMesh189",
+			"GroupId": "ParamGroup",
+			"Name": "[1]圖層 53"
+		},
+		{
+			"Id": "Param_Angle_Rotation_3_ArtMesh189",
+			"GroupId": "ParamGroup",
+			"Name": "[2]圖層 53"
+		},
+		{
+			"Id": "Param_Angle_Rotation_4_ArtMesh189",
+			"GroupId": "ParamGroup",
+			"Name": "[3]圖層 53"
+		},
+		{
+			"Id": "Param_Angle_Rotation_5_ArtMesh189",
+			"GroupId": "ParamGroup",
+			"Name": "[4]圖層 53"
+		},
+		{
+			"Id": "Param_Angle_Rotation_6_ArtMesh189",
+			"GroupId": "ParamGroup",
+			"Name": "[5]圖層 53"
+		},
+		{
+			"Id": "Param_Angle_Rotation_7_ArtMesh189",
+			"GroupId": "ParamGroup",
+			"Name": "[6]圖層 53"
+		}
+	],
+	"ParameterGroups": [
+		{
+			"Id": "ParamGroup",
+			"GroupId": "",
+			"Name": "圖層 53"
+		}
+	],
+	"Parts": [
+		{
+			"Id": "Part5",
+			"Name": "-"
+		},
+		{
+			"Id": "Part54",
+			"Name": "-"
+		},
+		{
+			"Id": "Part33",
+			"Name": "-"
+		},
+		{
+			"Id": "Part10",
+			"Name": "-"
+		},
+		{
+			"Id": "Part8",
+			"Name": "-"
+		},
+		{
+			"Id": "hair",
+			"Name": "-"
+		},
+		{
+			"Id": "NOSE",
+			"Name": "-"
+		},
+		{
+			"Id": "eye1",
+			"Name": "-"
+		},
+		{
+			"Id": "mouth",
+			"Name": "-"
+		},
+		{
+			"Id": "face",
+			"Name": "-"
+		},
+		{
+			"Id": "body",
+			"Name": "-"
+		},
+		{
+			"Id": "hand",
+			"Name": "-"
+		},
+		{
+			"Id": "hand4",
+			"Name": "-"
+		},
+		{
+			"Id": "head",
+			"Name": "-"
+		},
+		{
+			"Id": "tail_Skinning",
+			"Name": "-"
+		},
+		{
+			"Id": "Part7",
+			"Name": "-"
+		},
+		{
+			"Id": "wings",
+			"Name": "-"
+		},
+		{
+			"Id": "wings4",
+			"Name": "-"
+		},
+		{
+			"Id": "Part9",
+			"Name": "-"
+		},
+		{
+			"Id": "ArtMesh26_Skinning",
+			"Name": "-"
+		},
+		{
+			"Id": "Part35",
+			"Name": "資料夾 5"
+		},
+		{
+			"Id": "Part42",
+			"Name": "資料夾 3 的複製"
+		},
+		{
+			"Id": "Part12",
+			"Name": "-"
+		},
+		{
+			"Id": "Part13",
+			"Name": "-"
+		},
+		{
+			"Id": "Part22",
+			"Name": "-"
+		},
+		{
+			"Id": "Part21",
+			"Name": "-"
+		},
+		{
+			"Id": "hair2",
+			"Name": "-"
+		},
+		{
+			"Id": "eye",
+			"Name": "-"
+		},
+		{
+			"Id": "Part",
+			"Name": "-"
+		},
+		{
+			"Id": "Part2",
+			"Name": "-"
+		},
+		{
+			"Id": "Part11",
+			"Name": "-"
+		},
+		{
+			"Id": "Part3",
+			"Name": "-"
+		},
+		{
+			"Id": "wings17_Skinning",
+			"Name": "wings[0](蒙皮)"
+		},
+		{
+			"Id": "wings18_Skinning",
+			"Name": "wings[1](蒙皮)"
+		},
+		{
+			"Id": "wings19_Skinning",
+			"Name": "wings[2](蒙皮)"
+		},
+		{
+			"Id": "wings20_Skinning",
+			"Name": "wings[3](蒙皮)"
+		},
+		{
+			"Id": "wings21_Skinning",
+			"Name": "wings[4](蒙皮)"
+		},
+		{
+			"Id": "wings22_Skinning",
+			"Name": "wings[0](蒙皮)"
+		},
+		{
+			"Id": "wings23_Skinning",
+			"Name": "wings[1](蒙皮)"
+		},
+		{
+			"Id": "wings24_Skinning",
+			"Name": "wings[2](蒙皮)"
+		},
+		{
+			"Id": "wings25_Skinning",
+			"Name": "wings[3](蒙皮)"
+		},
+		{
+			"Id": "wings26_Skinning",
+			"Name": "wings[4](蒙皮)"
+		},
+		{
+			"Id": "wings2_Skinning",
+			"Name": "wings(蒙皮)"
+		},
+		{
+			"Id": "Part6",
+			"Name": "wings(旋转)"
+		},
+		{
+			"Id": "wings3_Skinning",
+			"Name": "wings(蒙皮)"
+		},
+		{
+			"Id": "Part4",
+			"Name": "wings(旋转)"
+		},
+		{
+			"Id": "Part40",
+			"Name": "資料夾 8 的複製"
+		},
+		{
+			"Id": "Part52",
+			"Name": "資料夾 4 的複製 3"
+		},
+		{
+			"Id": "Part23",
+			"Name": "-"
+		},
+		{
+			"Id": "Part24",
+			"Name": "-"
+		},
+		{
+			"Id": "Part26",
+			"Name": "-"
+		},
+		{
+			"Id": "Part27",
+			"Name": "-"
+		},
+		{
+			"Id": "Part14",
+			"Name": "-"
+		},
+		{
+			"Id": "Part28",
+			"Name": "-"
+		},
+		{
+			"Id": "Part31",
+			"Name": "-"
+		},
+		{
+			"Id": "Part32",
+			"Name": "-"
+		},
+		{
+			"Id": "ArtMesh189_Skinning",
+			"Name": "-"
+		},
+		{
+			"Id": "Part25",
+			"Name": "-"
+		},
+		{
+			"Id": "Part19",
+			"Name": "wolf eye add.psd"
+		},
+		{
+			"Id": "Part15",
+			"Name": "-"
+		},
+		{
+			"Id": "Part16",
+			"Name": "-"
+		},
+		{
+			"Id": "Part17",
+			"Name": "-"
+		},
+		{
+			"Id": "Part18",
+			"Name": "-"
+		},
+		{
+			"Id": "Part20",
+			"Name": "-"
+		},
+		{
+			"Id": "Part29",
+			"Name": "-"
+		},
+		{
+			"Id": "Part30",
+			"Name": "-"
+		}
+	],
+	"CombinedParameters": [
+		[
+			"ParamMouthForm",
+			"ParamMouthOpenY"
+		]
+	]
+}
