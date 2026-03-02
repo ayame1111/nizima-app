@@ -143,18 +143,18 @@ export default function Live2DViewer({ modelUrl }: Live2DViewerProps) {
           {/* Overlay to handle closing when clicking outside */}
           <div className="absolute inset-0 bg-black/50" onClick={() => setIsOpen(false)} />
 
-          <div className="bg-[#1a1a1a] w-full h-full max-w-[1800px] max-h-[95vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative border border-gray-800 ring-1 ring-white/10 mx-4 pointer-events-auto z-10 isolate">
+          <div className="bg-[#1a1a1a] w-full h-full md:max-w-[1800px] md:max-h-[95vh] md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative border border-gray-800 ring-1 ring-white/10 mx-0 md:mx-4 pointer-events-auto z-10 isolate">
             
             {/* Close Button */}
             <button 
                 onClick={() => setIsOpen(false)}
-                className="absolute top-6 right-6 z-[50] bg-black/50 hover:bg-white/20 text-white p-3 rounded-full backdrop-blur-md transition-all border border-white/10"
+                className="absolute top-4 right-4 md:top-6 md:right-6 z-[50] bg-black/50 hover:bg-white/20 text-white p-2 md:p-3 rounded-full backdrop-blur-md transition-all border border-white/10"
             >
-                <X size={24} />
+                <X size={20} className="md:w-6 md:h-6" />
             </button>
 
             {/* Canvas Area */}
-            <div className="flex-grow h-[50vh] md:h-full bg-[#0f0f0f] relative z-0 flex items-center justify-center overflow-hidden">
+            <div className="flex-grow h-[50vh] md:h-full bg-[#0f0f0f] relative z-0 flex items-center justify-center overflow-hidden order-1 md:order-1">
                  <Live2DCanvas 
                     modelUrl={modelUrl} 
                     interactive={true} 
@@ -164,6 +164,10 @@ export default function Live2DViewer({ modelUrl }: Live2DViewerProps) {
                 />
             </div>
 
+            {/* Controls Sidebar - Hidden on mobile, or collapsible? Let's make it a bottom sheet on mobile or scrollable below */}
+            {/* For now, let's keep it side-by-side on desktop, but stacked on mobile. 
+                But wait, h-[50vh] for canvas means sidebar gets the other 50vh on mobile.
+            */}
           </div>
         </div>,
         document.body
@@ -915,8 +919,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     const sortedParameters = parameters;
 
     return (
-        <div ref={containerRef} className={`relative flex ${className}`}>
-            <div className={`relative flex-grow h-full overflow-hidden ${showControls ? 'w-full md:w-3/4' : 'w-full'}`} onClick={onClick}>
+        <div ref={containerRef} className={`relative flex flex-col md:flex-row ${className}`}>
+            <div className={`relative flex-grow h-full overflow-hidden ${showControls ? 'w-full md:w-3/4' : 'w-full'} order-1 md:order-1`} onClick={onClick}>
                 {loading && (
                     <div className="absolute inset-0 flex items-center justify-center text-gray-400 gap-2 z-50 pointer-events-none">
                         <RefreshCw className="animate-spin" /> Loading Model...
@@ -927,7 +931,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 {/* Tracking Controls Overlay */}
                 {showControls && (
                     <div 
-                        className="absolute top-4 left-4 z-[9999] flex flex-col gap-2 pointer-events-auto"
+                        className="absolute top-4 left-4 z-[9999] flex flex-col gap-2 pointer-events-auto max-w-[200px] md:max-w-none"
                         onPointerDown={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -1040,7 +1044,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
 
             {/* Controls Sidebar */}
             {showControls && (
-                <div className="w-full md:w-96 bg-[#1a1a1a] border-l border-gray-800 h-[50vh] md:h-full overflow-y-auto flex-shrink-0 shadow-2xl z-50 text-gray-200 custom-scrollbar relative">
+                <div className="w-full md:w-96 bg-[#1a1a1a] border-t md:border-t-0 md:border-l border-gray-800 h-[40vh] md:h-full overflow-y-auto flex-shrink-0 shadow-2xl z-50 text-gray-200 custom-scrollbar relative order-2 md:order-2">
                     
                         {/* Expressions Section */}
                         {expressions.length > 0 && (
