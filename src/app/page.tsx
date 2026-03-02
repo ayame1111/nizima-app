@@ -2,7 +2,9 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import LazyLive2DViewer from '@/components/LazyLive2DViewer';
 import LikeButton from '@/components/LikeButton';
+import Navbar from '@/components/Navbar';
 import { ShoppingBag, Search, Menu, ArrowRight } from 'lucide-react';
+import { auth } from '@/auth';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -14,6 +16,19 @@ const formatCurrency = (amount: number) => {
 export const revalidate = 0; // Disable caching for real-time updates
 
 export default async function Home() {
+  const session = await auth();
+  
+  let favoriteIds: string[] = [];
+  if (session?.user?.id) {
+      const user = await prisma.user.findUnique({
+          where: { id: session.user.id },
+          include: { favorites: { select: { id: true } } }
+      });
+      if (user) {
+          favoriteIds = user.favorites.map(f => f.id);
+      }
+  }
+
   const products = await prisma.product.findMany({
     where: { isSold: false },
     orderBy: { createdAt: 'desc' },
@@ -23,43 +38,7 @@ export default async function Home() {
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-purple-100 selection:text-purple-900">
       
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-8">
-              <Link href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-purple-500/20">
-                  N
-                </div>
-                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
-                  Nizima
-                </span>
-              </Link>
-              <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-500">
-                <Link href="#" className="hover:text-gray-900 transition-colors">Marketplace</Link>
-                <Link href="#" className="hover:text-gray-900 transition-colors">Creators</Link>
-                <Link href="#" className="hover:text-gray-900 transition-colors">Commission</Link>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                <Search size={20} />
-              </button>
-              <Link href="/admin" className="text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors hidden sm:block">
-                Creator Dashboard
-              </Link>
-              <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors relative">
-                <ShoppingBag size={20} />
-                <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-              </button>
-              <button className="md:hidden p-2 text-gray-600">
-                <Menu size={24} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar session={session} />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gray-50 pt-16 pb-20 lg:pt-24 lg:pb-28">
@@ -134,7 +113,7 @@ export default async function Home() {
                     </div>
 
                     {/* Like Button - Prevent link navigation when clicking like */}
-                    <LikeButton />
+                    <LikeButton productId={product.id} initialIsFavorited={favoriteIds.includes(product.id)} />
 
                     {/* Quick Add Overlay - Visible on desktop hover, hidden on mobile since the whole card is a link */}
                     <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex justify-center pb-6 hidden md:flex">

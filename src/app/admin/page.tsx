@@ -93,7 +93,12 @@ export default function AdminPage() {
 
   return (
     <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <a href="/" className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium flex items-center gap-2">
+          ← Back to Home
+        </a>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Upload Form */}

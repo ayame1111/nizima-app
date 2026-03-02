@@ -10,6 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  favorites     Product[] @relation("UserFavorites")
+  purchases     Order[]
+}
+
 model Product {
   id          String   @id @default(uuid())
   title       String
@@ -22,6 +34,7 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   Order       Order[]
+  favoritedBy User[]   @relation("UserFavorites")
 }
 
 model Order {
@@ -33,4 +46,6 @@ model Order {
   transactionId String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id])
 }
