@@ -210,6 +210,13 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     const faceMeshRef = useRef<any>(null);
     const cameraRef = useRef<Camera | null>(null);
 
+    // Reset focus when tracking is disabled
+    useEffect(() => {
+        if (!isMouseTracking && !isFaceTracking && modelRef.current?.internalModel?.focusController) {
+            modelRef.current.internalModel.focusController.focus(0, 0);
+        }
+    }, [isMouseTracking, isFaceTracking]);
+
     // Load FaceMesh Script
     useEffect(() => {
         if (showControls && !faceMeshLoaded) {
