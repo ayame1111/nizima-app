@@ -735,17 +735,46 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
         };
 
         const handlePointerMove = (e: PointerEvent) => {
-            if (!isDragging.current || !modelRef.current) return;
-            e.preventDefault();
+            // If dragging, prioritize drag logic
+            if (isDragging.current && modelRef.current) {
+                e.preventDefault();
+                const dx = e.clientX - lastMousePos.current.x;
+                const dy = e.clientY - lastMousePos.current.y;
+                modelRef.current.x += dx;
+                modelRef.current.y += dy;
+                lastMousePos.current = { x: e.clientX, y: e.clientY };
+                return;
+            }
+
+            // Look At Logic (Mouse Tracking)
+            // Only apply if NOT dragging and NOT touch (or if it is touch but only 1 finger and not dragging)
+            // But wait, 'pointermove' fires for touch too.
+            // If it is touch, we want to allow "Look At" only if it's a single finger moving?
+            // Actually, usually "Mouse Tracking" implies looking at the cursor/finger.
+            // So we should allow it unless we are doing a 2-finger pan/zoom.
             
-            // Handle simple drag
-            const dx = e.clientX - lastMousePos.current.x;
-            const dy = e.clientY - lastMousePos.current.y;
+            if (e.pointerType === 'touch' && e.getCoalescedEvents && e.getCoalescedEvents().length > 1) {
+                 return; // Ignore multi-touch for look-at
+            }
 
-            modelRef.current.x += dx;
-            modelRef.current.y += dy;
-
-            lastMousePos.current = { x: e.clientX, y: e.clientY };
+            if (!modelRef.current || !canvasRef.current) return;
+            // Existing mouse tracking logic logic...
+            // Note: The original logic was attached to window 'pointermove' in a separate useEffect.
+            // We should consolidate or ensure they don't conflict.
+            // The original logic is:
+            /*
+            const handleMouseMove = (event: PointerEvent) => {
+                if (!modelRef.current || !canvasRef.current) return;
+                const rect = canvasRef.current.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                const viewX = (x / rect.width) * 2 - 1;
+                const viewY = -((y / rect.height) * 2 - 1);
+                if (modelRef.current.internalModel && modelRef.current.internalModel.focusController) {
+                    modelRef.current.internalModel.focusController.focus(viewX, viewY);
+                }
+            };
+            */
         };
 
         const handlePointerUp = (e: PointerEvent) => {
@@ -754,12 +783,15 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             wrapper.style.cursor = 'grab';
         };
 
-        // Mobile Pinch Zoom Logic
+        // Mobile Pinch Zoom & Pan Logic
         let initialDistance = 0;
         let initialScale = 1;
+        let initialTouchPos = { x: 0, y: 0 };
+        let isTouchDragging = false;
 
         const handleTouchStart = (e: TouchEvent) => {
             if (e.touches.length === 2) {
+                // 2 Fingers: Zoom
                 e.preventDefault();
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -767,12 +799,20 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 if (modelRef.current) {
                     initialScale = modelRef.current.scale.x;
                 }
+                
+                // Also track center point for panning
+                const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                initialTouchPos = { x: centerX, y: centerY };
+                isTouchDragging = true;
             }
         };
 
         const handleTouchMove = (e: TouchEvent) => {
             if (e.touches.length === 2 && modelRef.current) {
                 e.preventDefault();
+                
+                // 1. Handle Zoom
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 const distance = Math.hypot(dx, dy);
@@ -782,6 +822,18 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     let newScale = initialScale * scaleFactor;
                     newScale = Math.max(0.05, Math.min(newScale, 10));
                     modelRef.current.scale.set(newScale);
+                }
+
+                // 2. Handle Pan (Move)
+                const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                
+                if (isTouchDragging) {
+                    const moveX = centerX - initialTouchPos.x;
+                    const moveY = centerY - initialTouchPos.y;
+                    modelRef.current.x += moveX;
+                    modelRef.current.y += moveY;
+                    initialTouchPos = { x: centerX, y: centerY };
                 }
             }
         };
