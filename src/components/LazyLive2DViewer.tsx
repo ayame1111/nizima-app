@@ -9,8 +9,10 @@ const Live2DViewer = dynamic(() => import('./Live2DViewer'), {
 
 interface Live2DViewerProps {
   modelUrl: string;
+  interactive?: boolean;
+  className?: string;
 }
 
-export default function LazyLive2DViewer({ modelUrl }: Live2DViewerProps) {
-  return <Live2DViewer modelUrl={modelUrl} />;
+export default function LazyLive2DViewer({ modelUrl, interactive, className }: Live2DViewerProps) {
+  return <Live2DViewer modelUrl={modelUrl} interactive={interactive} className={className} />;
 }
