@@ -167,16 +167,17 @@ export default function Live2DViewer({ modelUrl, interactive = true, className }
                 />
             </div>
 
-            {/* Controls Sidebar */}
-            <div className="w-full md:w-96 bg-[#1a1a1a] border-t md:border-t-0 md:border-l border-gray-800 h-[40vh] md:h-full overflow-y-auto flex-shrink-0 shadow-2xl z-50 text-gray-200 custom-scrollbar relative order-2 md:order-2">
-                 <Live2DCanvasControls 
-                    modelUrl={modelUrl} 
-                    // Note: We need to lift state up if we want controls separated, but for simplicity we keep it monolithic below.
-                    // Actually, the previous implementation was monolithic. Let's stick to that to avoid rewiring everything.
-                    // The structure above implies separation, but my code below is monolithic.
-                    // I will fix this structure by rendering NOTHING here and letting Live2DCanvas handle the sidebar internally if showControls is true.
-                 />
-            </div>
+            {/* Controls Sidebar - Handled inside Live2DCanvas now, but wait, my previous architecture had it separate? 
+                NO, Live2DCanvas renders the sidebar internally if showControls is true. 
+                Wait, in the layout above, I have a div for "Controls Sidebar". 
+                This means Live2DCanvas should ONLY render the canvas, and I should render the controls here?
+                
+                Actually, the cleanest way is to let Live2DCanvas handle EVERYTHING including the layout split if showControls is true.
+                BUT, I am defining the layout here in the parent.
+                
+                CORRECTION: I will remove the "Controls Sidebar" div from here and let Live2DCanvas render the full split view.
+                So Live2DCanvas will take the full width/height of the modal content area.
+            */}
           </div>
         </div>,
         document.body
@@ -185,16 +186,7 @@ export default function Live2DViewer({ modelUrl, interactive = true, className }
   );
 }
 
-// Temporary placeholder for the sidebar slot in the JSX above, 
-// BUT actually, Live2DCanvas below renders the sidebar itself.
-// So we should remove the sidebar slot from the parent and let Live2DCanvas handle it?
-// NO, the previous working version had the sidebar INSIDE Live2DCanvas.
-// Let's revert the parent JSX to just render Live2DCanvas full size, and Live2DCanvas will split itself.
-// Wait, my previous "responsive fix" was splitting them in the parent.
-// Let's stick to the monolithic approach which is easier to ensure works.
-
-// RE-WRITING Live2DViewer to use the monolithic approach correctly.
-
+// Re-defining Live2DCanvas to handle the split layout internally
 interface Live2DCanvasProps {
     modelUrl: string;
     interactive?: boolean;
@@ -386,10 +378,16 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     // Expressions
                     const exps: ModelExpression[] = [];
                     const settings = internal.settings || (model as any).settings;
-                    if (settings && settings.Expressions) {
-                         settings.Expressions.forEach((exp: any) => {
-                            exps.push({ name: exp.Name, file: exp.File });
-                        });
+                    if (settings) {
+                        if (Array.isArray(settings.Expressions)) {
+                             settings.Expressions.forEach((exp: any) => {
+                                exps.push({ name: exp.Name, file: exp.File });
+                            });
+                        } else if (Array.isArray(settings.expressions)) {
+                             settings.expressions.forEach((exp: any) => {
+                                exps.push({ name: exp.Name || exp.name, file: exp.File || exp.file });
+                            });
+                        }
                     }
                     setExpressions(exps);
                 }
@@ -425,7 +423,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
         };
     }, [modelUrl, interactive, showControls]);
 
-    // Handle Interactions
+    // Interactions
     useEffect(() => {
         if (!enableZoomPan || !canvasWrapperRef.current) return;
         const wrapper = canvasWrapperRef.current;
@@ -467,9 +465,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 lastMousePos.current = { x: e.clientX, y: e.clientY };
                 return;
             }
-            
             if (e.pointerType === 'touch' && (e as any).getCoalescedEvents && (e as any).getCoalescedEvents().length > 1) return;
-
             if (!modelRef.current || !canvasRef.current) return;
             const rect = canvasRef.current.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -487,7 +483,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             wrapper.style.cursor = 'grab';
         };
 
-        // Mobile Pinch Zoom Logic
+        // Mobile Pinch Zoom
         let initialDistance = 0;
         let initialScale = 1;
         let initialTouchPos = { x: 0, y: 0 };
@@ -554,10 +550,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
         };
     }, [enableZoomPan]);
 
-    // Dummy helper functions for state updates
+    // Helpers
     const updateModelParameter = (id: string, value: number, currentParams: ModelParameter[]) => {
-        // ... (Already implemented in effect, but simplified here for brevity as params are updated in effect)
-        // Actually, we need this for the slider controls below.
         if (modelRef.current && modelRef.current.internalModel) {
              try {
                  if (modelRef.current.internalModel.coreModel && modelRef.current.internalModel.coreModel.setParameterValueById) {
@@ -599,20 +593,64 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 )}
                 {error && <div className="absolute inset-0 flex items-center justify-center text-red-500 bg-red-900/20 p-4 z-50 pointer-events-none">{error}</div>}
                 
-                {/* Tracking Controls Overlay */}
+                {/* Tracking Controls Overlay - Restored Full UI */}
                 {showControls && (
                     <div 
                         className="absolute top-4 left-4 z-[9999] flex flex-col gap-2 pointer-events-auto max-w-[200px] md:max-w-none"
                         onPointerDown={(e) => e.stopPropagation()}
                         onMouseDown={(e) => e.stopPropagation()}
                     >
-                        {/* ... Controls UI ... */}
-                        <div className="flex items-center gap-2">
-                             <button className="bg-black/50 text-white p-2 rounded" onClick={() => setIsMouseTracking(!isMouseTracking)}>
-                                {isMouseTracking ? <Eye size={16} /> : <EyeOff size={16} />}
-                             </button>
-                             {/* ... */}
+                        <div className="flex items-center justify-between mb-1 pl-1">
+                            <div className="relative group">
+                                <div className="bg-black/50 hover:bg-black/80 text-white/70 hover:text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold cursor-help transition-colors border border-white/10 shadow-sm">
+                                    ?
+                                </div>
+                                <div className="absolute left-0 top-full mt-2 w-56 p-3 bg-black/90 backdrop-blur border border-white/10 rounded-lg shadow-xl text-[11px] text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[9999]">
+                                    <p className="font-bold text-white mb-1.5">How to use tracking:</p>
+                                    <ul className="list-disc pl-3 space-y-1">
+                                        <li><span className="text-green-400">Mouse:</span> Model follows cursor.</li>
+                                        <li><span className="text-blue-400">Face:</span> Uses webcam for head/expression.</li>
+                                        <li>Mobile uses front camera.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
+
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (isFaceTracking) setIsFaceTracking(false);
+                                setIsMouseTracking(!isMouseTracking);
+                            }}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-lg backdrop-blur-md cursor-pointer select-none pointer-events-auto ${
+                                isMouseTracking 
+                                    ? 'bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30' 
+                                    : 'bg-black/50 text-gray-400 border-gray-600 hover:bg-black/70'
+                            }`}
+                        >
+                            {isMouseTracking ? <Eye size={14} /> : <EyeOff size={14} />}
+                            <span>MOUSE TRACKING</span>
+                        </button>
+                        
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (isMouseTracking) setIsMouseTracking(false);
+                                setIsFaceTracking(!isFaceTracking);
+                            }}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-lg backdrop-blur-md cursor-pointer select-none pointer-events-auto ${
+                                isFaceTracking 
+                                    ? 'bg-blue-500/20 text-blue-400 border-blue-500/50 hover:bg-blue-500/30' 
+                                    : 'bg-black/50 text-gray-400 border-gray-600 hover:bg-black/70'
+                            }`}
+                        >
+                            {isFaceTracking ? <Video size={14} /> : <VideoOff size={14} />}
+                            <span>FACE TRACKING</span>
+                        </button>
+
+                        <video ref={videoRef} className="hidden" autoPlay playsInline muted></video>
                     </div>
                 )}
 
@@ -624,20 +662,66 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 <canvas ref={canvasRef} className="w-full h-full relative z-0 pointer-events-none" />
             </div>
 
-            {/* Controls Sidebar */}
+            {/* Controls Sidebar - Restored Full UI */}
             {showControls && (
                 <div className="w-full md:w-96 bg-[#1a1a1a] border-t md:border-t-0 md:border-l border-gray-800 h-[40vh] md:h-full overflow-y-auto flex-shrink-0 shadow-2xl z-50 text-gray-200 custom-scrollbar relative order-2 md:order-2">
-                    {/* Parameters UI */}
+                    
+                    {/* Expressions Section */}
+                    {expressions.length > 0 && (
+                        <div className="p-6 border-b border-gray-800">
+                             <div className="flex items-center justify-between mb-4">
+                                 <h3 className="font-bold text-white flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <Smile size={16} className="text-purple-400" />
+                                    <span>Expressions</span>
+                                </h3>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                            {expressions.map((exp) => {
+                                const isActive = activeExpressions.includes(exp.name);
+                                return (
+                                    <button
+                                        key={exp.name}
+                                        onClick={() => handleExpression(exp.name)}
+                                        className={`
+                                            text-xs py-2 px-3 rounded transition-all text-left truncate flex items-center justify-between group
+                                            ${isActive 
+                                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/20 ring-1 ring-purple-400' 
+                                                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'}
+                                        `}
+                                    >
+                                        <span className="truncate">{exp.name}</span>
+                                        {isActive && <div className="w-1.5 h-1.5 rounded-full bg-white shadow-sm animate-pulse" />}
+                                    </button>
+                                );
+                            })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Parameters Section */}
                     <div className="p-6">
-                        <h3 className="font-bold text-white mb-4">Parameters</h3>
-                        <div className="space-y-4">
-                            {sortedParameters.map(p => (
-                                <div key={p.id}>
+                        <h3 className="font-bold text-white mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+                            <Play size={16} className="text-blue-400" />
+                            <span>Parameters</span>
+                            <span className="text-[10px] font-normal text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">{sortedParameters.length}</span>
+                        </h3>
+                        
+                        <div className="space-y-5">
+                            {sortedParameters.map((param) => (
+                                <div key={param.id} className="space-y-1.5">
                                     <div className="flex justify-between text-xs text-gray-400">
-                                        <span>{p.name}</span>
-                                        <span>{p.value.toFixed(2)}</span>
+                                        <label className="font-medium truncate max-w-[200px] text-gray-300" title={param.id}>{param.id}</label>
+                                        <span className="font-mono text-blue-300">{param.value.toFixed(2)}</span>
                                     </div>
-                                    <input type="range" min={p.min} max={p.max} step={0.01} value={p.value} onChange={(e) => handleParamChange(p.id, parseFloat(e.target.value))} className="w-full" />
+                                    <input
+                                        type="range"
+                                        min={param.min}
+                                        max={param.max}
+                                        step={0.01}
+                                        value={parameters.find(p => p.id === param.id)?.value ?? param.value}
+                                        onChange={(e) => handleParamChange(param.id, parseFloat(e.target.value))}
+                                        className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -648,7 +732,4 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     );
 }
 
-// Dummy component to satisfy the "Live2DCanvasControls" reference in the first component
-// In reality, we are keeping the monolithic structure, so the first component's render of "Live2DCanvas" handles everything.
-// I need to fix the first component to NOT try to render "Live2DCanvasControls" separately, but just render "Live2DCanvas" which includes the sidebar.
 function Live2DCanvasControls({ modelUrl }: { modelUrl: string }) { return null; }
