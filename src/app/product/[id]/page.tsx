@@ -23,8 +23,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] p-4 md:p-8 text-gray-100 font-sans">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#1a1a1a] p-4 md:p-8 text-gray-100 font-sans overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
         <Link href="/" className="text-gray-400 hover:text-white mb-6 inline-flex items-center transition-colors">
           <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -32,16 +32,16 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           Back to Marketplace
         </Link>
         
-        <div className="bg-[#252525] rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-5 border border-gray-800">
+        <div className="bg-[#252525] rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-5 border border-gray-800 w-full">
           {/* Left: Preview (Larger area) */}
-          <div className="lg:col-span-3 aspect-square lg:aspect-auto bg-[#1e1e1e] relative min-h-[600px] border-b lg:border-b-0 lg:border-r border-gray-800 flex items-center justify-center">
+          <div className="lg:col-span-3 aspect-square lg:aspect-auto bg-[#1e1e1e] relative h-[50vh] lg:h-auto lg:min-h-[600px] border-b lg:border-b-0 lg:border-r border-gray-800 flex items-center justify-center w-full">
             {product.previewUrl ? (
-              <LazyLive2DViewer modelUrl={product.previewUrl} />
+              <LazyLive2DViewer modelUrl={product.previewUrl} className="w-full h-full" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-500">No Preview Available</div>
             )}
-            <div className="absolute bottom-6 left-0 right-0 flex justify-center pointer-events-none">
-              <span className="bg-black/60 backdrop-blur-md px-5 py-2.5 rounded-full text-sm font-medium text-white/90 shadow-lg border border-white/10">
+            <div className="absolute bottom-6 left-0 right-0 flex justify-center pointer-events-none px-4 text-center">
+              <span className="bg-black/60 backdrop-blur-md px-5 py-2.5 rounded-full text-xs md:text-sm font-medium text-white/90 shadow-lg border border-white/10">
                 Click to Interact & Control
               </span>
             </div>
