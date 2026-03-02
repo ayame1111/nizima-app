@@ -724,17 +724,21 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
         };
 
         const handlePointerDown = (e: PointerEvent) => {
-            if (e.button !== 0 && e.button !== 1) return;
+            // Only allow dragging with Right Click (button 2) or Touch (button 0 + type touch)
+            const isTouch = e.pointerType === 'touch';
+            if (!isTouch && e.button !== 2) return;
+            
             isDragging.current = true;
             lastMousePos.current = { x: e.clientX, y: e.clientY };
             wrapper.setPointerCapture(e.pointerId);
-            wrapper.style.cursor = 'grabbing';
+            wrapper.style.cursor = isTouch ? 'grabbing' : 'grabbing';
         };
 
         const handlePointerMove = (e: PointerEvent) => {
             if (!isDragging.current || !modelRef.current) return;
             e.preventDefault();
             
+            // Handle simple drag
             const dx = e.clientX - lastMousePos.current.x;
             const dy = e.clientY - lastMousePos.current.y;
 
@@ -750,11 +754,49 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             wrapper.style.cursor = 'grab';
         };
 
+        // Mobile Pinch Zoom Logic
+        let initialDistance = 0;
+        let initialScale = 1;
+
+        const handleTouchStart = (e: TouchEvent) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                initialDistance = Math.hypot(dx, dy);
+                if (modelRef.current) {
+                    initialScale = modelRef.current.scale.x;
+                }
+            }
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (e.touches.length === 2 && modelRef.current) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const distance = Math.hypot(dx, dy);
+                
+                if (initialDistance > 0) {
+                    const scaleFactor = distance / initialDistance;
+                    let newScale = initialScale * scaleFactor;
+                    newScale = Math.max(0.05, Math.min(newScale, 10));
+                    modelRef.current.scale.set(newScale);
+                }
+            }
+        };
+
         wrapper.addEventListener('wheel', handleWheel, { passive: false });
         wrapper.addEventListener('pointerdown', handlePointerDown);
         wrapper.addEventListener('pointermove', handlePointerMove);
         wrapper.addEventListener('pointerup', handlePointerUp);
         wrapper.addEventListener('pointerleave', handlePointerUp);
+        wrapper.addEventListener('contextmenu', (e) => e.preventDefault()); // Disable context menu for right click drag
+        
+        // Touch events for pinch zoom
+        wrapper.addEventListener('touchstart', handleTouchStart, { passive: false });
+        wrapper.addEventListener('touchmove', handleTouchMove, { passive: false });
+
         wrapper.style.cursor = 'grab';
 
         return () => {
@@ -763,6 +805,9 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             wrapper.removeEventListener('pointermove', handlePointerMove);
             wrapper.removeEventListener('pointerup', handlePointerUp);
             wrapper.removeEventListener('pointerleave', handlePointerUp);
+            wrapper.removeEventListener('contextmenu', (e) => e.preventDefault());
+            wrapper.removeEventListener('touchstart', handleTouchStart);
+            wrapper.removeEventListener('touchmove', handleTouchMove);
             wrapper.style.cursor = '';
         };
     }, [enableZoomPan]);
