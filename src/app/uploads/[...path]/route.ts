@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import mime from 'mime-types'; // You might need to install this: npm i mime-types @types/mime-types
+import mime from 'mime-types';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  props: { params: Promise<{ path: string[] }> }
 ) {
-  // Await params because in Next.js 15+ it might be a promise (safe for 14 too)
-  const resolvedParams = await params;
-  const filePath = resolvedParams.path.join('/');
+  const params = await props.params;
+  const filePath = params.path.join('/');
   
   // Construct the absolute path to the file in the persistent volume
   // In Docker/Coolify, we mapped this to /app/public/uploads
