@@ -1,7 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import LazyLive2DViewer from '@/components/LazyLive2DViewer';
-import { ShoppingBag, Search, Menu, ArrowRight, Star, Heart } from 'lucide-react';
+import LikeButton from '@/components/LikeButton';
+import { ShoppingBag, Search, Menu, ArrowRight } from 'lucide-react';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -133,15 +134,7 @@ export default async function Home() {
                     </div>
 
                     {/* Like Button - Prevent link navigation when clicking like */}
-                    <button 
-                        className="absolute top-3 right-3 z-20 p-2 bg-white/90 rounded-full text-gray-400 hover:text-red-500 hover:bg-white transition-all shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                        }}
-                    >
-                        <Heart size={16} />
-                    </button>
+                    <LikeButton />
 
                     {/* Quick Add Overlay - Visible on desktop hover, hidden on mobile since the whole card is a link */}
                     <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex justify-center pb-6 hidden md:flex">
