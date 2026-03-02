@@ -166,18 +166,6 @@ export default function Live2DViewer({ modelUrl, interactive = true, className }
                     className="w-full h-full"
                 />
             </div>
-
-            {/* Controls Sidebar - Handled inside Live2DCanvas now, but wait, my previous architecture had it separate? 
-                NO, Live2DCanvas renders the sidebar internally if showControls is true. 
-                Wait, in the layout above, I have a div for "Controls Sidebar". 
-                This means Live2DCanvas should ONLY render the canvas, and I should render the controls here?
-                
-                Actually, the cleanest way is to let Live2DCanvas handle EVERYTHING including the layout split if showControls is true.
-                BUT, I am defining the layout here in the parent.
-                
-                CORRECTION: I will remove the "Controls Sidebar" div from here and let Live2DCanvas render the full split view.
-                So Live2DCanvas will take the full width/height of the modal content area.
-            */}
           </div>
         </div>,
         document.body
@@ -279,6 +267,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     }
                 });
                 
+                // FORCE RESET focus on load so it doesn't default to looking somewhere
                 if (model.internalModel && model.internalModel.focusController) {
                      model.internalModel.focusController.focus(0, 0);
                 }
@@ -335,61 +324,167 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     });
                 }
 
-                // Extract Parameters
+                // Extract Parameters - ROBUST EXTRACTION
                 if (showControls && model.internalModel) {
                     const internal = model.internalModel as any;
                     const core = internal.coreModel as any;
                     const params: ModelParameter[] = [];
                     
                     try {
-                        if (core && core.parameters && core.parameters.ids) {
-                             const count = core.parameters.count;
-                             for (let i = 0; i < count; i++) {
-                                 const id = core.parameters.ids[i];
+                        // Strategy 1: Cubism 4+ Core (Standard & Emscripten)
+                        if (core && core.parameters) {
+                            const ids = core.parameters.ids;
+                            const values = core.parameters.values;
+                            const min = core.parameters.minimumValues;
+                            const max = core.parameters.maximumValues;
+                            const def = core.parameters.defaultValues;
+                            const count = core.parameters.count;
+
+                            for (let i = 0; i < count; i++) {
+                                const getVal = (arr: any, idx: number) => {
+                                    if (!arr) return 0;
+                                    if (typeof arr[idx] !== 'undefined') return arr[idx];
+                                    if (typeof arr.at === 'function') return arr.at(idx);
+                                    if (typeof arr.get === 'function') return arr.get(idx);
+                                    return 0;
+                                };
+
+                                const getStr = (arr: any, idx: number) => {
+                                    if (!arr) return null;
+                                    if (typeof arr[idx] !== 'undefined') return arr[idx];
+                                    if (typeof arr.at === 'function') return arr.at(idx);
+                                    if (typeof arr.get === 'function') return arr.get(idx);
+                                    return null;
+                                };
+
+                                const id = getStr(ids, i);
+                                
+                                if (id) {
+                                    params.push({
+                                        id,
+                                        value: getVal(values, i),
+                                        min: getVal(min, i),
+                                        max: getVal(max, i),
+                                        defaultValue: getVal(def, i),
+                                        name: id
+                                    });
+                                }
+                            }
+                        } 
+                        // Strategy 2: Cubism 2 Core
+                        else if (core && typeof core.getParamCount === 'function' && typeof core.getParamID === 'function') {
+                            const count = core.getParamCount();
+                            for (let i = 0; i < count; i++) {
+                                const id = core.getParamID(i);
+                                const value = core.getParamFloat(i);
+                                const max = (typeof core.getParamMax === 'function') ? core.getParamMax(i) : 1;
+                                const min = (typeof core.getParamMin === 'function') ? core.getParamMin(i) : 0;
+                                const def = value; 
+
+                                params.push({
+                                    id,
+                                    value,
+                                    min,
+                                    max,
+                                    defaultValue: def,
+                                    name: id
+                                });
+                            }
+                        }
+                        // Strategy 3: Internal Model Cached Ids
+                        else if (core && core._parameterIds) {
+                             const ids = core._parameterIds;
+                             const count = ids.length;
+                             const values = core._parameterValues;
+                             const max = core._parameterMaximumValues;
+                             const min = core._parameterMinimumValues;
+                             const def = core._parameterDefaultValues;
+
+                             for(let i=0; i<count; i++) {
                                  params.push({
-                                     id,
-                                     value: core.parameters.values[i],
-                                     min: core.parameters.minimumValues[i],
-                                     max: core.parameters.maximumValues[i],
-                                     defaultValue: core.parameters.defaultValues[i],
-                                     name: id
+                                     id: ids[i],
+                                     value: values ? values[i] : 0,
+                                     min: min ? min[i] : 0,
+                                     max: max ? max[i] : 1,
+                                     defaultValue: def ? def[i] : (values ? values[i] : 0),
+                                     name: ids[i]
                                  });
                              }
-                        } else if (typeof internal.getParameterCount === 'function') {
-                             const count = internal.getParameterCount();
+                        } 
+                        else if (internal._parameterIds) {
+                             const ids = internal._parameterIds;
+                             const count = ids.length;
+                             
                              for(let i=0; i<count; i++) {
-                                 const id = internal.getParameterId(i);
                                  params.push({
-                                     id,
+                                     id: ids[i],
                                      value: internal.getParameterValueByIndex(i),
                                      min: internal.getParameterMinimumValueByIndex(i),
                                      max: internal.getParameterMaximumValueByIndex(i),
                                      defaultValue: internal.getParameterDefaultValueByIndex(i),
-                                     name: id
+                                     name: ids[i]
                                  });
                              }
+                        }   
+                        // Strategy 4: High-Level SDK Methods
+                        else {
+                            if (typeof internal.getParameterCount === 'function') {
+                                const count = internal.getParameterCount();
+                                for(let i=0; i<count; i++) {
+                                    const id = internal.getParameterId(i);
+                                    params.push({
+                                        id: id,
+                                        value: internal.getParameterValueByIndex(i),
+                                        min: internal.getParameterMinimumValueByIndex(i),
+                                        max: internal.getParameterMaximumValueByIndex(i),
+                                        defaultValue: internal.getParameterDefaultValueByIndex(i),
+                                        name: id
+                                    });
+                                }
+                            }
                         }
                     } catch (e) {
                         console.error("Failed to extract parameters:", e);
                     }
                     
                     setParameters(params);
+                    
+                    if (params.length === 0) {
+                        const info = {
+                            modelType: model.constructor.name,
+                            internalModelType: internal ? internal.constructor.name : 'N/A',
+                            hasCore: !!core,
+                            coreKeys: core ? Object.keys(core) : [],
+                            internalKeys: internal ? Object.keys(internal) : [],
+                            coreParams: core && core.parameters ? 'Present' : 'Missing',
+                        };
+                        setDebugInfo(JSON.stringify(info, null, 2));
+                    }
 
-                    // Expressions
+                    // Extract Expressions
                     const exps: ModelExpression[] = [];
                     const settings = internal.settings || (model as any).settings;
+                    
                     if (settings) {
                         if (Array.isArray(settings.Expressions)) {
                              settings.Expressions.forEach((exp: any) => {
                                 exps.push({ name: exp.Name, file: exp.File });
                             });
-                        } else if (Array.isArray(settings.expressions)) {
+                        }
+                        else if (Array.isArray(settings.expressions)) {
                              settings.expressions.forEach((exp: any) => {
                                 exps.push({ name: exp.Name || exp.name, file: exp.File || exp.file });
                             });
                         }
+                        else if (Array.isArray(settings.expressions_list)) {
+                             settings.expressions_list.forEach((exp: any) => {
+                                exps.push({ name: exp.name, file: exp.file });
+                            });
+                        }
                     }
-                    setExpressions(exps);
+
+                    const uniqueExps = Array.from(new Map(exps.map(item => [item.name, item])).values());
+                    setExpressions(uniqueExps);
                 }
 
                 setLoading(false);
@@ -465,7 +560,13 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 lastMousePos.current = { x: e.clientX, y: e.clientY };
                 return;
             }
+            
+            // Only look at pointer if not multi-touch
             if (e.pointerType === 'touch' && (e as any).getCoalescedEvents && (e as any).getCoalescedEvents().length > 1) return;
+
+            // Only look if Mouse Tracking is enabled
+            if (!isMouseTracking) return;
+
             if (!modelRef.current || !canvasRef.current) return;
             const rect = canvasRef.current.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -548,18 +649,42 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             wrapper.removeEventListener('touchmove', handleTouchMove);
             wrapper.style.cursor = '';
         };
-    }, [enableZoomPan]);
+    }, [enableZoomPan, isMouseTracking]); // Added isMouseTracking to deps
 
     // Helpers
     const updateModelParameter = (id: string, value: number, currentParams: ModelParameter[]) => {
         if (modelRef.current && modelRef.current.internalModel) {
-             try {
-                 if (modelRef.current.internalModel.coreModel && modelRef.current.internalModel.coreModel.setParameterValueById) {
-                     modelRef.current.internalModel.coreModel.setParameterValueById(id, value);
-                 } else if (modelRef.current.internalModel.setParameterValueById) {
-                     modelRef.current.internalModel.setParameterValueById(id, value);
-                 }
-             } catch(e) {}
+             // ... (Same robust update logic)
+             const index = currentParams.findIndex(p => p.id === id);
+             if (index !== -1) {
+                // Strategy 1
+                if (modelRef.current.internalModel.coreModel && 
+                    modelRef.current.internalModel.coreModel.parameters && 
+                    modelRef.current.internalModel.coreModel.parameters.values) {
+                     const values = modelRef.current.internalModel.coreModel.parameters.values;
+                     if (typeof values[index] !== 'undefined') values[index] = value;
+                     else if (typeof values.set === 'function') values.set(index, value);
+                } 
+                // Strategy 2: Core Internal Arrays
+                else if (modelRef.current.internalModel.coreModel && 
+                         modelRef.current.internalModel.coreModel._parameterValues) {
+                     const values = modelRef.current.internalModel.coreModel._parameterValues;
+                     if (values.length > index) values[index] = value;
+                }
+                // Strategy 3: Cubism 2
+                else if (modelRef.current.internalModel.coreModel && 
+                         typeof modelRef.current.internalModel.coreModel.setParamFloat === 'function') {
+                    try { modelRef.current.internalModel.coreModel.setParamFloat(index, value); } catch(e) {}
+                }
+                // Strategy 4: High-Level
+                else {
+                    try {
+                        if (modelRef.current.internalModel.setParameterValueByIndex) {
+                            modelRef.current.internalModel.setParameterValueByIndex(index, value);
+                        }
+                    } catch(e) {}
+                }
+             }
         }
     };
 
@@ -593,7 +718,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 )}
                 {error && <div className="absolute inset-0 flex items-center justify-center text-red-500 bg-red-900/20 p-4 z-50 pointer-events-none">{error}</div>}
                 
-                {/* Tracking Controls Overlay - Restored Full UI */}
+                {/* Tracking Controls Overlay */}
                 {showControls && (
                     <div 
                         className="absolute top-4 left-4 z-[9999] flex flex-col gap-2 pointer-events-auto max-w-[200px] md:max-w-none"
@@ -662,7 +787,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 <canvas ref={canvasRef} className="w-full h-full relative z-0 pointer-events-none" />
             </div>
 
-            {/* Controls Sidebar - Restored Full UI */}
+            {/* Controls Sidebar */}
             {showControls && (
                 <div className="w-full md:w-96 bg-[#1a1a1a] border-t md:border-t-0 md:border-l border-gray-800 h-[40vh] md:h-full overflow-y-auto flex-shrink-0 shadow-2xl z-50 text-gray-200 custom-scrollbar relative order-2 md:order-2">
                     
@@ -706,6 +831,18 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                             <span className="text-[10px] font-normal text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">{sortedParameters.length}</span>
                         </h3>
                         
+                        {sortedParameters.length === 0 && !loading && (
+                            <div className="text-gray-500 text-sm text-center py-4 bg-gray-800/50 rounded-lg">
+                                No parameters found.<br/>
+                                <span className="text-xs opacity-70">Check console for extraction errors.</span>
+                                {debugInfo && (
+                                    <pre className="text-[10px] text-left mt-2 overflow-x-auto p-2 bg-black/50 rounded text-gray-400">
+                                        {debugInfo}
+                                    </pre>
+                                )}
+                            </div>
+                        )}
+
                         <div className="space-y-5">
                             {sortedParameters.map((param) => (
                                 <div key={param.id} className="space-y-1.5">
@@ -732,4 +869,6 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     );
 }
 
-function Live2DCanvasControls({ modelUrl }: { modelUrl: string }) { return null; }
+// Dummy component to satisfy the "Live2DCanvasControls" reference in the first component
+// But actually, we removed the reference in the first component now.
+// So we can remove this dummy component.
