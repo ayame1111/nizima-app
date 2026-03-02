@@ -201,6 +201,16 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     const [activeExpressions, setActiveExpressions] = useState<string[]>([]);
     const [expressionCache, setExpressionCache] = useState<Record<string, any>>({});
     const [faceMeshLoaded, setFaceMeshLoaded] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            const userAgent = typeof window.navigator === "undefined" ? "" : navigator.userAgent;
+            const mobile = Boolean(userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i));
+            setIsMobile(mobile);
+        };
+        checkMobile();
+    }, []);
     
     // Zoom/Pan State
     const isDragging = useRef(false);
@@ -740,7 +750,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                                 <div className="absolute left-0 top-full mt-2 w-56 p-3 bg-black/90 backdrop-blur border border-white/10 rounded-lg shadow-xl text-[11px] text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[9999]">
                                     <p className="font-bold text-white mb-1.5">How to use tracking:</p>
                                     <ul className="list-disc pl-3 space-y-1">
-                                        <li><span className="text-green-400">Mouse:</span> Model follows cursor.</li>
+                                        {!isMobile && <li><span className="text-green-400">Mouse:</span> Model follows cursor.</li>}
                                         <li><span className="text-blue-400">Face:</span> Uses webcam for head/expression.</li>
                                         <li>Mobile uses front camera.</li>
                                     </ul>
@@ -748,22 +758,24 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                             </div>
                         </div>
 
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (isFaceTracking) setIsFaceTracking(false);
-                                setIsMouseTracking(!isMouseTracking);
-                            }}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-lg backdrop-blur-md cursor-pointer select-none pointer-events-auto ${
-                                isMouseTracking 
-                                    ? 'bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30' 
-                                    : 'bg-black/50 text-gray-400 border-gray-600 hover:bg-black/70'
-                            }`}
-                        >
-                            {isMouseTracking ? <Eye size={14} /> : <EyeOff size={14} />}
-                            <span>MOUSE TRACKING</span>
-                        </button>
+                        {!isMobile && (
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (isFaceTracking) setIsFaceTracking(false);
+                                    setIsMouseTracking(!isMouseTracking);
+                                }}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-lg backdrop-blur-md cursor-pointer select-none pointer-events-auto ${
+                                    isMouseTracking 
+                                        ? 'bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30' 
+                                        : 'bg-black/50 text-gray-400 border-gray-600 hover:bg-black/70'
+                                }`}
+                            >
+                                {isMouseTracking ? <Eye size={14} /> : <EyeOff size={14} />}
+                                <span>MOUSE TRACKING</span>
+                            </button>
+                        )}
                         
                         <button
                             onClick={(e) => {
