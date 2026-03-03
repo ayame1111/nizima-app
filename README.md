@@ -1,4 +1,4 @@
-# VTuber Marketplace
+# Avatar Atelier
 
 A Next.js application for buying and selling Live2D models.
 

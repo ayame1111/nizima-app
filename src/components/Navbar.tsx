@@ -14,13 +14,13 @@ export default function Navbar({ session }: { session: any }) {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-8">
               <Link href="/" className="flex items-center space-x-2 group">
-                <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:shadow-blue-500/30 transition-all duration-300">
-                  V
-                </div>
-                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
-                  VTuber Marketplace
-                </span>
-              </Link>
+                            <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:shadow-blue-500/30 transition-all duration-300">
+                                A
+                            </div>
+                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+                                Avatar Atelier
+                            </span>
+                        </Link>
               <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-500">
                 <Link href="#" className="hover:text-gray-900 transition-colors">Marketplace</Link>
                 <Link href="#" className="hover:text-gray-900 transition-colors">Creators</Link>

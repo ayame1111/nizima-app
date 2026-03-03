@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VTuber Marketplace",
+  title: "Avatar Atelier",
   description: "Buy and sell Live2D models for VTubing",
 };
 

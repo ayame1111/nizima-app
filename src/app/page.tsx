@@ -53,9 +53,9 @@ export default async function Home() {
             New Models Added Weekly
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-gray-900 leading-tight">
-            Find Your Perfect <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">VTuber Model</span>
-          </h1>
+                    Find Your Perfect <br/>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Avatar</span>
+                </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
             Discover high-quality, ready-to-use Live2D models from talented artists. Start your VTubing journey today.
           </p>
@@ -166,8 +166,8 @@ export default async function Home() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                 <div className="col-span-1 md:col-span-1">
                     <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">V</div>
-                        <span className="text-lg font-bold text-gray-900">VTuber Marketplace</span>
+                        <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">A</div>
+                        <span className="text-lg font-bold text-gray-900">Avatar Atelier</span>
                     </div>
                     <p className="text-gray-500 text-sm leading-relaxed">
                         The premier marketplace for high-quality Live2D models. empowering VTubers and creators worldwide.
@@ -203,7 +203,7 @@ export default async function Home() {
                 </div>
             </div>
             <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
-                <p>&copy; 2024 VTuber Marketplace. All rights reserved.</p>
+                <p>&copy; 2024 Avatar Atelier. All rights reserved.</p>
                 <div className="flex gap-6">
                     <Link href="#" className="hover:text-gray-600">Twitter</Link>
                     <Link href="#" className="hover:text-gray-600">Discord</Link>
