@@ -357,6 +357,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
 
                 faceMeshRef.current = faceMesh;
 
+                if (!videoRef.current) return;
+
                 const camera = new Camera(videoRef.current, {
                     onFrame: async () => {
                         if (videoRef.current) {
