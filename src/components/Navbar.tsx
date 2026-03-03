@@ -54,13 +54,15 @@ export default function Navbar({ session }: { session: any }) {
                       </button>
                       
                       {/* Dropdown */}
-                      <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-50">
-                          <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">My Account</Link>
-                          {/* <Link href="/favorites" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Favorites</Link> */}
-                          <div className="border-t border-gray-100 my-1"></div>
-                          <Link href="/api/auth/signout" className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                              <LogOut size={14} /> Sign Out
-                          </Link>
+                      <div className="absolute right-0 top-full pt-2 w-48 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-50">
+                          <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-2">
+                            <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">My Account</Link>
+                            {/* <Link href="/favorites" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Favorites</Link> */}
+                            <div className="border-t border-gray-100 my-1"></div>
+                            <Link href="/api/auth/signout" className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                <LogOut size={14} /> Sign Out
+                            </Link>
+                          </div>
                       </div>
                   </div>
               ) : (
