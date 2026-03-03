@@ -239,6 +239,156 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
         }
     }, [showControls, faceMeshLoaded]);
 
+    // Face Tracking Logic
+    useEffect(() => {
+        if (!isFaceTracking || !faceMeshLoaded || !videoRef.current || !modelRef.current) {
+            if (cameraRef.current) {
+                cameraRef.current.stop();
+                cameraRef.current = null;
+            }
+            return;
+        }
+
+        const startTracking = async () => {
+            try {
+                // @ts-ignore
+                const faceMesh = new window.FaceMesh({
+                    locateFile: (file: string) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+                    }
+                });
+
+                faceMesh.setOptions({
+                    maxNumFaces: 1,
+                    refineLandmarks: true,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+
+                faceMesh.onResults((results: any) => {
+                    if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) return;
+                    
+                    const landmarks = results.multiFaceLandmarks[0];
+                    const solved = Kalidokit.Face.solve(landmarks, {
+                        runtime: 'mediapipe',
+                        video: videoRef.current
+                    });
+
+                    if (solved && modelRef.current) {
+                        const core = modelRef.current.internalModel.coreModel;
+                        
+                        // Helper to safely set parameter
+                        const setParam = (id: string, value: number) => {
+                             // Using the existing updateModelParameter logic via a direct call would be better
+                             // but we can't easily call that from here without refactoring.
+                             // So we'll duplicate the robust setting logic briefly or expose it.
+                             // Actually, let's just use the main params array for "current state" isn't efficient for real-time.
+                             // We should interact directly with the model.
+                             
+                             if (modelRef.current.internalModel && modelRef.current.internalModel.focusController) {
+                                 // Bypass focus controller for head tracking if needed, or mix it?
+                                 // Actually Kalidokit output is -1 to 1 usually, or 0 to 1.
+                             }
+                        };
+                        
+                        // Map Kalidokit results to Live2D parameters
+                        // Support both Cubism 4 (Param...) and Cubism 2 (PARAM_...) styles
+                        const solvedHead = solved.head.degrees;
+                        const solvedEye = solved.eye;
+                        const solvedMouth = solved.mouth.shape;
+
+                        const targets = [
+                            { id: 'ParamAngleX', alt: 'PARAM_ANGLE_X', value: solvedHead.y }, // Inverted? Live2D X is usually head turning left/right
+                            { id: 'ParamAngleY', alt: 'PARAM_ANGLE_Y', value: solvedHead.x },
+                            { id: 'ParamAngleZ', alt: 'PARAM_ANGLE_Z', value: solvedHead.z },
+                            { id: 'ParamEyeLOpen', alt: 'PARAM_EYE_L_OPEN', value: solvedEye.l },
+                            { id: 'ParamEyeROpen', alt: 'PARAM_EYE_R_OPEN', value: solvedEye.r },
+                            { id: 'ParamEyeBallX', alt: 'PARAM_EYE_BALL_X', value: solved.pupil.x },
+                            { id: 'ParamEyeBallY', alt: 'PARAM_EYE_BALL_Y', value: solved.pupil.y },
+                            { id: 'ParamMouthOpenY', alt: 'PARAM_MOUTH_OPEN_Y', value: solvedMouth.A },
+                            { id: 'ParamMouthForm', alt: 'PARAM_MOUTH_FORM', value: solvedMouth.I + solvedMouth.U },
+                            { id: 'ParamBodyAngleX', alt: 'PARAM_BODY_ANGLE_X', value: solvedHead.y * 0.5 },
+                            { id: 'ParamBodyAngleY', alt: 'PARAM_BODY_ANGLE_Y', value: solvedHead.x * 0.5 },
+                            { id: 'ParamBodyAngleZ', alt: 'PARAM_BODY_ANGLE_Z', value: solvedHead.z * 0.5 },
+                        ];
+
+                        const internal = modelRef.current.internalModel;
+
+                        targets.forEach(({ id, alt, value }) => {
+                             // Try standard ID first, then alt ID
+                             let targetId = id;
+                             
+                             // Simple check if parameter exists (optional optimization)
+                             // We can just try setting both if we don't want to lookup indices
+                             
+                             try {
+                                 // Cubism 4 standard API (Core)
+                                 if (internal.coreModel && internal.coreModel.setParameterValueById) {
+                                     internal.coreModel.setParameterValueById(id, value);
+                                     internal.coreModel.setParameterValueById(alt, value);
+                                 } 
+                                 // Cubism 2 standard API (Core)
+                                 else if (internal.coreModel && internal.coreModel.setParamFloat) {
+                                     // Cubism 2 requires index lookup usually, but some wrappers provide setParamFloat with ID?
+                                     // Usually: internal.coreModel.getParamIndex(id) -> setParamFloat(index, value)
+                                     
+                                     let idx = -1;
+                                     if (internal.coreModel.getParamIndex) {
+                                         idx = internal.coreModel.getParamIndex(id);
+                                         if (idx === -1) idx = internal.coreModel.getParamIndex(alt);
+                                     }
+                                     
+                                     if (idx !== -1) {
+                                         internal.coreModel.setParamFloat(idx, value);
+                                     }
+                                 }
+                                 // High level API (Pixi-Live2D-Display wrapper)
+                                 else if (internal.setParameterValueById) {
+                                     internal.setParameterValueById(id, value);
+                                     internal.setParameterValueById(alt, value);
+                                 }
+                             } catch(e) {}
+                        });
+                        
+                        // Also update React state for UI sliders? No, that causes too many re-renders.
+                        // We only update the visual model.
+                    }
+                });
+
+                faceMeshRef.current = faceMesh;
+
+                const camera = new Camera(videoRef.current, {
+                    onFrame: async () => {
+                        if (videoRef.current) {
+                            await faceMesh.send({ image: videoRef.current });
+                        }
+                    },
+                    width: 640,
+                    height: 480
+                });
+
+                cameraRef.current = camera;
+                await camera.start();
+
+            } catch (err) {
+                console.error("Failed to start face tracking:", err);
+            }
+        };
+
+        startTracking();
+
+        return () => {
+            if (cameraRef.current) {
+                cameraRef.current.stop();
+                cameraRef.current = null;
+            }
+            if (faceMeshRef.current) {
+                faceMeshRef.current.close();
+                faceMeshRef.current = null;
+            }
+        };
+    }, [isFaceTracking, faceMeshLoaded]);
+    
     // Initialize PIXI
     useEffect(() => {
         let mounted = true;
