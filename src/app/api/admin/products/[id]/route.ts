@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
+import { auth } from '@/auth';
 
 // Simple API Key check for demo purposes
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'admin-secret';
@@ -12,7 +13,13 @@ export async function DELETE(
 ) {
   try {
     const authHeader = req.headers.get('authorization');
-    if (authHeader !== `Bearer ${ADMIN_API_KEY}`) {
+    const session = await auth();
+
+    let isSystemAdmin = authHeader === `Bearer ${ADMIN_API_KEY}`;
+    let isSessionAdmin = session?.user?.role === 'ADMIN';
+    let isCreator = session?.user?.role === 'CREATOR';
+
+    if (!isSystemAdmin && !isSessionAdmin && !isCreator) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -24,6 +31,14 @@ export async function DELETE(
 
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    // Check ownership if not admin
+    if (isCreator && !isSystemAdmin && !isSessionAdmin) {
+        // @ts-ignore
+        if (product.creatorId !== session?.user?.id) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+        }
     }
 
     // Delete files

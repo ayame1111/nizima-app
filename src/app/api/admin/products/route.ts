@@ -4,17 +4,31 @@ import fs from 'fs';
 import path from 'path';
 import AdmZip from 'adm-zip';
 import { v4 as uuidv4 } from 'uuid';
+import { auth } from '@/auth';
 
 // Simple API Key check for demo purposes
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'admin-secret';
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization');
-  if (authHeader !== `Bearer ${ADMIN_API_KEY}`) {
+  const session = await auth();
+  
+  let isSystemAdmin = authHeader === `Bearer ${ADMIN_API_KEY}`;
+  let isSessionAdmin = session?.user?.role === 'ADMIN';
+  let isCreator = session?.user?.role === 'CREATOR';
+
+  if (!isSystemAdmin && !isSessionAdmin && !isCreator) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  let whereClause = {};
+  if (isCreator && !isSystemAdmin && !isSessionAdmin) {
+      // @ts-ignore
+      whereClause = { creatorId: session.user.id };
+  }
+
   const products = await prisma.product.findMany({
+    where: whereClause,
     orderBy: {
       createdAt: 'desc',
     },
@@ -26,7 +40,13 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const authHeader = req.headers.get('authorization');
-    if (authHeader !== `Bearer ${ADMIN_API_KEY}`) {
+    const session = await auth();
+
+    let isSystemAdmin = authHeader === `Bearer ${ADMIN_API_KEY}`;
+    let isSessionAdmin = session?.user?.role === 'ADMIN';
+    let isCreator = session?.user?.role === 'CREATOR';
+
+    if (!isSystemAdmin && !isSessionAdmin && !isCreator) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -188,6 +208,8 @@ export async function POST(req: Request) {
             fileUrl: path.join(secureStorageDir, 'model.zip'), // Store absolute path for secure access
             iconUrl,
             isSold: false,
+            // @ts-ignore
+            creatorId: session?.user?.id || null,
           },
         });
         console.log('Product created in DB:', product.id);

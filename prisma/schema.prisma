@@ -16,10 +16,12 @@ model User {
   email         String    @unique
   password      String?
   image         String?
+  role          String    @default("USER") // USER, CREATOR, ADMIN
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   favorites     Product[] @relation("UserFavorites")
   purchases     Order[]
+  createdProducts Product[] @relation("UserProducts")
 }
 
 model Product {
@@ -35,6 +37,8 @@ model Product {
   updatedAt   DateTime @updatedAt
   Order       Order[]
   favoritedBy User[]   @relation("UserFavorites")
+  creatorId   String?
+  creator     User?    @relation("UserProducts", fields: [creatorId], references: [id])
 }
 
 model Order {

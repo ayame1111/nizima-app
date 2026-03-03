@@ -33,9 +33,12 @@ export default function Navbar({ session }: { session: any }) {
                 <Search size={20} />
               </button>
               
-              <Link href="/admin" className="text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors hidden sm:block">
-                Creator Dashboard
-              </Link>
+              {/* Creator Dashboard Link - Only for Creators/Admins */}
+              {session?.user && (['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
+                  <Link href="/dashboard" className="text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors hidden sm:block">
+                    Creator Dashboard
+                  </Link>
+              )}
 
               {session ? (
                   <div className="relative group">
@@ -51,9 +54,9 @@ export default function Navbar({ session }: { session: any }) {
                       </button>
                       
                       {/* Dropdown */}
-                      <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
-                          <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">My Models</Link>
-                          <Link href="/favorites" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Favorites</Link>
+                      <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-50">
+                          <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">My Account</Link>
+                          {/* <Link href="/favorites" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Favorites</Link> */}
                           <div className="border-t border-gray-100 my-1"></div>
                           <Link href="/api/auth/signout" className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
                               <LogOut size={14} /> Sign Out
