@@ -8,10 +8,16 @@
       "cmds": ["npm ci"]
     },
     "build": {
-      "cmds": ["npx prisma generate", "npm run build"]
+      "cmds": [
+        "npx prisma generate",
+        "npm run build",
+        "cp -r public .next/standalone/public",
+        "mkdir -p .next/standalone/.next",
+        "cp -r .next/static .next/standalone/.next/static"
+      ]
     }
   },
   "start": {
-    "cmd": "npx prisma db push && node .next/standalone/server.js"
+    "cmd": "npx prisma db push && HOSTNAME=0.0.0.0 node .next/standalone/server.js"
   }
 }
