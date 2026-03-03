@@ -62,7 +62,10 @@ export default async function AdminUsersPage() {
                                 </span>
                             </td>
                             <td className="px-6 py-4">
-                                <form action={updateUserRole} className="flex gap-2">
+                                <form action={async (formData) => {
+                                    'use server'
+                                    await updateUserRole(formData)
+                                }} className="flex gap-2">
                                     <input type="hidden" name="userId" value={user.id} />
                                     <select name="role" defaultValue={user.role} className="bg-black border border-gray-700 rounded px-2 py-1 text-sm text-gray-300">
                                         <option value="USER">User</option>
