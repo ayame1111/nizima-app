@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { Providers } from "@/components/Providers";
+import { auth } from "@/auth";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,11 +20,13 @@ export const metadata: Metadata = {
   description: "Buy and sell Live2D models for VTubing",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <body
@@ -36,7 +40,9 @@ export default function RootLayout({
             src="https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js"
             strategy="beforeInteractive"
         />
-        {children}
+        <Providers session={session}>
+          {children}
+        </Providers>
       </body>
     </html>
   );
