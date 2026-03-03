@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nizima Live2D Marketplace",
-  description: "One-of-a-kind Live2D models",
+  title: "VTuber Marketplace",
+  description: "Buy and sell Live2D models for VTubing",
 };
 
 export default function RootLayout({

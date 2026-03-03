@@ -1,6 +1,6 @@
-# Nizima Live2D Marketplace
+# VTuber Marketplace
 
-A Next.js application for selling exclusive, one-of-a-kind Live2D models.
+A Next.js application for buying and selling Live2D models.
 
 ## Features
 
