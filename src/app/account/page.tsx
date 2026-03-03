@@ -82,7 +82,10 @@ export default async function AccountPage() {
         {/* Security Section */}
         <div className="bg-[#111] rounded-2xl border border-gray-800 p-6">
           <h2 className="text-xl font-bold text-white mb-6">Security</h2>
-          <form action={updatePassword} className="space-y-4 max-w-md">
+          <form action={async (formData) => {
+              'use server'
+              await updatePassword(formData);
+          }} className="space-y-4 max-w-md">
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-1">Current Password</label>
               <input 
