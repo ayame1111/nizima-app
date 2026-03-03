@@ -10,5 +10,8 @@
     "build": {
       "cmds": ["npx prisma generate", "npm run build"]
     }
+  },
+  "start": {
+    "cmd": "npx prisma db push && node .next/standalone/server.js"
   }
 }
