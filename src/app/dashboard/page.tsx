@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function CreatorDashboard() {
+function DashboardContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   
@@ -275,5 +275,13 @@ export default function CreatorDashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CreatorDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-black text-white">Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
