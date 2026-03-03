@@ -361,12 +361,17 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
 
                 const camera = new Camera(videoRef.current, {
                     onFrame: async () => {
-                        if (videoRef.current) {
-                            await faceMesh.send({ image: videoRef.current });
+                        if (videoRef.current && faceMesh) {
+                            try {
+                                await faceMesh.send({ image: videoRef.current });
+                            } catch (e) {
+                                // Ignore frames that are sent too quickly or if faceMesh is closed
+                            }
                         }
                     },
                     width: 640,
-                    height: 480
+                    height: 480,
+                    facingMode: 'user' // Default to front camera
                 });
 
                 cameraRef.current = camera;
@@ -941,6 +946,13 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                                     ? 'bg-blue-500/20 text-blue-400 border-blue-500/50 hover:bg-blue-500/30' 
                                     : 'bg-black/50 text-gray-400 border-gray-600 hover:bg-black/70'
                             }`}
+                            // Add touch handler for better mobile responsiveness
+                            onTouchEnd={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (isMouseTracking) setIsMouseTracking(false);
+                                setIsFaceTracking(!isFaceTracking);
+                            }}
                         >
                             {isFaceTracking ? <Video size={14} /> : <VideoOff size={14} />}
                             <span>FACE TRACKING</span>
