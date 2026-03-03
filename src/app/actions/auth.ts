@@ -18,9 +18,10 @@ export async function register(prevState: any, formData: FormData) {
   }
 
   const { email, password, name } = validatedFields.data
+  const normalizedEmail = email.toLowerCase()
 
   const existingUser = await prisma.user.findUnique({
-    where: { email },
+    where: { email: normalizedEmail },
   })
 
   if (existingUser) {
@@ -31,7 +32,7 @@ export async function register(prevState: any, formData: FormData) {
 
   await prisma.user.create({
     data: {
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
       name,
     },
