@@ -24,6 +24,12 @@ export default function LoginPage() {
 
           {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
 
+          <div className="flex justify-end">
+            <Link href="/forgot-password" className="text-sm text-purple-400 hover:text-purple-300">
+              Forgot Password?
+            </Link>
+          </div>
+
           <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg transition-colors">
             Login
           </button>

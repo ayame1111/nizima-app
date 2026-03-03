@@ -55,6 +55,8 @@ export default function Navbar({ session }: { session: any }) {
                       
                       {/* Dropdown */}
                       <div className="absolute right-0 top-full pt-2 w-48 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-50">
+                          {/* Invisible bridge to prevent menu from closing when moving mouse */}
+                          <div className="absolute -top-2 left-0 w-full h-2"></div>
                           <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-2">
                             <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">My Account</Link>
                             {/* <Link href="/favorites" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Favorites</Link> */}
