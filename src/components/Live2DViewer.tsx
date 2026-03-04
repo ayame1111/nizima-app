@@ -238,8 +238,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     // Load FaceMesh Script
     useEffect(() => {
         if (showControls && !faceMeshLoaded) {
-            // Pinning version to 0.4.1633559619 for stability
-            loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js')
+            // Using a newer version of FaceMesh to avoid WebGL deprecation issues
+            loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js')
                 .then(() => {
                     console.log('FaceMesh script loaded');
                     setFaceMeshLoaded(true);
@@ -263,7 +263,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 // @ts-ignore
                 const faceMesh = new window.FaceMesh({
                     locateFile: (file: string) => {
-                        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/${file}`;
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
                     }
                 });
 
@@ -462,6 +462,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     antialias: true,
                     resolution: Math.min(window.devicePixelRatio || 1, 2), // Cap resolution to save memory on mobile
                     autoDensity: true,
+                    preserveDrawingBuffer: true, // Fix for some devices not showing the canvas
                 });
                 appRef.current = app;
 
@@ -494,6 +495,9 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 modelRef.current = model;
                 app.stage.addChild(model);
                 
+                // Force initial update
+                model.update(0);
+
                 resize();
                 
                 // Debounced resize observer
@@ -506,6 +510,11 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 if (canvasWrapperRef.current) {
                     resizeObserver.observe(canvasWrapperRef.current);
                 }
+                
+                // Double check resize after a small delay to handle layout shifts
+                setTimeout(() => {
+                    if (mounted) resize();
+                }, 500);
                 
                 if (interactive) {
                     model.eventMode = 'static';
@@ -998,7 +1007,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             </div>
 
             {/* Controls Sidebar */}
-            {showControls && (
+            {showControls && (!isMobile || expressions.length > 0) && (
                 <div className="w-full md:w-96 bg-[#1a1a1a] border-t md:border-t-0 md:border-l border-gray-800 h-[40vh] md:h-full overflow-y-auto flex-shrink-0 shadow-2xl z-50 text-gray-200 custom-scrollbar relative order-2 md:order-2">
                     
                     {/* Expressions Section */}
@@ -1034,7 +1043,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     )}
 
                     {/* Parameters Section */}
-                    <div className="p-6">
+                    <div className="p-6 hidden md:block">
                         <h3 className="font-bold text-white mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
                             <Play size={16} className="text-blue-400" />
                             <span>Parameters</span>
