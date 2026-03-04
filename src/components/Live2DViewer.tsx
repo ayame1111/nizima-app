@@ -807,169 +807,6 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     });
                 }
 
-                // Extract Parameters - ROBUST EXTRACTION
-                if (showControls && model.internalModel) {
-                    const internal = model.internalModel as any;
-                    const core = internal.coreModel as any;
-                    const params: ModelParameter[] = [];
-                    
-                    try {
-                        // Strategy 1: Cubism 4+ Core (Standard & Emscripten)
-                        if (core && core.parameters) {
-                            const ids = core.parameters.ids;
-                            const values = core.parameters.values;
-                            const min = core.parameters.minimumValues;
-                            const max = core.parameters.maximumValues;
-                            const def = core.parameters.defaultValues;
-                            const count = core.parameters.count;
-
-                            for (let i = 0; i < count; i++) {
-                                const getVal = (arr: any, idx: number) => {
-                                    if (!arr) return 0;
-                                    if (typeof arr[idx] !== 'undefined') return arr[idx];
-                                    if (typeof arr.at === 'function') return arr.at(idx);
-                                    if (typeof arr.get === 'function') return arr.get(idx);
-                                    return 0;
-                                };
-
-                                const getStr = (arr: any, idx: number) => {
-                                    if (!arr) return null;
-                                    if (typeof arr[idx] !== 'undefined') return arr[idx];
-                                    if (typeof arr.at === 'function') return arr.at(idx);
-                                    if (typeof arr.get === 'function') return arr.get(idx);
-                                    return null;
-                                };
-
-                                const id = getStr(ids, i);
-                                
-                                if (id) {
-                                    params.push({
-                                        id,
-                                        value: getVal(values, i),
-                                        min: getVal(min, i),
-                                        max: getVal(max, i),
-                                        defaultValue: getVal(def, i),
-                                        name: id
-                                    });
-                                }
-                            }
-                        } 
-                        // Strategy 2: Cubism 2 Core
-                        else if (core && typeof core.getParamCount === 'function' && typeof core.getParamID === 'function') {
-                            const count = core.getParamCount();
-                            for (let i = 0; i < count; i++) {
-                                const id = core.getParamID(i);
-                                const value = core.getParamFloat(i);
-                                const max = (typeof core.getParamMax === 'function') ? core.getParamMax(i) : 1;
-                                const min = (typeof core.getParamMin === 'function') ? core.getParamMin(i) : 0;
-                                const def = value; 
-
-                                params.push({
-                                    id,
-                                    value,
-                                    min,
-                                    max,
-                                    defaultValue: def,
-                                    name: id
-                                });
-                            }
-                        }
-                        // Strategy 3: Internal Model Cached Ids
-                        else if (core && core._parameterIds) {
-                             const ids = core._parameterIds;
-                             const count = ids.length;
-                             const values = core._parameterValues;
-                             const max = core._parameterMaximumValues;
-                             const min = core._parameterMinimumValues;
-                             const def = core._parameterDefaultValues;
-
-                             for(let i=0; i<count; i++) {
-                                 params.push({
-                                     id: ids[i],
-                                     value: values ? values[i] : 0,
-                                     min: min ? min[i] : 0,
-                                     max: max ? max[i] : 1,
-                                     defaultValue: def ? def[i] : (values ? values[i] : 0),
-                                     name: ids[i]
-                                 });
-                             }
-                        } 
-                        else if (internal._parameterIds) {
-                             const ids = internal._parameterIds;
-                             const count = ids.length;
-                             
-                             for(let i=0; i<count; i++) {
-                                 params.push({
-                                     id: ids[i],
-                                     value: internal.getParameterValueByIndex(i),
-                                     min: internal.getParameterMinimumValueByIndex(i),
-                                     max: internal.getParameterMaximumValueByIndex(i),
-                                     defaultValue: internal.getParameterDefaultValueByIndex(i),
-                                     name: ids[i]
-                                 });
-                             }
-                        }   
-                        // Strategy 4: High-Level SDK Methods
-                        else {
-                            if (typeof internal.getParameterCount === 'function') {
-                                const count = internal.getParameterCount();
-                                for(let i=0; i<count; i++) {
-                                    const id = internal.getParameterId(i);
-                                    params.push({
-                                        id: id,
-                                        value: internal.getParameterValueByIndex(i),
-                                        min: internal.getParameterMinimumValueByIndex(i),
-                                        max: internal.getParameterMaximumValueByIndex(i),
-                                        defaultValue: internal.getParameterDefaultValueByIndex(i),
-                                        name: id
-                                    });
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        console.error("Failed to extract parameters:", e);
-                    }
-                    
-                    setParameters(params);
-                    
-                    if (params.length === 0) {
-                        const info = {
-                            modelType: model.constructor.name,
-                            internalModelType: internal ? internal.constructor.name : 'N/A',
-                            hasCore: !!core,
-                            coreKeys: core ? Object.keys(core) : [],
-                            internalKeys: internal ? Object.keys(internal) : [],
-                            coreParams: core && core.parameters ? 'Present' : 'Missing',
-                        };
-                        setDebugInfo(JSON.stringify(info, null, 2));
-                    }
-
-                    // Extract Expressions
-                    const exps: ModelExpression[] = [];
-                    const settings = internal.settings || (model as any).settings;
-                    
-                    if (settings) {
-                        if (Array.isArray(settings.Expressions)) {
-                             settings.Expressions.forEach((exp: any) => {
-                                exps.push({ name: exp.Name, file: exp.File });
-                            });
-                        }
-                        else if (Array.isArray(settings.expressions)) {
-                             settings.expressions.forEach((exp: any) => {
-                                exps.push({ name: exp.Name || exp.name, file: exp.File || exp.file });
-                            });
-                        }
-                        else if (Array.isArray(settings.expressions_list)) {
-                             settings.expressions_list.forEach((exp: any) => {
-                                exps.push({ name: exp.name, file: exp.file });
-                            });
-                        }
-                    }
-
-                    const uniqueExps = Array.from(new Map(exps.map(item => [item.name, item])).values());
-                    setExpressions(uniqueExps);
-                }
-
                 setLoading(false);
 
             } catch (err: any) {
@@ -1016,14 +853,193 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
             if (appRef.current) {
                 console.log('[Live2DViewer] Destroying PIXI app');
                 try {
-                    appRef.current.destroy(true, { children: true });
+                    // DO NOT remove view from DOM as React manages it
+                    appRef.current.destroy(false, { children: true });
                 } catch (e) {
                     console.error('[Live2DViewer] Error destroying app:', e);
                 }
                 appRef.current = null;
             }
         };
-    }, [modelUrl, interactive, showControls]);
+    }, [modelUrl]); // Only re-init if modelUrl changes. interactive/showControls handled separately.
+
+    // Extract Parameters when controls are shown
+    useEffect(() => {
+        if (!showControls || !modelRef.current || parameters.length > 0) return;
+        
+        const extractParams = () => {
+             const model = modelRef.current;
+             if (!model || !model.internalModel) return;
+
+             console.log('[Live2DViewer] Extracting parameters...');
+             // ... extraction logic ...
+             const internal = model.internalModel as any;
+             const core = internal.coreModel as any;
+             const params: ModelParameter[] = [];
+                    
+             try {
+                // Strategy 1: Cubism 4+ Core (Standard & Emscripten)
+                if (core && core.parameters) {
+                    const ids = core.parameters.ids;
+                    const values = core.parameters.values;
+                    const min = core.parameters.minimumValues;
+                    const max = core.parameters.maximumValues;
+                    const def = core.parameters.defaultValues;
+                    const count = core.parameters.count;
+
+                    for (let i = 0; i < count; i++) {
+                        const getVal = (arr: any, idx: number) => {
+                            if (!arr) return 0;
+                            if (typeof arr[idx] !== 'undefined') return arr[idx];
+                            if (typeof arr.at === 'function') return arr.at(idx);
+                            if (typeof arr.get === 'function') return arr.get(idx);
+                            return 0;
+                        };
+
+                        const getStr = (arr: any, idx: number) => {
+                            if (!arr) return null;
+                            if (typeof arr[idx] !== 'undefined') return arr[idx];
+                            if (typeof arr.at === 'function') return arr.at(idx);
+                            if (typeof arr.get === 'function') return arr.get(idx);
+                            return null;
+                        };
+
+                        const id = getStr(ids, i);
+                        
+                        if (id) {
+                            params.push({
+                                id,
+                                value: getVal(values, i),
+                                min: getVal(min, i),
+                                max: getVal(max, i),
+                                defaultValue: getVal(def, i),
+                                name: id
+                            });
+                        }
+                    }
+                } 
+                // Strategy 2: Cubism 2 Core
+                else if (core && typeof core.getParamCount === 'function' && typeof core.getParamID === 'function') {
+                    const count = core.getParamCount();
+                    for (let i = 0; i < count; i++) {
+                        const id = core.getParamID(i);
+                        const value = core.getParamFloat(i);
+                        const max = (typeof core.getParamMax === 'function') ? core.getParamMax(i) : 1;
+                        const min = (typeof core.getParamMin === 'function') ? core.getParamMin(i) : 0;
+                        const def = value; 
+
+                        params.push({
+                            id,
+                            value,
+                            min,
+                            max,
+                            defaultValue: def,
+                            name: id
+                        });
+                    }
+                }
+                // Strategy 3: Internal Model Cached Ids
+                else if (core && core._parameterIds) {
+                        const ids = core._parameterIds;
+                        const count = ids.length;
+                        const values = core._parameterValues;
+                        const max = core._parameterMaximumValues;
+                        const min = core._parameterMinimumValues;
+                        const def = core._parameterDefaultValues;
+
+                        for(let i=0; i<count; i++) {
+                            params.push({
+                                id: ids[i],
+                                value: values ? values[i] : 0,
+                                min: min ? min[i] : 0,
+                                max: max ? max[i] : 1,
+                                defaultValue: def ? def[i] : (values ? values[i] : 0),
+                                name: ids[i]
+                            });
+                        }
+                } 
+                else if (internal._parameterIds) {
+                        const ids = internal._parameterIds;
+                        const count = ids.length;
+                        
+                        for(let i=0; i<count; i++) {
+                            params.push({
+                                id: ids[i],
+                                value: internal.getParameterValueByIndex(i),
+                                min: internal.getParameterMinimumValueByIndex(i),
+                                max: internal.getParameterMaximumValueByIndex(i),
+                                defaultValue: internal.getParameterDefaultValueByIndex(i),
+                                name: ids[i]
+                            });
+                        }
+                }   
+                // Strategy 4: High-Level SDK Methods
+                else {
+                    if (typeof internal.getParameterCount === 'function') {
+                        const count = internal.getParameterCount();
+                        for(let i=0; i<count; i++) {
+                            const id = internal.getParameterId(i);
+                            params.push({
+                                id: id,
+                                value: internal.getParameterValueByIndex(i),
+                                min: internal.getParameterMinimumValueByIndex(i),
+                                max: internal.getParameterMaximumValueByIndex(i),
+                                defaultValue: internal.getParameterDefaultValueByIndex(i),
+                                name: id
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to extract parameters:", e);
+            }
+            
+            setParameters(params);
+            
+            if (params.length === 0) {
+                const info = {
+                    modelType: model.constructor.name,
+                    internalModelType: internal ? internal.constructor.name : 'N/A',
+                    hasCore: !!core,
+                    coreKeys: core ? Object.keys(core) : [],
+                    internalKeys: internal ? Object.keys(internal) : [],
+                    coreParams: core && core.parameters ? 'Present' : 'Missing',
+                };
+                setDebugInfo(JSON.stringify(info, null, 2));
+            }
+
+            // Extract Expressions
+            const exps: ModelExpression[] = [];
+            const settings = internal.settings || (model as any).settings;
+            
+            if (settings) {
+                if (Array.isArray(settings.Expressions)) {
+                        settings.Expressions.forEach((exp: any) => {
+                        exps.push({ name: exp.Name, file: exp.File });
+                    });
+                }
+                else if (Array.isArray(settings.expressions)) {
+                        settings.expressions.forEach((exp: any) => {
+                        exps.push({ name: exp.Name || exp.name, file: exp.File || exp.file });
+                    });
+                }
+                else if (Array.isArray(settings.expressions_list)) {
+                        settings.expressions_list.forEach((exp: any) => {
+                        exps.push({ name: exp.name, file: exp.file });
+                    });
+                }
+            }
+
+            const uniqueExps = Array.from(new Map(exps.map(item => [item.name, item])).values());
+            setExpressions(uniqueExps);
+        };
+
+        // If model is already loaded, extract immediately
+        if (modelRef.current && !loading) {
+            extractParams();
+        } 
+        // Otherwise wait for loading to finish (handled by main effect setting loading=false)
+    }, [showControls, loading]); // Run when controls are shown or loading finishes
 
     // Interactions
     useEffect(() => {
