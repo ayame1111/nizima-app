@@ -513,12 +513,19 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
 
                 console.log('Loading model...', modelUrl);
                 
+                // Add crossOrigin handling for external resources
+                PIXI.utils.skipHello();
+                
+                // Configure base texture settings globally
+                PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.LINEAR;
+                PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH;
+
                 const model = await Live2DModel.from(modelUrl, {
                     autoHitTest: false,
                     autoFocus: false,
                     onError: (e: any) => {
                         console.error('Model internal error:', e);
-                        if (mounted) setError('Model resource failed to load');
+                        if (mounted) setError('Model resource failed to load. Check network connection.');
                     }
                 });
                 
