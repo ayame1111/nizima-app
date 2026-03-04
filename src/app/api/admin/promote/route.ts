@@ -62,10 +62,12 @@ export async function GET(req: Request) {
     }
 
     // Update role to ADMIN
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { email },
       data: { role: 'ADMIN' },
     });
+    
+    console.log(`Promoted user ${email} to ADMIN. New role in DB: ${updatedUser.role}`);
 
     return NextResponse.json({ message: `Successfully promoted ${email} to ADMIN. Please sign out and sign in again.` });
   } catch (error) {

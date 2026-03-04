@@ -25,8 +25,13 @@ function DashboardContent() {
     } else if (status === 'authenticated') {
         // @ts-ignore
         const role = session.user.role;
+        console.log('Current user role:', role);
         if (role !== 'CREATOR' && role !== 'ADMIN') {
-            router.push('/');
+             // If user is just a USER, redirect home
+             if (role === 'USER') {
+                console.warn('User is not authorized for dashboard. Role:', role);
+                router.push('/');
+             }
         } else {
             fetchProducts();
         }
