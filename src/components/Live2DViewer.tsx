@@ -114,105 +114,91 @@ interface ModelExpression {
 
 export default function Live2DViewer({ modelUrl, interactive = true, className }: Live2DViewerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  
+  // Ref to hold the PIXI app instance to persist across fullscreen toggles
+  const appRef = useRef<PIXI.Application | null>(null);
 
   useEffect(() => {
-    setMounted(true);
     if (isOpen) {
-        console.log('[Live2DViewer] Fullscreen modal OPENED');
+        console.log('[Live2DViewer] Fullscreen mode ACTIVATED');
         document.body.style.overflow = 'hidden';
     } else {
-        console.log('[Live2DViewer] Fullscreen modal CLOSED');
+        console.log('[Live2DViewer] Fullscreen mode DEACTIVATED');
         document.body.style.overflow = '';
     }
     return () => {
-        setMounted(false);
         document.body.style.overflow = '';
     };
   }, [isOpen]);
   
   return (
     <>
-      {/* Preview Card */}
-      <div className={`relative w-full h-full group bg-gray-900 rounded-xl overflow-hidden border border-gray-800 ${className}`}>
-        {/* Only render inline canvas if modal is CLOSED */}
-        {!isOpen && (
-            <Live2DCanvas 
-                key="inline-viewer"
-                modelUrl={modelUrl} 
-                interactive={interactive} 
-                onClick={() => {
-                    console.log('[Live2DViewer] Inline viewer clicked, opening fullscreen');
-                    interactive && setIsOpen(true);
-                }}
-                className={`w-full h-full ${interactive ? 'cursor-pointer' : ''}`}
-            />
-        )}
+      {/* 
+          Unified Viewer Container 
+          - When !isOpen: Relative positioning, fits in parent card
+          - When isOpen: Fixed positioning, covers entire screen (z-50)
+      */}
+      <div 
+        className={`
+            transition-all duration-300 ease-in-out
+            ${isOpen 
+                ? 'fixed inset-0 z-[9999] bg-[#1a1a1a] flex items-center justify-center' 
+                : `relative w-full h-full group bg-gray-900 rounded-xl overflow-hidden border border-gray-800 ${className}`
+            }
+        `}
+      >
+        <Live2DCanvas 
+            modelUrl={modelUrl} 
+            interactive={interactive} 
+            isOpen={isOpen}
+            onToggleFullscreen={() => interactive && setIsOpen(!isOpen)}
+            className="w-full h-full"
+        />
+
+        {/* Floating "Inspect" Button (Only when NOT open) */}
         {interactive && !isOpen && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none z-20">
                 <div className="bg-white/90 backdrop-blur text-gray-900 px-5 py-3 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0 duration-300 flex items-center gap-2 font-bold tracking-wide">
                     <Maximize2 size={18} />
                     <span>Inspect Model</span>
                 </div>
             </div>
         )}
-      </div>
 
-      {/* Fullscreen Modal - Rendered via Portal to escape parent stacking context */}
-      {isOpen && mounted && createPortal(
-        <div 
-            className="fixed inset-0 flex items-center justify-center bg-black animate-in fade-in duration-300"
-            style={{ zIndex: 2147483647 }}
-        >
-          {/* Overlay to handle closing when clicking outside */}
-          <div className="absolute inset-0 bg-black/50" onClick={() => setIsOpen(false)} />
-
-          <div className="bg-[#1a1a1a] w-full h-full md:max-w-[1800px] md:max-h-[95vh] md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative border border-gray-800 ring-1 ring-white/10 mx-0 md:mx-4 pointer-events-auto z-10 isolate">
-            
-            {/* Close Button */}
+        {/* Close Button (Only when OPEN) */}
+        {isOpen && (
             <button 
-                onClick={() => setIsOpen(false)}
-                className="absolute top-4 right-4 md:top-6 md:right-6 z-[50] bg-black/50 hover:bg-white/20 text-white p-2 md:p-3 rounded-full backdrop-blur-md transition-all border border-white/10"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setIsOpen(false);
+                }}
+                className="absolute top-4 right-4 md:top-6 md:right-6 z-[10000] bg-black/50 hover:bg-white/20 text-white p-2 md:p-3 rounded-full backdrop-blur-md transition-all border border-white/10"
             >
                 <X size={20} className="md:w-6 md:h-6" />
             </button>
-
-            {/* Canvas Area */}
-            <div className="flex-grow h-[50vh] md:h-full bg-[#0f0f0f] relative z-0 flex items-center justify-center overflow-hidden order-1 md:order-1">
-                 <Live2DCanvas 
-                    key="fullscreen-viewer"
-                    modelUrl={modelUrl} 
-                    interactive={true} 
-                    showControls={true}
-                    enableZoomPan={true}
-                    className="w-full h-full"
-                />
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+        )}
+      </div>
     </>
   );
 }
 
-// Re-defining Live2DCanvas to handle the split layout internally
+// Updated Props
 interface Live2DCanvasProps {
     modelUrl: string;
     interactive?: boolean;
-    showControls?: boolean;
-    enableZoomPan?: boolean;
-    onClick?: () => void;
+    isOpen?: boolean; // New prop to track state
+    onToggleFullscreen?: () => void;
     className?: string;
 }
 
-function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onClick, className }: Live2DCanvasProps) {
+function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, className }: Live2DCanvasProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasWrapperRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const appRef = useRef<PIXI.Application | null>(null);
     const modelRef = useRef<any>(null);
+    
     const [error, setError] = useState<string | null>(null);
     const [parameters, setParameters] = useState<ModelParameter[]>([]);
     const [expressions, setExpressions] = useState<ModelExpression[]>([]);
@@ -225,6 +211,10 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     const [faceMeshLoaded, setFaceMeshLoaded] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
+    // Derived state for controls
+    const showControls = isOpen; 
+    const enableZoomPan = isOpen;
+
     useEffect(() => {
         const checkMobile = () => {
             const userAgent = typeof window.navigator === "undefined" ? "" : navigator.userAgent;
@@ -234,8 +224,18 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
         };
         checkMobile();
     }, []);
-    
-    // Zoom/Pan State
+
+    // Trigger Resize when isOpen changes
+    useEffect(() => {
+        // Wait for layout transition to finish/start
+        const timers = [
+            setTimeout(() => resize(), 50),
+            setTimeout(() => resize(), 300), // Match transition duration
+            setTimeout(() => resize(), 500)
+        ];
+        return () => timers.forEach(t => clearTimeout(t));
+    }, [isOpen]);
+
     const isDragging = useRef(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
 
@@ -307,12 +307,10 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                         video: videoRef.current
                     });
                     
-                    // ... existing solving logic
                     if (solved && modelRef.current) {
                         const core = modelRef.current.internalModel.coreModel;
                         
                         // Map Kalidokit results to Live2D parameters
-                        // ... (rest of mapping logic)
                         const solvedHead = solved.head.degrees;
                         const solvedEye = solved.eye;
                         const solvedMouth = solved.mouth.shape;
@@ -1031,7 +1029,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
 
     return (
         <div ref={containerRef} className={`relative flex flex-col md:flex-row ${className}`}>
-            <div className={`relative flex-grow h-full overflow-hidden ${showControls ? 'w-full md:w-3/4' : 'w-full'} order-1 md:order-1`} onClick={onClick}>
+            <div className={`relative flex-grow h-full overflow-hidden ${showControls ? 'w-full md:w-3/4' : 'w-full'} order-1 md:order-1`} onClick={onToggleFullscreen}>
                 {loading && (
                     <div className="absolute inset-0 flex items-center justify-center text-gray-400 gap-2 z-50 pointer-events-none">
                         <RefreshCw className="animate-spin" /> Loading Model...
@@ -1198,7 +1196,3 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
         </div>
     );
 }
-
-// Dummy component to satisfy the "Live2DCanvasControls" reference in the first component
-// But actually, we removed the reference in the first component now.
-// So we can remove this dummy component.
