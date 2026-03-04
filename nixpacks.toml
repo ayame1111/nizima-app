@@ -7,10 +7,8 @@ cmds = ["npm install --legacy-peer-deps"]
 [phases.build]
 cmds = [
     "npm run build", 
-    "mkdir -p .next/standalone/.next/static",
-    "mkdir -p .next/standalone/public",
-    "cp -r .next/static .next/standalone/.next/static", 
-    "cp -r public .next/standalone/public"
+    "cp -r .next/static .next/standalone/.next/", 
+    "cp -r public .next/standalone/"
 ]
 
 [start]
