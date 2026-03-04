@@ -119,8 +119,10 @@ export default function Live2DViewer({ modelUrl, interactive = true, className }
   useEffect(() => {
     setMounted(true);
     if (isOpen) {
+        console.log('[Live2DViewer] Fullscreen modal OPENED');
         document.body.style.overflow = 'hidden';
     } else {
+        console.log('[Live2DViewer] Fullscreen modal CLOSED');
         document.body.style.overflow = '';
     }
     return () => {
@@ -133,15 +135,20 @@ export default function Live2DViewer({ modelUrl, interactive = true, className }
     <>
       {/* Preview Card */}
       <div className={`relative w-full h-full group bg-gray-900 rounded-xl overflow-hidden border border-gray-800 ${className}`}>
+        {/* Only render inline canvas if modal is CLOSED */}
         {!isOpen && (
             <Live2DCanvas 
+                key="inline-viewer"
                 modelUrl={modelUrl} 
                 interactive={interactive} 
-                onClick={() => interactive && setIsOpen(true)}
+                onClick={() => {
+                    console.log('[Live2DViewer] Inline viewer clicked, opening fullscreen');
+                    interactive && setIsOpen(true);
+                }}
                 className={`w-full h-full ${interactive ? 'cursor-pointer' : ''}`}
             />
         )}
-        {interactive && (
+        {interactive && !isOpen && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none">
                 <div className="bg-white/90 backdrop-blur text-gray-900 px-5 py-3 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0 duration-300 flex items-center gap-2 font-bold tracking-wide">
                     <Maximize2 size={18} />
@@ -173,6 +180,7 @@ export default function Live2DViewer({ modelUrl, interactive = true, className }
             {/* Canvas Area */}
             <div className="flex-grow h-[50vh] md:h-full bg-[#0f0f0f] relative z-0 flex items-center justify-center overflow-hidden order-1 md:order-1">
                  <Live2DCanvas 
+                    key="fullscreen-viewer"
                     modelUrl={modelUrl} 
                     interactive={true} 
                     showControls={true}
@@ -222,6 +230,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             const userAgent = typeof window.navigator === "undefined" ? "" : navigator.userAgent;
             const mobile = Boolean(userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i));
             setIsMobile(mobile);
+            console.log('[Live2DViewer] Device check:', mobile ? 'Mobile' : 'Desktop');
         };
         checkMobile();
     }, []);
@@ -435,8 +444,12 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             // Force resize if model scale is default (1) which means it hasn't been fitted yet
             const needsFit = model.scale.x === 1 && model.scale.y === 1;
 
-            if (!needsFit && Math.abs(w - curW) < 2 && Math.abs(h - curH) < threshold) return;
+            if (!needsFit && Math.abs(w - curW) < 2 && Math.abs(h - curH) < threshold) {
+                 // console.log('[Live2DViewer] Resize skipped (no change)');
+                 return;
+            }
 
+            console.log(`[Live2DViewer] Resizing to ${w}x${h}`);
             app.renderer.resize(w, h);
             
             // Reset scale to check dimensions
@@ -447,6 +460,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 // Retry later if dimensions are not ready, but limit retries to prevent infinite loops
                 if (resizeRetries < 10) {
                     resizeRetries++;
+                    console.log(`[Live2DViewer] Model dimensions 0, retrying (${resizeRetries}/10)`);
                     setTimeout(() => {
                         if (mounted) requestAnimationFrame(resize);
                     }, 100);
@@ -484,19 +498,25 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             try {
                 if (typeof window === 'undefined') return;
                 
+                console.log('[Live2DViewer] Initializing PIXI...');
                 (window as any).PIXI = PIXI;
                 const { Live2DModel } = await import('pixi-live2d-display');
                 
-                if (!mounted || !canvasRef.current || !canvasWrapperRef.current) return;
+                if (!mounted || !canvasRef.current || !canvasWrapperRef.current) {
+                    console.log('[Live2DViewer] Aborted init: Component unmounted or refs missing');
+                    return;
+                }
 
                 // Cleanup existing app
                 if (appRef.current) {
+                    console.log('[Live2DViewer] Cleaning up existing PIXI app before init');
                     appRef.current.destroy(true, { children: true });
                     appRef.current = null;
                 }
 
                 const width = canvasWrapperRef.current.clientWidth;
                 const height = canvasWrapperRef.current.clientHeight;
+                console.log(`[Live2DViewer] Canvas dimensions: ${width}x${height}`);
 
                 const app = new PIXI.Application({
                     view: canvasRef.current,
@@ -510,6 +530,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     preserveDrawingBuffer: true, // Fix for some devices not showing the canvas
                 });
                 appRef.current = app;
+                console.log('[Live2DViewer] PIXI Application created');
 
                 console.log('Loading model...', modelUrl);
                 
@@ -542,7 +563,10 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     }
                 });
                 
+                console.log('[Live2DViewer] Model loaded successfully');
+
                 if (!mounted) {
+                    console.log('[Live2DViewer] Unmounted during model load, destroying resources');
                     model.destroy();
                     app.destroy(true, { children: true });
                     return;
@@ -765,11 +789,13 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             if (!mounted) return;
             
             if ((window as any).Live2DCubismCore || (window as any).Live2D) {
+                console.log('[Live2DViewer] Core SDK found, starting init');
                 init();
             } else {
                 attempts++;
                 if (attempts > 50) { // 5 seconds timeout
                     if (mounted) {
+                        console.error('[Live2DViewer] Core SDK timeout');
                         setError('Live2D Core SDK failed to load. Please check your internet connection or disable adblockers.');
                         setLoading(false);
                     }
@@ -782,12 +808,18 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
         checkCore();
 
         return () => {
+            console.log('[Live2DViewer] Cleaning up Live2DCanvas effect');
             mounted = false;
             clearTimeout(resizeTimeout);
             clearTimeout(checkTimeout);
             if (resizeObserver) resizeObserver.disconnect();
             if (appRef.current) {
-                appRef.current.destroy(true, { children: true });
+                console.log('[Live2DViewer] Destroying PIXI app');
+                try {
+                    appRef.current.destroy(true, { children: true });
+                } catch (e) {
+                    console.error('[Live2DViewer] Error destroying app:', e);
+                }
                 appRef.current = null;
             }
         };
