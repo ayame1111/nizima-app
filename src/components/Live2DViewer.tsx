@@ -227,18 +227,7 @@ export default function Live2DViewer({ modelUrl, interactive = true, className }
             </div>
         )}
 
-        {/* Close Button (Only when OPEN) */}
-        {isOpen && (
-            <button 
-                onClick={(e) => {
-                    e.stopPropagation();
-                    setIsOpen(false);
-                }}
-                className="absolute top-4 right-4 md:top-6 md:right-6 z-[10000] bg-black/50 hover:bg-white/20 text-white p-2 md:p-3 rounded-full backdrop-blur-md transition-all border border-white/10"
-            >
-                <X size={20} className="md:w-6 md:h-6" />
-            </button>
-        )}
+        {/* Close Button is now handled inside Live2DCanvas for better placement */}
       </div>
     </>
   );
@@ -1317,12 +1306,45 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 />
 
                 <canvas ref={canvasRef} className="w-full h-full relative z-0 pointer-events-none" />
+
+                {/* Mobile Close Button (Floating) */}
+                {showControls && isMobile && (
+                    <button 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFullscreen && onToggleFullscreen();
+                        }}
+                        className="absolute top-4 right-4 z-[100] bg-black/50 text-white p-2 rounded-full backdrop-blur-md hover:bg-white/20 transition-all border border-white/10 shadow-lg"
+                    >
+                        <X size={20} />
+                    </button>
+                )}
             </div>
 
             {/* Controls Sidebar */}
             {showControls && (!isMobile || expressions.length > 0) && (
                 <div className="w-full md:w-96 bg-[#1a1a1a] border-t md:border-t-0 md:border-l border-gray-800 h-[40vh] md:h-full overflow-y-auto flex-shrink-0 shadow-2xl z-50 text-gray-200 custom-scrollbar relative order-2 md:order-2">
                     
+                    {/* Desktop Header with Embedded Close Button */}
+                    {!isMobile && (
+                        <div className="sticky top-0 z-20 bg-[#1a1a1a]/95 backdrop-blur border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                <h3 className="font-bold text-gray-200 text-xs uppercase tracking-wider">Model Inspector</h3>
+                            </div>
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleFullscreen && onToggleFullscreen();
+                                }}
+                                className="text-gray-400 hover:text-white hover:bg-white/10 p-1.5 rounded-full transition-all"
+                                title="Close Inspector"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                    )}
+
                     {/* Expressions Section */}
                     {expressions.length > 0 && (
                         <div className="p-6 border-b border-gray-800">
