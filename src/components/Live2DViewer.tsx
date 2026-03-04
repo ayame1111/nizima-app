@@ -725,11 +725,11 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 console.log('Loading model...', modelUrl);
                 
                 // Add crossOrigin handling for external resources
-                PIXI.utils.skipHello();
-                
+                // PIXI.utils.skipHello(); // Deprecated in v7
+
                 // Configure base texture settings globally
-                PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.LINEAR;
-                PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH;
+                PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.LINEAR;
+                PIXI.Program.defaultFragmentPrecision = PIXI.PRECISION.HIGH;
 
                 // Attempt to pre-validate the URL to rule out basic connectivity issues
                 try {
