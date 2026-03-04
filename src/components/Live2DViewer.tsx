@@ -59,14 +59,20 @@ class Camera {
         }
     }
 
-    private tick = () => {
+    private tick = async () => {
         if (!this.isRunning) return;
         
         if (this.onFrame) {
-            this.onFrame();
+            try {
+                await this.onFrame();
+            } catch (e) {
+                console.error("Frame processing error:", e);
+            }
         }
         
-        this.rafId = requestAnimationFrame(this.tick);
+        if (this.isRunning) {
+            this.rafId = requestAnimationFrame(this.tick);
+        }
     }
 }
 
@@ -227,6 +233,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     // Face Tracking Refs
     const faceMeshRef = useRef<any>(null);
     const cameraRef = useRef<Camera | null>(null);
+    const isTrackingInitializing = useRef(false);
 
     // Reset focus when tracking is disabled
     useEffect(() => {
@@ -238,8 +245,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     // Load FaceMesh Script
     useEffect(() => {
         if (showControls && !faceMeshLoaded) {
-            // Using a newer version of FaceMesh to avoid WebGL deprecation issues
-            loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js')
+            // Using a specific older version known to be stable with Kalidokit
+            loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js')
                 .then(() => {
                     console.log('FaceMesh script loaded');
                     setFaceMeshLoaded(true);
@@ -258,12 +265,16 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             return;
         }
 
+        if (isTrackingInitializing.current) return;
+        isTrackingInitializing.current = true;
+
         const startTracking = async () => {
             try {
                 // @ts-ignore
                 const faceMesh = new window.FaceMesh({
                     locateFile: (file: string) => {
-                        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+                        // Use a fixed version to prevent issues with auto-updates breaking functionality
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/${file}`;
                     }
                 });
 
@@ -360,6 +371,10 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     facingMode: 'user' // Default to front camera
                 });
 
+                // Prevent multiple camera instances
+                if (cameraRef.current) {
+                    cameraRef.current.stop();
+                }
                 cameraRef.current = camera;
                 await camera.start();
 
@@ -367,12 +382,15 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 console.error("Failed to start face tracking:", err);
                 setIsFaceTracking(false); // Disable on error to prevent loop
                 setError("Face tracking failed to initialize. It may not be supported on this device.");
+            } finally {
+                isTrackingInitializing.current = false;
             }
         };
 
         startTracking();
 
         return () => {
+            isTrackingInitializing.current = false;
             if (cameraRef.current) {
                 cameraRef.current.stop();
                 cameraRef.current = null;
