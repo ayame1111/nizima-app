@@ -85,6 +85,37 @@ export default function Navbar({ session }: { session: any }) {
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+            <div className="md:hidden border-t border-gray-100 bg-white">
+                <div className="px-4 pt-2 pb-4 space-y-1">
+                    <Link href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">Marketplace</Link>
+                    <Link href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">Become a Creator</Link>
+                    {session?.user && (['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
+                        <Link href="/dashboard" className="block px-3 py-2 text-base font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-md">
+                            Creator Dashboard
+                        </Link>
+                    )}
+                    {session ? (
+                        <>
+                            <div className="border-t border-gray-100 my-2"></div>
+                            <Link href="/account" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">My Account</Link>
+                            <button 
+                                onClick={() => signOut({ callbackUrl: '/' })}
+                                className="w-full text-left block px-3 py-2 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md"
+                            >
+                                Sign Out
+                            </button>
+                        </>
+                    ) : (
+                        <Link href="/login" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">
+                            Login
+                        </Link>
+                    )}
+                </div>
+            </div>
+        )}
       </nav>
   );
 }
