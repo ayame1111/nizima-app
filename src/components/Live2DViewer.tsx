@@ -295,8 +295,10 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 });
 
                 let isFaceMeshReady = false;
+                let active = true;
 
                 faceMesh.onResults((results: any) => {
+                    if (!active) return;
                     if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) return;
                     
                     const landmarks = results.multiFaceLandmarks[0];
@@ -304,7 +306,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                         runtime: 'mediapipe',
                         video: videoRef.current
                     });
-
+                    
+                    // ... existing solving logic
                     if (solved && modelRef.current) {
                         const core = modelRef.current.internalModel.coreModel;
                         
@@ -367,6 +370,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
 
                 const camera = new Camera(videoRef.current, {
                     onFrame: async () => {
+                        if (!active) return;
                         if (videoRef.current && faceMesh && isFaceMeshReady) {
                             try {
                                 await faceMesh.send({ image: videoRef.current });
@@ -386,6 +390,13 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 }
                 cameraRef.current = camera;
                 await camera.start();
+                
+                // Store cleanup function in ref or return it
+                return () => {
+                    active = false;
+                    camera.stop();
+                    faceMesh.close();
+                };
 
             } catch (err) {
                 console.error("Failed to start face tracking:", err);
@@ -396,10 +407,11 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             }
         };
 
-        startTracking();
+        const cleanupPromise = startTracking();
 
         return () => {
             isTrackingInitializing.current = false;
+            cleanupPromise.then(cleanup => cleanup && cleanup());
             if (cameraRef.current) {
                 cameraRef.current.stop();
                 cameraRef.current = null;
