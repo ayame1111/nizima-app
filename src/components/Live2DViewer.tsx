@@ -653,6 +653,47 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 const height = canvasWrapperRef.current.clientHeight;
                 console.log(`[Live2DViewer] Canvas dimensions: ${width}x${height}`);
 
+                // INTERCEPT CONTEXT CREATION
+                // This ensures we patch the exact context PIXI uses, regardless of when it's created
+                const canvas = canvasRef.current;
+                const originalGetContext = canvas.getContext;
+                
+                // Define the patch function
+                const patchGLContext = (gl: any) => {
+                    if (gl._isPatched) return;
+                    
+                    const originalGetParameter = gl.getParameter.bind(gl);
+                    gl.getParameter = (parameter: number) => {
+                        const result = originalGetParameter(parameter);
+                        
+                        // MAX_VERTEX_UNIFORM_VECTORS (36347)
+                        if (parameter === 36347) return Math.max(result || 0, 1024); 
+                        // MAX_FRAGMENT_UNIFORM_VECTORS (36338)
+                        if (parameter === 36338) return Math.max(result || 0, 1024); 
+                        // MAX_VARYING_VECTORS (36348)
+                        if (parameter === 36348) return Math.max(result || 0, 30);   
+                        // MAX_VERTEX_ATTRIBS (34921)
+                        if (parameter === 34921) return Math.max(result || 0, 16);   
+                        
+                        return result;
+                    };
+                    
+                    // Also try to enable extensions
+                    try { gl.getExtension('OES_standard_derivatives'); } catch(e) {}
+                    
+                    gl._isPatched = true;
+                    console.log('[Live2DViewer] WebGL Context Patched via Interceptor');
+                };
+
+                // Override getContext
+                // @ts-ignore
+                canvas.getContext = function(type: string, options?: any) {
+                    // @ts-ignore
+                    const ctx = originalGetContext.call(this, type, options);
+                    if (ctx) patchGLContext(ctx);
+                    return ctx;
+                };
+
                 const app = new PIXI.Application({
                     view: canvasRef.current,
                     width,
@@ -673,38 +714,9 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     context: undefined
                 });
                 
-                // CRITICAL INSTANCE PATCH: Force specific parameters on this GL context
-                // This ensures that even if the prototype patch failed, this specific context is patched.
+                // Fallback: If PIXI already created the context (unlikely with interceptor but possible if reused)
                 if (app.renderer && (app.renderer as any).gl) {
-                    try {
-                        const gl = (app.renderer as any).gl;
-                        const originalGetParameter = gl.getParameter.bind(gl);
-                        
-                        // Override getParameter on the instance
-                        gl.getParameter = (parameter: number) => {
-                            const result = originalGetParameter(parameter);
-                            
-                            // MAX_VERTEX_UNIFORM_VECTORS (36347)
-                            if (parameter === 36347) return Math.max(result || 0, 1024); 
-                            
-                            // MAX_FRAGMENT_UNIFORM_VECTORS (36338)
-                            if (parameter === 36338) return Math.max(result || 0, 1024); 
-                            
-                            // MAX_VARYING_VECTORS (36348)
-                            if (parameter === 36348) return Math.max(result || 0, 30);   
-                            
-                            // MAX_VERTEX_ATTRIBS (34921)
-                            if (parameter === 34921) return Math.max(result || 0, 16);   
-                            
-                            return result;
-                        };
-                        
-                        // Try to enable more robust state
-                        gl.getExtension('OES_standard_derivatives');
-                        console.log('[Live2DViewer] Applied instance-level WebGL patch');
-                    } catch (e) {
-                        console.error('[Live2DViewer] Failed to apply instance patch:', e);
-                    }
+                    patchGLContext((app.renderer as any).gl);
                 }
                 
                 appRef.current = app;
