@@ -520,12 +520,25 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.LINEAR;
                 PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH;
 
+                // Attempt to pre-validate the URL to rule out basic connectivity issues
+                try {
+                    const headRes = await fetch(modelUrl, { method: 'HEAD' });
+                    if (!headRes.ok && headRes.status !== 405) { // 405 is Method Not Allowed, which some servers return for HEAD
+                         console.warn(`Model URL might be invalid: ${headRes.status}`);
+                    }
+                } catch (e) {
+                    console.warn("Pre-fetch check failed, attempting load anyway:", e);
+                }
+
                 const model = await Live2DModel.from(modelUrl, {
                     autoHitTest: false,
                     autoFocus: false,
                     onError: (e: any) => {
                         console.error('Model internal error:', e);
-                        if (mounted) setError('Model resource failed to load. Check network connection.');
+                        // Only set error if it's a critical loading failure
+                        if (mounted && !modelRef.current) {
+                            setError(`Failed to load model: ${e.message || 'Network Error'}`);
+                        }
                     }
                 });
                 
