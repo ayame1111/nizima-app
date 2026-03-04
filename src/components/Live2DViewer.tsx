@@ -399,7 +399,49 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     // Initialize PIXI
     useEffect(() => {
         let mounted = true;
+        let resizeObserver: ResizeObserver | null = null;
+        let resizeTimeout: NodeJS.Timeout;
+        let checkTimeout: NodeJS.Timeout;
+        let attempts = 0;
+
         setLoading(true);
+
+        const resize = () => {
+            const app = appRef.current;
+            const model = modelRef.current;
+            if (!app || !app.view || !canvasWrapperRef.current || !model) return;
+            
+            const w = canvasWrapperRef.current.clientWidth;
+            const h = canvasWrapperRef.current.clientHeight;
+            
+            if (w === 0 || h === 0) return;
+
+            // Only resize if dimensions actually changed significantly to avoid loops
+            const curW = app.renderer.width / app.renderer.resolution;
+            const curH = app.renderer.height / app.renderer.resolution;
+            
+            if (Math.abs(w - curW) < 2 && Math.abs(h - curH) < 2) return;
+
+            app.renderer.resize(w, h);
+            
+            model.scale.set(1);
+            
+            const scaleX = (w * 0.8) / model.width;
+            const scaleY = (h * 0.8) / model.height;
+            
+            let scale = Math.min(scaleX, scaleY);
+            
+            model.scale.set(scale);
+            
+            if (model.anchor) {
+                model.anchor.set(0.5);
+                model.x = w / 2;
+                model.y = h / 2;
+            } else {
+                model.x = (w - model.width) / 2;
+                model.y = (h - model.height) / 2;
+            }
+        };
 
         const init = async () => {
             try {
@@ -410,7 +452,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 
                 if (!mounted || !canvasRef.current || !canvasWrapperRef.current) return;
 
-                // Cleanup
+                // Cleanup existing app
                 if (appRef.current) {
                     appRef.current.destroy(true, { children: true });
                     appRef.current = null;
@@ -434,14 +476,21 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 console.log('Loading model...', modelUrl);
                 
                 const model = await Live2DModel.from(modelUrl, {
-                    autoInteract: false,
+                    autoHitTest: false,
+                    autoFocus: false,
                     onError: (e: any) => {
                         console.error('Model internal error:', e);
-                        setError('Model resource failed to load');
+                        if (mounted) setError('Model resource failed to load');
                     }
                 });
                 
-                // FORCE RESET focus on load so it doesn't default to looking somewhere
+                if (!mounted) {
+                    model.destroy();
+                    app.destroy(true, { children: true });
+                    return;
+                }
+                
+                // FORCE RESET focus on load
                 if (model.internalModel && model.internalModel.focusController) {
                      model.internalModel.focusController.focus(0, 0);
                 }
@@ -449,50 +498,26 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 if (model.textures && model.textures.some(t => !t.valid)) {
                     console.warn('Some textures failed to load');
                 }
-                
-                if (!mounted) {
-                    model.destroy();
-                    return;
-                }
 
                 modelRef.current = model;
                 app.stage.addChild(model);
-
-                // Center and Scale
-                const resize = () => {
-                    if (!app.view || !canvasWrapperRef.current) return;
-                    const w = canvasWrapperRef.current.clientWidth;
-                    const h = canvasWrapperRef.current.clientHeight;
-                    app.renderer.resize(w, h);
-                    
-                    model.scale.set(1);
-                    
-                    const scaleX = (w * 0.8) / model.width;
-                    const scaleY = (h * 0.8) / model.height;
-                    
-                    let scale = Math.min(scaleX, scaleY);
-                    
-                    model.scale.set(scale);
-                    
-                    if (model.anchor) {
-                        model.anchor.set(0.5);
-                        model.x = w / 2;
-                        model.y = h / 2;
-                    } else {
-                        model.x = (w - model.width) / 2;
-                        model.y = (h - model.height) / 2;
-                    }
-                };
                 
                 resize();
                 
-                const resizeObserver = new ResizeObserver(() => {
-                    resize();
+                // Debounced resize observer
+                resizeObserver = new ResizeObserver(() => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                         requestAnimationFrame(resize);
+                    }, 100);
                 });
-                resizeObserver.observe(canvasWrapperRef.current);
+                if (canvasWrapperRef.current) {
+                    resizeObserver.observe(canvasWrapperRef.current);
+                }
                 
                 if (interactive) {
-                    model.interactive = true;
+                    model.eventMode = 'static';
+                    model.cursor = 'pointer';
                     model.on('pointertap', () => {
                         model.motion('TapBody');
                     });
@@ -663,10 +688,6 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
 
                 setLoading(false);
 
-                return () => {
-                    resizeObserver.disconnect();
-                };
-
             } catch (err: any) {
                 console.error('Live2D Error:', err);
                 if (mounted) setError(err.message || 'Failed to load model');
@@ -675,16 +696,30 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
         };
 
         const checkCore = () => {
+            if (!mounted) return;
+            
             if ((window as any).Live2DCubismCore || (window as any).Live2D) {
                 init();
             } else {
-                setTimeout(checkCore, 100);
+                attempts++;
+                if (attempts > 50) { // 5 seconds timeout
+                    if (mounted) {
+                        setError('Live2D Core SDK failed to load');
+                        setLoading(false);
+                    }
+                    return;
+                }
+                checkTimeout = setTimeout(checkCore, 100);
             }
         };
+        
         checkCore();
 
         return () => {
             mounted = false;
+            clearTimeout(resizeTimeout);
+            clearTimeout(checkTimeout);
+            if (resizeObserver) resizeObserver.disconnect();
             if (appRef.current) {
                 appRef.current.destroy(true, { children: true });
                 appRef.current = null;
