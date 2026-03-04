@@ -16,6 +16,9 @@ if (typeof window !== 'undefined') {
             // Check for 0 results on critical parameters
             const result = originalGetParameter.call(this, parameter);
             
+            // Log ALL zero returns for debugging if needed (can be noisy)
+            // if (result === 0) console.log(`[Live2DViewer] ${name} getParameter(${parameter}) returned 0`);
+
             if (result === 0) {
                 // GL_MAX_VERTEX_UNIFORM_VECTORS = 0x8DFB (36347)
                 if (parameter === 36347) {
@@ -32,11 +35,26 @@ if (typeof window !== 'undefined') {
                     console.warn(`[Live2DViewer] ${name} MAX_VARYING_VECTORS returned 0, patching to 30`);
                     return 30;
                 }
+                // GL_MAX_VERTEX_ATTRIBS = 0x8869 (34921)
+                if (parameter === 34921) {
+                    console.warn(`[Live2DViewer] ${name} MAX_VERTEX_ATTRIBS returned 0, patching to 16`);
+                    return 16;
+                }
+                // GL_MAX_TEXTURE_IMAGE_UNITS = 0x8872 (34930)
+                if (parameter === 34930) {
+                    return 16;
+                }
+                // GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS = 0x8B4C (35660)
+                if (parameter === 35660) {
+                    return 16;
+                }
             }
             
-            // Force return of high values for specific shader checks that might fail
+            // Force return of high values for specific shader checks that might fail even if not 0 (e.g. too low)
             if (parameter === 36347) return Math.max(result, 1024); // GL_MAX_VERTEX_UNIFORM_VECTORS
             if (parameter === 36338) return Math.max(result, 1024); // GL_MAX_FRAGMENT_UNIFORM_VECTORS
+            if (parameter === 36348) return Math.max(result, 30);   // GL_MAX_VARYING_VECTORS
+            if (parameter === 34921) return Math.max(result, 16);   // GL_MAX_VERTEX_ATTRIBS
             
             return result;
         };
