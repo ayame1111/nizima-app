@@ -394,6 +394,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
 
         setLoading(true);
 
+        let resizeRetries = 0;
+
         const resize = () => {
             const app = appRef.current;
             const model = modelRef.current;
@@ -424,10 +426,18 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             
             // Check for valid dimensions
             if (model.width === 0 || model.height === 0) {
-                // Retry later if dimensions are not ready
-                requestAnimationFrame(resize);
+                // Retry later if dimensions are not ready, but limit retries to prevent infinite loops
+                if (resizeRetries < 10) {
+                    resizeRetries++;
+                    setTimeout(() => {
+                        if (mounted) requestAnimationFrame(resize);
+                    }, 100);
+                }
                 return;
             }
+            
+            // Reset retries on success
+            resizeRetries = 0;
             
             // Calculate scale to fit 85% of container (slightly larger)
             const scaleX = (w * 0.85) / model.width;

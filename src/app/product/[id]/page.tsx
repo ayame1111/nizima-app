@@ -34,7 +34,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         
         <div className="bg-[#252525] rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-5 border border-gray-800 w-full">
           {/* Left: Preview (Larger area) */}
-          <div className="lg:col-span-3 aspect-square lg:aspect-auto bg-[#1e1e1e] relative h-[50vh] lg:h-auto lg:min-h-[600px] border-b lg:border-b-0 lg:border-r border-gray-800 flex items-center justify-center w-full">
+          <div className="lg:col-span-3 bg-[#1e1e1e] relative h-[400px] sm:h-[500px] lg:h-auto lg:min-h-[600px] border-b lg:border-b-0 lg:border-r border-gray-800 flex items-center justify-center w-full">
             {product.previewUrl ? (
               <LazyLive2DViewer modelUrl={product.previewUrl} className="w-full h-full" />
             ) : (
