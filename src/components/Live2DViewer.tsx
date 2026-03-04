@@ -412,16 +412,33 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             const isMobile = window.innerWidth < 768;
             const threshold = isMobile ? 100 : 2;
             
-            if (Math.abs(w - curW) < 2 && Math.abs(h - curH) < threshold) return;
+            // Force resize if model scale is default (1) which means it hasn't been fitted yet
+            const needsFit = model.scale.x === 1 && model.scale.y === 1;
+
+            if (!needsFit && Math.abs(w - curW) < 2 && Math.abs(h - curH) < threshold) return;
 
             app.renderer.resize(w, h);
             
+            // Reset scale to check dimensions
             model.scale.set(1);
             
-            const scaleX = (w * 0.8) / model.width;
-            const scaleY = (h * 0.8) / model.height;
+            // Check for valid dimensions
+            if (model.width === 0 || model.height === 0) {
+                // Retry later if dimensions are not ready
+                requestAnimationFrame(resize);
+                return;
+            }
+            
+            // Calculate scale to fit 85% of container (slightly larger)
+            const scaleX = (w * 0.85) / model.width;
+            const scaleY = (h * 0.85) / model.height;
             
             let scale = Math.min(scaleX, scaleY);
+            
+            // CAP SCALE to prevent gigantic models
+            // If the model is very small, don't scale it up too much (max 2.5x)
+            // If the model is huge, scale it down (which min(scaleX, scaleY) does)
+            scale = Math.min(scale, 2.5);
             
             model.scale.set(scale);
             
