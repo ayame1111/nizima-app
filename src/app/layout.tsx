@@ -25,8 +25,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-
   return (
     <html lang="en">
       <body
@@ -40,7 +38,7 @@ export default async function RootLayout({
             src="https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js"
             strategy="beforeInteractive"
         />
-        <Providers session={session}>
+        <Providers>
           {children}
         </Providers>
       </body>

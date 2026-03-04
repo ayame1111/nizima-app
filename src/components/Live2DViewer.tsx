@@ -10,26 +10,36 @@ import * as Kalidokit from 'kalidokit';
 // --- WebGL Context Patch for Mobile/Low-End Devices ---
 // Fixes "Invalid value of '0' passed to 'checkMaxIfStatementsInShader'"
 if (typeof window !== 'undefined') {
-    const patchWebGL = (contextPrototype: any) => {
+    const patchWebGL = (contextPrototype: any, name: string) => {
         const originalGetParameter = contextPrototype.getParameter;
         contextPrototype.getParameter = function(parameter: number) {
-            // GL_MAX_VERTEX_UNIFORM_VECTORS = 0x8DFB (36347)
-            // GL_MAX_FRAGMENT_UNIFORM_VECTORS = 0x8DF2 (36338)
-            if (parameter === 36347 || parameter === 36338) {
-                const result = originalGetParameter.call(this, parameter);
-                if (result === 0) {
-                    console.warn('[Live2DViewer] WebGL getParameter returned 0 for uniforms, patching to 1024');
-                    return 1024; // Safe fallback to prevent PixiJS crash
+            // Check for 0 results on critical parameters
+            const result = originalGetParameter.call(this, parameter);
+            
+            if (result === 0) {
+                // GL_MAX_VERTEX_UNIFORM_VECTORS = 0x8DFB (36347)
+                if (parameter === 36347) {
+                    console.warn(`[Live2DViewer] ${name} MAX_VERTEX_UNIFORM_VECTORS returned 0, patching to 1024`);
+                    return 1024; 
                 }
-                return result;
+                // GL_MAX_FRAGMENT_UNIFORM_VECTORS = 0x8DF2 (36338)
+                if (parameter === 36338) {
+                    console.warn(`[Live2DViewer] ${name} MAX_FRAGMENT_UNIFORM_VECTORS returned 0, patching to 1024`);
+                    return 1024;
+                }
+                // GL_MAX_VARYING_VECTORS = 0x8DFC (36348)
+                if (parameter === 36348) {
+                    console.warn(`[Live2DViewer] ${name} MAX_VARYING_VECTORS returned 0, patching to 30`);
+                    return 30;
+                }
             }
-            return originalGetParameter.call(this, parameter);
+            return result;
         };
     };
     
     try {
-        if (typeof WebGLRenderingContext !== 'undefined') patchWebGL(WebGLRenderingContext.prototype);
-        if (typeof WebGL2RenderingContext !== 'undefined') patchWebGL(WebGL2RenderingContext.prototype);
+        if (typeof WebGLRenderingContext !== 'undefined') patchWebGL(WebGLRenderingContext.prototype, 'WebGL1');
+        if (typeof WebGL2RenderingContext !== 'undefined') patchWebGL(WebGL2RenderingContext.prototype, 'WebGL2');
     } catch (e) {
         console.warn('[Live2DViewer] Failed to patch WebGL context:', e);
     }

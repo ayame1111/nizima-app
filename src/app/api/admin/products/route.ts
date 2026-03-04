@@ -133,7 +133,7 @@ export async function POST(req: Request) {
                  const iconFilename = 'icon' + iconExt;
                  const iconPath = path.join(publicUploadDir, iconFilename);
                  fs.writeFileSync(iconPath, iconBuffer);
-                 iconUrl = `/uploads/${productId}/${iconFilename}`;
+                 iconUrl = `/file-proxy/${productId}/${iconFilename}`;
                  console.log('Icon saved to:', iconPath);
             }
         }
@@ -196,7 +196,7 @@ export async function POST(req: Request) {
     // Normalize path separators to forward slashes for URL
     const normalizedRelativePath = relativePath.split(path.sep).join('/');
     // Encode parts
-    const relativePreviewUrl = '/uploads/' + normalizedRelativePath.split('/').map(part => encodeURIComponent(part)).join('/');
+    const relativePreviewUrl = '/file-proxy/' + normalizedRelativePath.split('/').map(part => encodeURIComponent(part)).join('/');
     console.log('Preview URL:', relativePreviewUrl);
 
     // Generate unique slug
