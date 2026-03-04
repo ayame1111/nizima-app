@@ -116,8 +116,11 @@ function DashboardContent() {
           <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white gap-4">
               <h1 className="text-2xl font-bold">Access Denied</h1>
               <p>You are not signed in.</p>
-              <button onClick={() => router.push('/login')} className="bg-blue-600 px-4 py-2 rounded">Go to Login</button>
-              <pre className="bg-gray-900 p-4 rounded text-xs text-left">
+              <div className="flex gap-4">
+                  <button onClick={() => router.push('/login')} className="bg-blue-600 px-4 py-2 rounded font-bold hover:bg-blue-700">Go to Login</button>
+                  <a href="/debug-auth" className="bg-red-900 px-4 py-2 rounded font-bold hover:bg-red-800 border border-red-700">Debug Auth</a>
+              </div>
+              <pre className="bg-gray-900 p-4 rounded text-xs text-left mt-4 border border-gray-800">
                   Status: {status}<br/>
                   Session: {JSON.stringify(session, null, 2)}
               </pre>
