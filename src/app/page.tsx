@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import LazyLive2DViewer from '@/components/LazyLive2DViewer';
+import ProductCardImage from '@/components/ProductCardImage';
 import LikeButton from '@/components/LikeButton';
 import Navbar from '@/components/Navbar';
 import { ShoppingBag, Search, Menu, ArrowRight } from 'lucide-react';
@@ -88,22 +89,11 @@ export default async function Home() {
               <div key={product.id} className="group bg-white rounded-2xl overflow-hidden hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300 border border-gray-100 flex flex-col h-full">
                 {/* Image/Preview Area - Wrapped in Link for better mobile UX */}
                 <Link href={`/product/${product.slug || product.id}`} className="relative aspect-[4/5] bg-gray-100 overflow-hidden block">
-                    {product.iconUrl ? (
-                        <img 
-                            src={product.iconUrl} 
-                            alt={product.title} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                        />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-50 absolute inset-0 z-10 pointer-events-none">
-                            {/* If no icon, show Live2D viewer if available, else placeholder */}
-                            {product.previewUrl ? (
-                                 <LazyLive2DViewer modelUrl={product.previewUrl} interactive={false} />
-                            ) : (
-                                <span className="text-gray-400 text-sm font-medium">No Preview</span>
-                            )}
-                        </div>
-                    )}
+                    <ProductCardImage 
+                        src={product.iconUrl || ''} 
+                        alt={product.title} 
+                        previewUrl={product.previewUrl} 
+                    />
                     
                     {/* Live2D Badge */}
                     <div className="absolute top-3 left-3 z-20 bg-white/90 text-gray-900 text-[10px] font-bold px-2 py-1 rounded-md backdrop-blur-md uppercase tracking-wide shadow-sm flex items-center gap-1">
