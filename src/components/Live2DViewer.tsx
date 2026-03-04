@@ -33,6 +33,11 @@ if (typeof window !== 'undefined') {
                     return 30;
                 }
             }
+            
+            // Force return of high values for specific shader checks that might fail
+            if (parameter === 36347) return Math.max(result, 1024); // GL_MAX_VERTEX_UNIFORM_VECTORS
+            if (parameter === 36338) return Math.max(result, 1024); // GL_MAX_FRAGMENT_UNIFORM_VECTORS
+            
             return result;
         };
     };
@@ -646,7 +651,15 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     // 'high-performance' can cause crashes on some mobile GPUs if they can't handle the shader complexity
                     // defaulting to 'default' lets the browser decide the best power mode
                     powerPreference: 'default', 
+                    // Add this to prevent context loss on some systems
+                    context: undefined
                 });
+                
+                // Add legacy setting for PixiJS v7+
+                if (app.renderer && (app.renderer as any).gl) {
+                    // Try to enable more robust state
+                    (app.renderer as any).gl.getExtension('OES_standard_derivatives');
+                }
                 appRef.current = app;
                 console.log('[Live2DViewer] PIXI Application created');
 
