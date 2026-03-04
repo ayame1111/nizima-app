@@ -63,9 +63,9 @@ export default async function Home() {
             <button className="px-8 py-4 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/20 hover:shadow-gray-900/40 hover:-translate-y-0.5 flex items-center justify-center gap-2">
               Explore Marketplace <ArrowRight size={18} />
             </button>
-            <button className="px-8 py-4 bg-white text-gray-900 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all hover:border-gray-300">
+            <Link href="/become-creator" className="px-8 py-4 bg-white text-gray-900 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all hover:border-gray-300">
               Become a Creator
-            </button>
+            </Link>
           </div>
         </div>
       </section>

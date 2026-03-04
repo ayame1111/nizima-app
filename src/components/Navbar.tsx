@@ -23,8 +23,7 @@ export default function Navbar({ session }: { session: any }) {
                         </Link>
               <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-500">
                 <Link href="#" className="hover:text-gray-900 transition-colors">Marketplace</Link>
-                <Link href="#" className="hover:text-gray-900 transition-colors">Creators</Link>
-                <Link href="#" className="hover:text-gray-900 transition-colors">Commission</Link>
+                <Link href="#" className="hover:text-gray-900 transition-colors">Become a Creator</Link>
               </div>
             </div>
 
@@ -78,7 +77,7 @@ export default function Navbar({ session }: { session: any }) {
 
               <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors relative">
                 <ShoppingBag size={20} />
-                <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+                {/* <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span> */}
               </button>
               <button className="md:hidden p-2 text-gray-600" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 <Menu size={24} />
