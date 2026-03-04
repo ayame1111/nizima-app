@@ -29,7 +29,16 @@ export async function GET(req: Request) {
         }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, messageId: info.messageId });
+    // Return full info object for debugging
+    return NextResponse.json({ 
+        success: true, 
+        messageId: info.messageId,
+        response: info.response,
+        envelope: info.envelope,
+        accepted: info.accepted,
+        rejected: info.rejected,
+        pending: info.pending
+    });
   } catch (error: any) {
     return NextResponse.json({ 
         error: error.message,
