@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { updatePassword } from "@/app/actions/account";
 import { Download, Package } from "lucide-react";
+import { Order, Product, User } from "@prisma/client";
 
 export default async function AccountPage() {
   const session = await auth();
@@ -20,7 +21,7 @@ export default async function AccountPage() {
         }
     },
     orderBy: { createdAt: 'desc' }
-  });
+  }) as unknown as (Order & { product: Product & { seller: User | null } })[];
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
