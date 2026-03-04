@@ -75,11 +75,12 @@ function DashboardContent() {
     setMessage('');
     
     const formData = new FormData();
-    formData.append('file', file);
-    if (icon) formData.append('icon', icon);
+    // Append text fields first for better server handling
     formData.append('title', title);
     formData.append('description', description);
     formData.append('price', price);
+    formData.append('file', file);
+    if (icon) formData.append('icon', icon);
 
     try {
       await axios.post('/api/admin/products', formData, {
@@ -275,7 +276,7 @@ function DashboardContent() {
                                     <span className="font-bold text-lg text-white">${product.price}</span>
                                     <div className="flex gap-2">
                                         <a 
-                                            href={`/product/${product.id}`} 
+                                            href={`/product/${product.slug || product.id}`} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
                                             className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg transition-colors border border-gray-700"

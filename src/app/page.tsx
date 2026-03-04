@@ -87,7 +87,7 @@ export default async function Home() {
             {products.map((product) => (
               <div key={product.id} className="group bg-white rounded-2xl overflow-hidden hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300 border border-gray-100 flex flex-col h-full">
                 {/* Image/Preview Area - Wrapped in Link for better mobile UX */}
-                <Link href={`/product/${product.id}`} className="relative aspect-[4/5] bg-gray-100 overflow-hidden block">
+                <Link href={`/product/${product.slug || product.id}`} className="relative aspect-[4/5] bg-gray-100 overflow-hidden block">
                     {product.iconUrl ? (
                         <img 
                             src={product.iconUrl} 

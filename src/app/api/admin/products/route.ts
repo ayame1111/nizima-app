@@ -196,11 +196,28 @@ export async function POST(req: Request) {
     const relativePreviewUrl = '/uploads/' + normalizedRelativePath.split('/').map(part => encodeURIComponent(part)).join('/');
     console.log('Preview URL:', relativePreviewUrl);
 
+    // Generate unique slug
+    let slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+    
+    if (!slug) slug = 'product';
+
+    let uniqueSlug = slug;
+    let counter = 1;
+    
+    while (await prisma.product.findUnique({ where: { slug: uniqueSlug } })) {
+      uniqueSlug = `${slug}-${counter}`;
+      counter++;
+    }
+
     // Create product in DB
     try {
         const product = await prisma.product.create({
           data: {
             id: productId,
+            slug: uniqueSlug,
             title,
             description,
             price,

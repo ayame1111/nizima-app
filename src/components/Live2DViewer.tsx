@@ -7,6 +7,35 @@ import { X, Maximize2, RefreshCw, Play, Smile, Eye, EyeOff, Video, VideoOff } fr
 // import { FaceMesh } from '@mediapipe/face_mesh'; // Removed due to module issues
 import * as Kalidokit from 'kalidokit';
 
+// --- WebGL Context Patch for Mobile/Low-End Devices ---
+// Fixes "Invalid value of '0' passed to 'checkMaxIfStatementsInShader'"
+if (typeof window !== 'undefined') {
+    const patchWebGL = (contextPrototype: any) => {
+        const originalGetParameter = contextPrototype.getParameter;
+        contextPrototype.getParameter = function(parameter: number) {
+            // GL_MAX_VERTEX_UNIFORM_VECTORS = 0x8DFB (36347)
+            // GL_MAX_FRAGMENT_UNIFORM_VECTORS = 0x8DF2 (36338)
+            if (parameter === 36347 || parameter === 36338) {
+                const result = originalGetParameter.call(this, parameter);
+                if (result === 0) {
+                    console.warn('[Live2DViewer] WebGL getParameter returned 0 for uniforms, patching to 1024');
+                    return 1024; // Safe fallback to prevent PixiJS crash
+                }
+                return result;
+            }
+            return originalGetParameter.call(this, parameter);
+        };
+    };
+    
+    try {
+        if (typeof WebGLRenderingContext !== 'undefined') patchWebGL(WebGLRenderingContext.prototype);
+        if (typeof WebGL2RenderingContext !== 'undefined') patchWebGL(WebGL2RenderingContext.prototype);
+    } catch (e) {
+        console.warn('[Live2DViewer] Failed to patch WebGL context:', e);
+    }
+}
+// -----------------------------------------------------
+
 // Simple Camera Implementation to replace @mediapipe/camera_utils which has module issues
 class Camera {
     private video: HTMLVideoElement;
@@ -602,6 +631,7 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     resolution: isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2),
                     autoDensity: true,
                     preserveDrawingBuffer: true, // Fix for some devices not showing the canvas
+                    powerPreference: 'high-performance', // Request discrete GPU if available
                 });
                 appRef.current = app;
                 console.log('[Live2DViewer] PIXI Application created');
@@ -854,7 +884,13 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
 
             } catch (err: any) {
                 console.error('Live2D Error:', err);
-                if (mounted) setError(err.message || 'Failed to load model');
+                if (mounted) {
+                    let message = err.message || 'Failed to load model';
+                    if (message.includes('checkMaxIfStatementsInShader') || message.includes('WebGL')) {
+                        message = 'Graphics Error: Your device/browser may not support the required WebGL features. Try updating drivers or using a different browser.';
+                    }
+                    setError(message);
+                }
                 setLoading(false);
             }
         };

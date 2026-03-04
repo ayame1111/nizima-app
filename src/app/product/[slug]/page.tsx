@@ -11,11 +11,34 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = await prisma.product.findUnique({
+    where: { slug },
+  });
+
+  if (!product) {
+    return {
+      title: 'Product Not Found - Nizima App',
+    };
+  }
+
+  return {
+    title: `${product.title} - Nizima App`,
+    description: product.description.slice(0, 160),
+    openGraph: {
+      title: product.title,
+      description: product.description.slice(0, 160),
+      images: product.iconUrl ? [product.iconUrl] : [],
+    },
+  };
+}
+
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   
   const product = await prisma.product.findUnique({
-    where: { id },
+    where: { slug },
   });
 
   if (!product) {

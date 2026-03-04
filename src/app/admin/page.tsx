@@ -58,11 +58,12 @@ export default function AdminPage() {
     setMessage('');
     
     const formData = new FormData();
-    formData.append('file', file);
-    if (icon) formData.append('icon', icon);
+    // Append text fields first for better server handling
     formData.append('title', title);
     formData.append('description', description);
     formData.append('price', price);
+    formData.append('file', file);
+    if (icon) formData.append('icon', icon);
 
     try {
       await axios.post('/api/admin/products', formData, {
@@ -241,7 +242,7 @@ export default function AdminPage() {
                                 <span className="font-bold text-lg text-gray-800">${product.price}</span>
                                 <div className="flex gap-2">
                                     <a 
-                                        href={`/product/${product.id}`} 
+                                        href={`/product/${product.slug || product.id}`} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
                                         className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1.5 rounded transition-colors"
