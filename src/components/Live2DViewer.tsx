@@ -112,8 +112,16 @@ export default function Live2DViewer({ modelUrl, interactive = true, className }
 
   useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
-  }, []);
+    if (isOpen) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+    return () => {
+        setMounted(false);
+        document.body.style.overflow = '';
+    };
+  }, [isOpen]);
   
   return (
     <>
@@ -230,7 +238,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
     // Load FaceMesh Script
     useEffect(() => {
         if (showControls && !faceMeshLoaded) {
-            loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js')
+            // Pinning version to 0.4.1633559619 for stability
+            loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js')
                 .then(() => {
                     console.log('FaceMesh script loaded');
                     setFaceMeshLoaded(true);
@@ -254,7 +263,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 // @ts-ignore
                 const faceMesh = new window.FaceMesh({
                     locateFile: (file: string) => {
-                        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/${file}`;
                     }
                 });
 
@@ -264,6 +273,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     minDetectionConfidence: 0.5,
                     minTrackingConfidence: 0.5
                 });
+
+                let isFaceMeshReady = false;
 
                 faceMesh.onResults((results: any) => {
                     if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) return;
@@ -277,28 +288,14 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     if (solved && modelRef.current) {
                         const core = modelRef.current.internalModel.coreModel;
                         
-                        // Helper to safely set parameter
-                        const setParam = (id: string, value: number) => {
-                             // Using the existing updateModelParameter logic via a direct call would be better
-                             // but we can't easily call that from here without refactoring.
-                             // So we'll duplicate the robust setting logic briefly or expose it.
-                             // Actually, let's just use the main params array for "current state" isn't efficient for real-time.
-                             // We should interact directly with the model.
-                             
-                             if (modelRef.current.internalModel && modelRef.current.internalModel.focusController) {
-                                 // Bypass focus controller for head tracking if needed, or mix it?
-                                 // Actually Kalidokit output is -1 to 1 usually, or 0 to 1.
-                             }
-                        };
-                        
                         // Map Kalidokit results to Live2D parameters
-                        // Support both Cubism 4 (Param...) and Cubism 2 (PARAM_...) styles
+                        // ... (rest of mapping logic)
                         const solvedHead = solved.head.degrees;
                         const solvedEye = solved.eye;
                         const solvedMouth = solved.mouth.shape;
 
                         const targets = [
-                            { id: 'ParamAngleX', alt: 'PARAM_ANGLE_X', value: solvedHead.y }, // Inverted? Live2D X is usually head turning left/right
+                            { id: 'ParamAngleX', alt: 'PARAM_ANGLE_X', value: solvedHead.y }, 
                             { id: 'ParamAngleY', alt: 'PARAM_ANGLE_Y', value: solvedHead.x },
                             { id: 'ParamAngleZ', alt: 'PARAM_ANGLE_Z', value: solvedHead.z },
                             { id: 'ParamEyeLOpen', alt: 'PARAM_EYE_L_OPEN', value: solvedEye.l },
@@ -315,53 +312,42 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                         const internal = modelRef.current.internalModel;
 
                         targets.forEach(({ id, alt, value }) => {
-                             // Try standard ID first, then alt ID
                              let targetId = id;
-                             
-                             // Simple check if parameter exists (optional optimization)
-                             // We can just try setting both if we don't want to lookup indices
-                             
                              try {
-                                 // Cubism 4 standard API (Core)
                                  if (internal.coreModel && internal.coreModel.setParameterValueById) {
                                      internal.coreModel.setParameterValueById(id, value);
                                      internal.coreModel.setParameterValueById(alt, value);
                                  } 
-                                 // Cubism 2 standard API (Core)
                                  else if (internal.coreModel && internal.coreModel.setParamFloat) {
-                                     // Cubism 2 requires index lookup usually, but some wrappers provide setParamFloat with ID?
-                                     // Usually: internal.coreModel.getParamIndex(id) -> setParamFloat(index, value)
-                                     
                                      let idx = -1;
                                      if (internal.coreModel.getParamIndex) {
                                          idx = internal.coreModel.getParamIndex(id);
                                          if (idx === -1) idx = internal.coreModel.getParamIndex(alt);
                                      }
-                                     
                                      if (idx !== -1) {
                                          internal.coreModel.setParamFloat(idx, value);
                                      }
                                  }
-                                 // High level API (Pixi-Live2D-Display wrapper)
                                  else if (internal.setParameterValueById) {
                                      internal.setParameterValueById(id, value);
                                      internal.setParameterValueById(alt, value);
                                  }
                              } catch(e) {}
                         });
-                        
-                        // Also update React state for UI sliders? No, that causes too many re-renders.
-                        // We only update the visual model.
                     }
                 });
 
                 faceMeshRef.current = faceMesh;
 
+                // Wait for initialization (simple workaround)
+                await faceMesh.initialize();
+                isFaceMeshReady = true;
+
                 if (!videoRef.current) return;
 
                 const camera = new Camera(videoRef.current, {
                     onFrame: async () => {
-                        if (videoRef.current && faceMesh) {
+                        if (videoRef.current && faceMesh && isFaceMeshReady) {
                             try {
                                 await faceMesh.send({ image: videoRef.current });
                             } catch (e) {
@@ -379,6 +365,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
 
             } catch (err) {
                 console.error("Failed to start face tracking:", err);
+                setIsFaceTracking(false); // Disable on error to prevent loop
+                setError("Face tracking failed to initialize. It may not be supported on this device.");
             }
         };
 
@@ -420,7 +408,11 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             const curW = app.renderer.width / app.renderer.resolution;
             const curH = app.renderer.height / app.renderer.resolution;
             
-            if (Math.abs(w - curW) < 2 && Math.abs(h - curH) < 2) return;
+            // On mobile, ignore small height changes which might be address bar toggling
+            const isMobile = window.innerWidth < 768;
+            const threshold = isMobile ? 100 : 2;
+            
+            if (Math.abs(w - curW) < 2 && Math.abs(h - curH) < threshold) return;
 
             app.renderer.resize(w, h);
             
@@ -468,7 +460,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     backgroundAlpha: 0,
                     autoStart: true,
                     antialias: true,
-                    resolution: window.devicePixelRatio || 1,
+                    resolution: Math.min(window.devicePixelRatio || 1, 2), // Cap resolution to save memory on mobile
                     autoDensity: true,
                 });
                 appRef.current = app;
@@ -508,8 +500,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 resizeObserver = new ResizeObserver(() => {
                     clearTimeout(resizeTimeout);
                     resizeTimeout = setTimeout(() => {
-                         requestAnimationFrame(resize);
-                    }, 100);
+                         if (mounted) requestAnimationFrame(resize);
+                    }, 200);
                 });
                 if (canvasWrapperRef.current) {
                     resizeObserver.observe(canvasWrapperRef.current);
@@ -704,7 +696,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                 attempts++;
                 if (attempts > 50) { // 5 seconds timeout
                     if (mounted) {
-                        setError('Live2D Core SDK failed to load');
+                        setError('Live2D Core SDK failed to load. Please check your internet connection or disable adblockers.');
                         setLoading(false);
                     }
                     return;
