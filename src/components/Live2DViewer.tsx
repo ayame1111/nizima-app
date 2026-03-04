@@ -674,6 +674,10 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                         if (parameter === 36348) return Math.max(result || 0, 30);   
                         // MAX_VERTEX_ATTRIBS (34921)
                         if (parameter === 34921) return Math.max(result || 0, 16);   
+                        // MAX_TEXTURE_IMAGE_UNITS (34930)
+                        if (parameter === 34930) return Math.max(result || 0, 16);
+                        // MAX_VERTEX_TEXTURE_IMAGE_UNITS (35660)
+                        if (parameter === 35660) return Math.max(result || 0, 16);
                         
                         return result;
                     };
