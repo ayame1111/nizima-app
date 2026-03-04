@@ -496,6 +496,7 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
             
             model.scale.set(scale);
             
+            // Re-center model
             if (model.anchor) {
                 model.anchor.set(0.5);
                 model.x = w / 2;
@@ -537,7 +538,8 @@ function Live2DCanvas({ modelUrl, interactive, showControls, enableZoomPan, onCl
                     backgroundAlpha: 0,
                     autoStart: true,
                     antialias: true,
-                    resolution: Math.min(window.devicePixelRatio || 1, 2), // Cap resolution to save memory on mobile
+                    // Use a more conservative resolution on mobile to prevent crashes
+                    resolution: isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2),
                     autoDensity: true,
                     preserveDrawingBuffer: true, // Fix for some devices not showing the canvas
                 });
