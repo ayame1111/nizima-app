@@ -31,7 +31,7 @@ function DashboardContent() {
              // If user is just a USER, redirect home
              if (role === 'USER') {
                 console.warn('User is not authorized for dashboard. Role:', role);
-                router.push('/');
+                // router.push('/'); // Commented out for debugging
              }
         } else {
             fetchProducts();
