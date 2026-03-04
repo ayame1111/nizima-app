@@ -627,8 +627,8 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     backgroundAlpha: 0,
                     autoStart: true,
                     antialias: true,
-                    // Use a more conservative resolution on mobile to prevent crashes
-                    resolution: isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2),
+                    // Reverted to full resolution as per user request
+                    resolution: Math.min(window.devicePixelRatio || 1, 2), 
                     autoDensity: true,
                     preserveDrawingBuffer: true, // Fix for some devices not showing the canvas
                     powerPreference: 'high-performance', // Request discrete GPU if available
