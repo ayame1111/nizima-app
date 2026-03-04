@@ -192,7 +192,6 @@ export async function POST(req: Request) {
 
     // Convert absolute path to relative public URL
     // We need to be careful here: we want the path relative to the public uploads root
-    const { publicUploadsDir } = getStoragePaths();
     const relativePath = path.relative(publicUploadsDir, model3Path);
     // Normalize path separators to forward slashes for URL
     const normalizedRelativePath = relativePath.split(path.sep).join('/');
