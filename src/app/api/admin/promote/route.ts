@@ -38,3 +38,38 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const email = searchParams.get('email');
+    const key = searchParams.get('key');
+
+    if (key !== ADMIN_API_KEY) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!email) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Update role to ADMIN
+    await prisma.user.update({
+      where: { email },
+      data: { role: 'ADMIN' },
+    });
+
+    return NextResponse.json({ message: `Successfully promoted ${email} to ADMIN. Please sign out and sign in again.` });
+  } catch (error) {
+    console.error('Error promoting user:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
