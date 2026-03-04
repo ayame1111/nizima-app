@@ -39,7 +39,73 @@ function DashboardContent() {
     }
   }, [status, session, router]);
 
-  // ... (rest of code)
+  const fetchProducts = async () => {
+    setLoadingList(true);
+    try {
+      // The API now checks the session cookie automatically
+      const response = await axios.get('/api/admin/products');
+      setProducts(response.data);
+      setMessage('');
+    } catch (error: any) {
+      console.error(error);
+      setMessage('Failed to fetch products.');
+    } finally {
+      setLoadingList(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this product? This cannot be undone.')) return;
+    
+    try {
+      await axios.delete(`/api/admin/products/${id}`);
+      setProducts(products.filter(p => p.id !== id));
+      setMessage('Product deleted successfully');
+    } catch (error: any) {
+      console.error(error);
+      setMessage('Failed to delete product');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) return;
+
+    setLoading(true);
+    setMessage('');
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    if (icon) formData.append('icon', icon);
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('price', price);
+
+    try {
+      await axios.post('/api/admin/products', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setMessage('Product uploaded successfully!');
+      setTitle('');
+      setDescription('');
+      setPrice('');
+      setFile(null);
+      setIcon(null);
+      // Reset file inputs
+      (document.getElementById('file-upload') as HTMLInputElement).value = '';
+      const iconInput = document.getElementById('icon-upload') as HTMLInputElement;
+      if (iconInput) iconInput.value = '';
+      
+      fetchProducts(); // Refresh list
+    } catch (error: any) {
+      console.error(error);
+      setMessage(error.response?.data?.error || 'Failed to upload product.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (status === 'loading') {
       return <div className="min-h-screen flex items-center justify-center bg-black text-white">Loading session...</div>;
