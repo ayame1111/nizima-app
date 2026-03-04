@@ -225,13 +225,73 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
         checkMobile();
     }, []);
 
+    // Helper for resize
+    const triggerResize = () => {
+        const app = appRef.current;
+        const model = modelRef.current;
+        if (!app || !app.view || !canvasWrapperRef.current || !model) return;
+        
+        const w = canvasWrapperRef.current.clientWidth;
+        const h = canvasWrapperRef.current.clientHeight;
+        
+        if (w === 0 || h === 0) return;
+
+        // Only resize if dimensions actually changed significantly to avoid loops
+        const curW = app.renderer.width / app.renderer.resolution;
+        const curH = app.renderer.height / app.renderer.resolution;
+        
+        // On mobile, ignore small height changes which might be address bar toggling
+        const isMobile = window.innerWidth < 768;
+        const threshold = isMobile ? 100 : 2;
+        
+        // Force resize if model scale is default (1) which means it hasn't been fitted yet
+        const needsFit = model.scale.x === 1 && model.scale.y === 1;
+
+        if (!needsFit && Math.abs(w - curW) < 2 && Math.abs(h - curH) < threshold) {
+             return;
+        }
+
+        console.log(`[Live2DViewer] Resizing to ${w}x${h}`);
+        app.renderer.resize(w, h);
+        
+        // Reset scale to check dimensions
+        model.scale.set(1);
+        
+        // Check for valid dimensions
+        if (model.width === 0 || model.height === 0) {
+            // Can't retry here easily without creating a closure loop, just return
+            return;
+        }
+        
+        // Calculate scale to fit 85% of container (slightly larger)
+        const scaleX = (w * 0.85) / model.width;
+        const scaleY = (h * 0.85) / model.height;
+        
+        let scale = Math.min(scaleX, scaleY);
+        
+        // CAP SCALE to prevent gigantic models
+        scale = Math.min(scale, 2.5);
+        
+        model.scale.set(scale);
+        
+        // Re-center model
+        if (model.anchor) {
+            model.anchor.set(0.5);
+            model.x = w / 2;
+            model.y = h / 2;
+        } else {
+            model.x = (w - model.width) / 2;
+            model.y = (h - model.height) / 2;
+        }
+    };
+
     // Trigger Resize when isOpen changes
     useEffect(() => {
         // Wait for layout transition to finish/start
         const timers = [
-            setTimeout(() => { if (mounted) resize() }, 50),
-            setTimeout(() => { if (mounted) resize() }, 300), // Match transition duration
-            setTimeout(() => { if (mounted) resize() }, 500)
+            setTimeout(() => triggerResize(), 50),
+            setTimeout(() => triggerResize(), 300), // Match transition duration
+            setTimeout(() => triggerResize(), 500)
         ];
         return () => timers.forEach(t => clearTimeout(t));
     }, [isOpen]);
