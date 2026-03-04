@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
 import crypto from "crypto"
+import { sendEmail } from "@/lib/email"
 
 const RegisterSchema = z.object({
   email: z.string().email(),
@@ -37,6 +38,17 @@ export async function register(prevState: any, formData: FormData) {
       password: hashedPassword,
       name,
     },
+  })
+
+  await sendEmail({
+    to: normalizedEmail,
+    subject: "Welcome to Avatar Atelier",
+    html: `
+      <h1>Welcome to Avatar Atelier!</h1>
+      <p>Hi ${name},</p>
+      <p>Thank you for creating an account. We're excited to have you on board.</p>
+      <p>Best regards,<br>The Avatar Atelier Team</p>
+    `,
   })
 
   return { success: "User created!" }
@@ -78,7 +90,21 @@ export async function forgotPassword(prevState: any, formData: FormData) {
 
   // In a real app, send email here.
   // For now, log the reset link to the server console so the user can see it in logs.
-  console.log(`[PASSWORD RESET] Link for ${normalizedEmail}: ${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}`)
+  const resetLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+  console.log(`[PASSWORD RESET] Link for ${normalizedEmail}: ${resetLink}`)
+
+  await sendEmail({
+    to: normalizedEmail,
+    subject: "Reset your Avatar Atelier password",
+    html: `
+      <h1>Password Reset Request</h1>
+      <p>Someone requested a password reset for your account.</p>
+      <p>Click the link below to reset your password:</p>
+      <a href="${resetLink}">${resetLink}</a>
+      <p>If you didn't request this, you can safely ignore this email.</p>
+      <p>This link will expire in 1 hour.</p>
+    `,
+  })
 
   return { success: "If an account exists, a reset link has been sent." }
 }

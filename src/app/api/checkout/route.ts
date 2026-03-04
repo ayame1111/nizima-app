@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendEmail } from '@/lib/email';
 
 export async function POST(req: Request) {
   try {
@@ -35,18 +36,36 @@ export async function POST(req: Request) {
       });
 
       // 3. Mark product as sold
-      await tx.product.update({
+      const updatedProduct = await tx.product.update({
         where: { id: productId },
         data: { isSold: true },
       });
 
-      return { order };
+      return { order, product: updatedProduct };
     });
+
+    const downloadLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/download/${result.order.id}`;
+
+    // 4. Send email
+    if (payerEmail) {
+        await sendEmail({
+            to: payerEmail,
+            subject: "Your Order Confirmation - Avatar Atelier",
+            html: `
+                <h1>Thank you for your purchase!</h1>
+                <p>You have successfully purchased: <strong>${result.product.title}</strong></p>
+                <p>You can download your files here:</p>
+                <a href="${downloadLink}">${downloadLink}</a>
+                <br>
+                <p>Transaction ID: ${transactionId || paypalOrderId}</p>
+            `,
+        });
+    }
 
     return NextResponse.json({ 
       success: true, 
       orderId: result.order.id,
-      downloadUrl: `/api/download/${result.order.id}` 
+      downloadUrl: downloadLink 
     });
 
   } catch (error: any) {
