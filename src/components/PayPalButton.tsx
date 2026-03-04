@@ -1,8 +1,9 @@
 'use client';
 
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { useState } from "react";
+import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import axios from "axios";
+import { ShieldCheck, Lock } from "lucide-react";
+import { useState } from "react";
 
 interface PayPalButtonProps {
   amount: number;
@@ -18,13 +19,21 @@ export default function PayPalButtonComponent({ amount, productId, onSuccess }: 
     clientId: "test", // "test" enables sandbox mode
     currency: "USD",
     intent: "capture",
+    components: "buttons", // Only load buttons component
   };
 
   return (
-    <PayPalScriptProvider options={initialOptions}>
-      <div className="w-full max-w-md">
+    <div className="w-full max-w-md space-y-4">
+      <PayPalScriptProvider options={initialOptions}>
         <PayPalButtons
-          style={{ layout: "vertical", shape: "rect" }}
+          style={{ 
+            layout: "vertical", 
+            shape: "rect",
+            color: "gold",
+            label: "paypal"
+          }}
+          forceReRender={[amount, productId]}
+          fundingSource={undefined} // Let PayPal decide smart buttons (PayPal, Card, Venmo, etc)
           createOrder={(data, actions) => {
             return actions.order.create({
               purchase_units: [
@@ -64,8 +73,23 @@ export default function PayPalButtonComponent({ amount, productId, onSuccess }: 
               setError("An error occurred with PayPal.");
           }}
         />
-        {error && <p className="text-red-600 mt-2 text-sm bg-red-50 p-2 rounded">{error}</p>}
+      </PayPalScriptProvider>
+
+      {error && <p className="text-red-600 mt-2 text-sm bg-red-50 p-2 rounded">{error}</p>}
+
+      {/* Safety Disclosure */}
+      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-3 text-xs text-gray-600 flex items-start gap-2">
+        <ShieldCheck className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-semibold text-gray-800 flex items-center gap-1">
+            Secure Transaction <Lock size={10} className="text-gray-400" />
+          </p>
+          <p>
+            Your payment is securely processed by PayPal. We do not store your credit card details. 
+            You are protected by PayPal Buyer Protection.
+          </p>
+        </div>
       </div>
-    </PayPalScriptProvider>
+    </div>
   );
 }

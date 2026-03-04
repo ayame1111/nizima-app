@@ -1,11 +1,17 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { updateUserRole } from "@/app/actions/admin";
+import { updateUserRole, assignCreatorRoleByEmail } from "@/app/actions/admin";
 import Link from "next/link";
+import { Search } from "lucide-react";
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q: string }>;
+}) {
   const session = await auth();
+  const query = (await searchParams).q || "";
 
   // @ts-ignore
   if (session?.user?.role !== 'ADMIN') {
@@ -13,23 +19,74 @@ export default async function AdminUsersPage() {
   }
 
   const users = await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' }
+    where: {
+      OR: [
+        { name: { contains: query, mode: 'insensitive' } },
+        { email: { contains: query, mode: 'insensitive' } },
+      ],
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 50 // Limit to 50 for performance
   });
 
   return (
-    <div className="min-h-screen bg-black text-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-black text-gray-100 pb-12 px-4 sm:px-6 lg:px-8">
+      {/* Simple Breadcrumb */}
+      <div className="max-w-6xl mx-auto py-6 text-sm text-gray-400">
+        <Link href="/" className="hover:text-white">Home</Link>
+        <span className="mx-2">/</span>
+        <span className="text-white">Admin Panel</span>
+      </div>
+
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
             <div>
                 <h1 className="text-3xl font-bold text-white mb-2">User Management</h1>
                 <p className="text-gray-400">Manage user roles and permissions.</p>
             </div>
+            {/* Admin Dashboard Link - Back to Product Management */}
             <Link href="/admin" className="text-blue-400 hover:text-blue-300">
-                Back to Dashboard
+                Manage Products
             </Link>
         </div>
 
+        {/* Quick Assign Creator Role */}
+        <div className="bg-[#111] p-6 rounded-2xl border border-gray-800">
+            <h2 className="text-xl font-bold text-white mb-4">Quick Assign Creator Role</h2>
+            <p className="text-gray-400 mb-4 text-sm">Enter an email address to instantly upgrade a user to Creator status.</p>
+            <form action={assignCreatorRoleByEmail} className="flex gap-4">
+                <input 
+                    type="email" 
+                    name="email" 
+                    placeholder="user@example.com" 
+                    required
+                    className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                />
+                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                    Make Creator
+                </button>
+            </form>
+        </div>
+
+        {/* Search & List */}
         <div className="bg-[#111] rounded-2xl border border-gray-800 overflow-hidden">
+            <div className="p-4 border-b border-gray-800 flex gap-4">
+                 <form className="flex-1 flex gap-2">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                        <input 
+                            name="q" 
+                            defaultValue={query}
+                            placeholder="Search users..." 
+                            className="w-full bg-black border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                        />
+                    </div>
+                    <button type="submit" className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium">
+                        Search
+                    </button>
+                 </form>
+            </div>
+            
             <table className="w-full text-left">
                 <thead className="bg-gray-900 border-b border-gray-800">
                     <tr>

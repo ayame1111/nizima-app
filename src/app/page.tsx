@@ -17,29 +17,15 @@ const formatCurrency = (amount: number) => {
 export const revalidate = 0; // Disable caching for real-time updates
 
 export default async function Home() {
-  const session = await auth();
-  
-  let favoriteIds: string[] = [];
-  if (session?.user?.id) {
-      const user = await prisma.user.findUnique({
-          where: { id: session.user.id },
-          include: { favorites: { select: { id: true } } }
-      });
-      if (user) {
-          favoriteIds = user.favorites.map(f => f.id);
-      }
-  }
-
   const products = await prisma.product.findMany({
-    where: { isSold: false },
     orderBy: { createdAt: 'desc' },
+    include: {
+      seller: true,
+    }
   });
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-purple-100 selection:text-purple-900">
-      
-      {/* Navigation */}
-      <Navbar session={session} />
+    <div className="min-h-screen bg-white">
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gray-50 pt-16 pb-20 lg:pt-24 lg:pb-28">

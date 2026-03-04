@@ -46,15 +46,15 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] p-4 md:p-8 text-gray-100 font-sans overflow-x-hidden">
-      <div className="max-w-7xl mx-auto w-full">
-        <Link href="/" className="text-gray-400 hover:text-white mb-6 inline-flex items-center transition-colors">
-          <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back to Marketplace
-        </Link>
-        
+    <div className="min-h-screen bg-white">
+      {/* Breadcrumb */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-gray-500">
+         <Link href="/" className="hover:text-gray-900">Home</Link>
+         <span className="mx-2">/</span>
+         <span className="text-gray-900 font-medium truncate">{product.title}</span>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-[#252525] rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-5 border border-gray-800 w-full">
           {/* Left: Preview (Larger area) */}
           <div className="lg:col-span-3 bg-[#1e1e1e] relative h-[400px] sm:h-[500px] lg:h-auto lg:min-h-[600px] border-b lg:border-b-0 lg:border-r border-gray-800 flex items-center justify-center w-full">

@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface DashboardClientProps {
   user: any;
@@ -228,16 +229,16 @@ function DashboardContent({ user }: DashboardClientProps) {
 
 
   return (
-    <div className="min-h-screen bg-black text-gray-100 p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-            <div>
-                <h1 className="text-3xl font-bold text-white">Creator Dashboard</h1>
-                <p className="text-gray-400">Manage your models and sales.</p>
-            </div>
-            <a href="/account" className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium">
-            My Account
-            </a>
+    <div className="min-h-screen bg-gray-50 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center mb-8 pt-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Creator Dashboard</h1>
+            <p className="mt-1 text-sm text-gray-500">Manage your Live2D models and sales.</p>
+          </div>
+          <Link href="/account" className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium">
+             My Account
+          </Link>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -8,37 +8,38 @@ import { Download, Package } from "lucide-react";
 export default async function AccountPage() {
   const session = await auth();
 
-  if (!session?.user) {
-    redirect("/login");
+  if (!session?.user?.id) {
+    redirect('/login');
   }
 
   const purchases = await prisma.order.findMany({
-    where: {
-      buyerEmail: session.user.email as string,
-      status: "COMPLETED",
-    },
+    where: { userId: session.user.id },
     include: {
-      product: true,
+        product: {
+            include: { seller: true }
+        }
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: 'desc' }
   });
 
   return (
-    <div className="min-h-screen bg-black text-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-white text-gray-900">
+      {/* Breadcrumb */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-gray-500">
+         <Link href="/" className="hover:text-gray-900">Home</Link>
+         <span className="mx-2">/</span>
+         <span className="text-gray-900 font-medium">My Account</span>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">My Account</h1>
-          <p className="text-gray-400">Manage your purchases and account settings.</p>
+           <h1 className="text-3xl font-bold text-gray-900 mb-2">My Account</h1>
+           <p className="text-gray-500">Manage your profile and purchases.</p>
         </div>
 
         {/* Purchases Section */}
-        <div className="bg-[#111] rounded-2xl border border-gray-800 p-6">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Package className="text-blue-500" />
-            Purchased Models
-          </h2>
+        <div className="mt-8 border-t border-gray-100 pt-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Purchased Models</h2>
           
           {purchases.length === 0 ? (
             <div className="text-center py-12 text-gray-500 bg-black/20 rounded-xl border border-gray-800 border-dashed">
@@ -48,31 +49,26 @@ export default async function AccountPage() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
-              {purchases.map((order) => (
-                <div key={order.id} className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-gray-800 hover:border-gray-700 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gray-800 rounded-lg overflow-hidden relative">
-                        {order.product.iconUrl ? (
-                            <img src={order.product.iconUrl} alt={order.product.title} className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-600 font-bold">
-                                {order.product.title.charAt(0)}
-                            </div>
-                        )}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white">{order.product.title}</h3>
-                      <p className="text-sm text-gray-500">Purchased on {new Date(order.createdAt).toLocaleDateString()}</p>
-                    </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {purchases.map((purchase) => (
+                <div key={purchase.id} className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                  <div className="aspect-square bg-gray-50 relative overflow-hidden">
+                      {purchase.product.iconUrl ? (
+                           <img src={purchase.product.iconUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              <Package size={32} />
+                          </div>
+                      )}
                   </div>
-                  <Link 
-                    href={`/api/download/${order.id}`}
-                    className="flex items-center gap-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 px-4 py-2 rounded-lg font-medium transition-colors border border-blue-600/20"
-                  >
-                    <Download size={16} />
-                    Download
-                  </Link>
+                  <div className="p-4">
+                       <h3 className="font-bold text-gray-900 truncate">{purchase.product.title}</h3>
+                       <p className="text-sm text-gray-500 mb-4 truncate">{purchase.product.seller?.name || 'Unknown Artist'}</p>
+                       
+                       <a href={`/api/download/${purchase.id}`} className="block w-full text-center bg-gray-900 text-white py-2 rounded-lg font-bold hover:bg-gray-800 transition-colors">
+                           Download
+                       </a>
+                   </div>
                 </div>
               ))}
             </div>

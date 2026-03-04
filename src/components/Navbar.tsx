@@ -28,11 +28,14 @@ export default function Navbar({ session }: { session: any }) {
             </div>
 
             <div className="flex items-center gap-4">
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                <Search size={20} />
-              </button>
-              
-              {/* Creator Dashboard Link - Only for Creators/Admins */}
+            {/* Admin Panel Link - Only for Admins */}
+            {session?.user && (session.user as any).role === 'ADMIN' && (
+                <Link href="/admin/users" className="text-sm font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors hidden sm:block">
+                  Admin Panel
+                </Link>
+            )}
+
+            {/* Creator Dashboard Link - Only for Creators/Admins */}
               {session?.user && (['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
                   <Link href="/dashboard" className="text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors hidden sm:block">
                     Creator Dashboard
@@ -92,7 +95,14 @@ export default function Navbar({ session }: { session: any }) {
                 <div className="px-4 pt-2 pb-4 space-y-1">
                     <Link href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">Marketplace</Link>
                     <Link href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">Become a Creator</Link>
-                    {session?.user && (['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
+                    {/* Admin Link for Mobile */}
+                {session?.user && (session.user as any).role === 'ADMIN' && (
+                    <Link href="/admin/users" className="block px-3 py-2 text-base font-bold text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md">
+                        Admin Panel
+                    </Link>
+                )}
+
+                {session?.user && (['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
                         <Link href="/dashboard" className="block px-3 py-2 text-base font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-md">
                             Creator Dashboard
                         </Link>

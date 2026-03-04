@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Providers } from "@/components/Providers";
 import { auth } from "@/auth";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Avatar Atelier",
-  description: "Buy and sell Live2D models for VTubing",
+  description: "Marketplace for Live2D Models",
 };
 
 export default async function RootLayout({
@@ -25,10 +26,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900 min-h-screen flex flex-col`}
       >
         <Script 
           src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js" 
@@ -39,7 +42,10 @@ export default async function RootLayout({
             strategy="beforeInteractive"
         />
         <Providers>
-          {children}
+          <Navbar session={session} />
+          <main className="flex-grow">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>

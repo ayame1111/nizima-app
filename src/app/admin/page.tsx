@@ -1,109 +1,51 @@
-'use client';
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
-import { useState } from 'react';
-import axios from 'axios';
+export default async function AdminPage() {
+  const session = await auth();
 
-export default function AdminPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [icon, setIcon] = useState<File | null>(null);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
-  const [adminKey, setAdminKey] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [products, setProducts] = useState<any[]>([]);
-  const [loadingList, setLoadingList] = useState(false);
+  // @ts-ignore
+  if (session?.user?.role !== 'ADMIN') {
+    redirect("/");
+  }
 
-  const fetchProducts = async () => {
-    if (!adminKey) {
-      setMessage('Please enter Admin Key first');
-      return;
-    }
-    setLoadingList(true);
-    try {
-      const response = await axios.get('/api/admin/products', {
-        headers: { Authorization: `Bearer ${adminKey}` },
-      });
-      setProducts(response.data);
-      setMessage('');
-    } catch (error: any) {
-      console.error(error);
-      setMessage('Failed to fetch products. Check Admin Key.');
-    } finally {
-      setLoadingList(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product? This cannot be undone.')) return;
-    
-    try {
-      await axios.delete(`/api/admin/products/${id}`, {
-        headers: { Authorization: `Bearer ${adminKey}` },
-      });
-      setProducts(products.filter(p => p.id !== id));
-      setMessage('Product deleted successfully');
-    } catch (error: any) {
-      console.error(error);
-      setMessage('Failed to delete product');
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file) return;
-
-    setLoading(true);
-    setMessage('');
-    
-    const formData = new FormData();
-    // Append text fields first for better server handling
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('price', price);
-    formData.append('file', file);
-    if (icon) formData.append('icon', icon);
-
-    try {
-      await axios.post('/api/admin/products', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${adminKey}`,
-        },
-      });
-      setMessage('Product uploaded successfully!');
-      setTitle('');
-      setDescription('');
-      setPrice('');
-      setFile(null);
-      setIcon(null);
-      // Reset file inputs
-      (document.getElementById('file-upload') as HTMLInputElement).value = '';
-      const iconInput = document.getElementById('icon-upload') as HTMLInputElement;
-      if (iconInput) iconInput.value = '';
-      
-      fetchProducts(); // Refresh list
-    } catch (error: any) {
-      console.error(error);
-      setMessage(error.response?.data?.error || 'Failed to upload product.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Fetch products (you might want to paginate this in a real app)
+  const products = await prisma.product.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: { seller: true }
+  });
 
   return (
-    <div className="container mx-auto p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <a href="/" className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium flex items-center gap-2">
-          ← Back to Home
-        </a>
+    <div className="min-h-screen bg-black text-gray-100 pb-12 px-4 sm:px-6 lg:px-8">
+      {/* Simple Breadcrumb */}
+      <div className="max-w-6xl mx-auto py-6 text-sm text-gray-400">
+        <Link href="/" className="hover:text-white">Home</Link>
+        <span className="mx-2">/</span>
+        <span className="text-white">Admin Panel</span>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Upload Form */}
-        <div className="bg-white p-6 rounded-lg shadow-md h-fit">
+
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div className="flex justify-between items-center">
+            <div>
+                <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
+                <p className="text-gray-400">Manage products and system settings.</p>
+            </div>
+            
+            <Link href="/admin/users" className="bg-blue-900/50 border border-blue-800 text-blue-300 px-4 py-2 rounded-lg hover:bg-blue-900/80 transition-colors font-medium">
+                Manage Users
+            </Link>
+        </div>
+        
+        {/* Placeholder for Product Management List */}
+        <div className="bg-[#111] rounded-2xl border border-gray-800 p-8 text-center">
+            <p className="text-gray-400">Product management features coming soon.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
           <h2 className="text-xl font-semibold mb-4 text-gray-800">Upload New Model</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
