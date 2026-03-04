@@ -10,6 +10,19 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Log configuration on startup (sanitized)
+if (process.env.SMTP_HOST) {
+    console.log('Email configuration loaded:', {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT || 587,
+        secure: process.env.SMTP_SECURE === 'true',
+        user: process.env.SMTP_USER ? '***' : 'missing',
+        from: process.env.SMTP_FROM
+    });
+} else {
+    console.warn('SMTP_HOST environment variable is missing. Emails will not be sent.');
+}
+
 export async function sendEmail({
   to,
   subject,
@@ -21,8 +34,6 @@ export async function sendEmail({
 }) {
   if (!process.env.SMTP_HOST) {
     console.warn('SMTP_HOST not set. Email not sent:', { to, subject });
-    // In development/test, maybe we still want to see the content?
-    // console.log('Email content:', html);
     return;
   }
 
@@ -37,5 +48,7 @@ export async function sendEmail({
     return info;
   } catch (error) {
     console.error('Error sending email:', error);
+    // Re-throw to allow caller to handle/log
+    throw error;
   }
 }

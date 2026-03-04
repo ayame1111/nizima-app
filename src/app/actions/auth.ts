@@ -40,16 +40,20 @@ export async function register(prevState: any, formData: FormData) {
     },
   })
 
-  await sendEmail({
-    to: normalizedEmail,
-    subject: "Welcome to Avatar Atelier",
-    html: `
-      <h1>Welcome to Avatar Atelier!</h1>
-      <p>Hi ${name},</p>
-      <p>Thank you for creating an account. We're excited to have you on board.</p>
-      <p>Best regards,<br>The Avatar Atelier Team</p>
-    `,
-  })
+  try {
+    await sendEmail({
+      to: normalizedEmail,
+      subject: "Welcome to Avatar Atelier",
+      html: `
+        <h1>Welcome to Avatar Atelier!</h1>
+        <p>Hi ${name},</p>
+        <p>Thank you for creating an account. We're excited to have you on board.</p>
+        <p>Best regards,<br>The Avatar Atelier Team</p>
+      `,
+    })
+  } catch (error) {
+    console.error("Failed to send welcome email:", error)
+  }
 
   return { success: "User created!" }
 }
@@ -93,18 +97,22 @@ export async function forgotPassword(prevState: any, formData: FormData) {
   const resetLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
   console.log(`[PASSWORD RESET] Link for ${normalizedEmail}: ${resetLink}`)
 
-  await sendEmail({
-    to: normalizedEmail,
-    subject: "Reset your Avatar Atelier password",
-    html: `
-      <h1>Password Reset Request</h1>
-      <p>Someone requested a password reset for your account.</p>
-      <p>Click the link below to reset your password:</p>
-      <a href="${resetLink}">${resetLink}</a>
-      <p>If you didn't request this, you can safely ignore this email.</p>
-      <p>This link will expire in 1 hour.</p>
-    `,
-  })
+  try {
+    await sendEmail({
+      to: normalizedEmail,
+      subject: "Reset your Avatar Atelier password",
+      html: `
+        <h1>Password Reset Request</h1>
+        <p>Someone requested a password reset for your account.</p>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetLink}">${resetLink}</a>
+        <p>If you didn't request this, you can safely ignore this email.</p>
+        <p>This link will expire in 1 hour.</p>
+      `,
+    })
+  } catch (error) {
+    console.error("Failed to send reset email:", error)
+  }
 
   return { success: "If an account exists, a reset link has been sent." }
 }
