@@ -229,9 +229,9 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
     useEffect(() => {
         // Wait for layout transition to finish/start
         const timers = [
-            setTimeout(() => resize(), 50),
-            setTimeout(() => resize(), 300), // Match transition duration
-            setTimeout(() => resize(), 500)
+            setTimeout(() => { if (mounted) resize() }, 50),
+            setTimeout(() => { if (mounted) resize() }, 300), // Match transition duration
+            setTimeout(() => { if (mounted) resize() }, 500)
         ];
         return () => timers.forEach(t => clearTimeout(t));
     }, [isOpen]);
@@ -434,6 +434,8 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
         let resizeRetries = 0;
 
         const resize = () => {
+            if (!mounted) return;
+            
             const app = appRef.current;
             const model = modelRef.current;
             if (!app || !app.view || !canvasWrapperRef.current || !model) return;
