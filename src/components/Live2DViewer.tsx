@@ -627,11 +627,15 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     backgroundAlpha: 0,
                     autoStart: true,
                     antialias: true,
-                    // Reverted to full resolution as per user request
-                    resolution: Math.min(window.devicePixelRatio || 1, 2), 
+                    // Resolution Handling:
+                    // - On mobile, use 1.5x resolution for better quality without crashing (compromise)
+                    // - On desktop, use device pixel ratio (capped at 2x)
+                    resolution: isMobile ? 1.5 : Math.min(window.devicePixelRatio || 1, 2),
                     autoDensity: true,
-                    preserveDrawingBuffer: true, // Fix for some devices not showing the canvas
-                    powerPreference: 'high-performance', // Request discrete GPU if available
+                    preserveDrawingBuffer: true,
+                    // 'high-performance' can cause crashes on some mobile GPUs if they can't handle the shader complexity
+                    // defaulting to 'default' lets the browser decide the best power mode
+                    powerPreference: 'default', 
                 });
                 appRef.current = app;
                 console.log('[Live2DViewer] PIXI Application created');
