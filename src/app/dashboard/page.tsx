@@ -69,8 +69,15 @@ function DashboardContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) return;
+    console.log('handleSubmit called');
+    
+    if (!file) {
+        console.log('No file selected');
+        alert('Please select a ZIP file first.');
+        return;
+    }
 
+    console.log('Starting upload...', { title, description, price, fileName: file.name, fileSize: file.size });
     setLoading(true);
     setMessage('');
     
@@ -83,11 +90,17 @@ function DashboardContent() {
     if (icon) formData.append('icon', icon);
 
     try {
-      await axios.post('/api/admin/products', formData, {
+      console.log('Sending request to /api/admin/products...');
+      const response = await axios.post('/api/admin/products', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 100));
+            console.log(`Upload progress: ${percentCompleted}%`);
+        }
       });
+      console.log('Upload success:', response.data);
       setMessage('Product uploaded successfully!');
       setTitle('');
       setDescription('');
@@ -95,16 +108,20 @@ function DashboardContent() {
       setFile(null);
       setIcon(null);
       // Reset file inputs
-      (document.getElementById('file-upload') as HTMLInputElement).value = '';
+      const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
       const iconInput = document.getElementById('icon-upload') as HTMLInputElement;
       if (iconInput) iconInput.value = '';
       
       fetchProducts(); // Refresh list
     } catch (error: any) {
-      console.error(error);
-      setMessage(error.response?.data?.error || 'Failed to upload product.');
+      console.error('Upload failed:', error);
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to upload product.';
+      setMessage(`Error: ${errorMsg}`);
+      alert(`Upload failed: ${errorMsg}`);
     } finally {
       setLoading(false);
+      console.log('Upload finished (finally block)');
     }
   };
 
