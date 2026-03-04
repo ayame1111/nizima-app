@@ -5,6 +5,7 @@ import path from 'path';
 import AdmZip from 'adm-zip';
 import { v4 as uuidv4 } from 'uuid';
 import { auth } from '@/auth';
+import { getStoragePaths } from '@/lib/paths';
 
 // Simple API Key check for demo purposes
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'admin-secret';
@@ -93,9 +94,10 @@ export async function POST(req: Request) {
     const productId = uuidv4();
     console.log('Generated productId:', productId);
     
-    // Define paths
-    const publicUploadDir = path.join(process.cwd(), 'public/uploads', productId);
-    const secureStorageDir = path.join(process.cwd(), 'storage/uploads', productId);
+    // Define paths using helper to ensure consistency across environments
+    const { publicUploadsDir, secureStorageDir: storageBaseDir } = getStoragePaths();
+    const publicUploadDir = path.join(publicUploadsDir, productId);
+    const secureStorageDir = path.join(storageBaseDir, productId);
     
     try {
         // Ensure directories exist
@@ -189,7 +191,9 @@ export async function POST(req: Request) {
     }
 
     // Convert absolute path to relative public URL
-    const relativePath = path.relative(path.join(process.cwd(), 'public/uploads'), model3Path);
+    // We need to be careful here: we want the path relative to the public uploads root
+    const { publicUploadsDir } = getStoragePaths();
+    const relativePath = path.relative(publicUploadsDir, model3Path);
     // Normalize path separators to forward slashes for URL
     const normalizedRelativePath = relativePath.split(path.sep).join('/');
     // Encode parts

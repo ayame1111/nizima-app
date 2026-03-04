@@ -12,4 +12,4 @@ cmds = [
 ]
 
 [start]
-cmd = "npx prisma db push --accept-data-loss && export AUTH_TRUST_HOST=true && export AUTH_SECRET=${AUTH_SECRET:-$(openssl rand -base64 32)} && HOSTNAME=0.0.0.0 node .next/standalone/server.js"
+cmd = "export APP_ROOT=/app && npx prisma db push --accept-data-loss && export AUTH_TRUST_HOST=true && export AUTH_SECRET=${AUTH_SECRET:-$(openssl rand -base64 32)} && HOSTNAME=0.0.0.0 node .next/standalone/server.js"

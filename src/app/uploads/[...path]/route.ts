@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import mime from 'mime-types';
+import { getStoragePaths } from '@/lib/paths';
 
 export async function GET(
   req: NextRequest,
@@ -12,8 +13,7 @@ export async function GET(
   
   // Construct the absolute path to the file in the persistent volume
   // In Docker/Coolify, we mapped this to /app/public/uploads
-  // locally it is process.cwd() + /public/uploads
-  const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+  const { publicUploadsDir: uploadsDir } = getStoragePaths();
   const fullPath = path.join(uploadsDir, filePath);
 
   // Security check: Prevent directory traversal
