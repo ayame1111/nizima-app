@@ -96,6 +96,9 @@ export async function POST(req: Request) {
     
     // Define paths using helper to ensure consistency across environments
     const { publicUploadsDir, secureStorageDir: storageBaseDir } = getStoragePaths();
+    
+    console.log('[Upload] Using paths:', { publicUploadsDir, storageBaseDir });
+
     const publicUploadDir = path.join(publicUploadsDir, productId);
     const secureStorageDir = path.join(storageBaseDir, productId);
     

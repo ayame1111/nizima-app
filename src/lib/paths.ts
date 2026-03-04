@@ -6,7 +6,13 @@ export function getStoragePaths() {
   
   // Use a dedicated persistent volume path in production/Docker if PERSISTENT_STORAGE_PATH is set
   // Otherwise, default to local development paths
-  const persistentRoot = process.env.PERSISTENT_STORAGE_PATH || rootDir;
+  let persistentRoot = process.env.PERSISTENT_STORAGE_PATH || rootDir;
+
+  // Fix for Docker Standalone mode: 
+  // If we are in .next/standalone, process.cwd() is deeply nested.
+  // If PERSISTENT_STORAGE_PATH is NOT set, we might want to try to fallback to a common path if we detect Docker?
+  // But explicit is better. However, let's log for debugging.
+  // console.log('[Paths] Root:', rootDir, 'Persistent:', persistentRoot);
 
   return {
     // Public uploads (images, extracted models) - served via /uploads/...
