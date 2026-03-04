@@ -18,6 +18,23 @@ function DashboardContent() {
   const [message, setMessage] = useState('');
   const [products, setProducts] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'single' | 'batch'>('single');
+  
+  // Batch Upload State
+  interface BatchFile {
+    id: string;
+    file: File;
+    title: string;
+    price: string;
+    description: string;
+    status: 'pending' | 'uploading' | 'success' | 'error';
+    progress: number;
+    error?: string;
+  }
+  
+  const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
+  const [globalPrice, setGlobalPrice] = useState('');
+  const [globalDescription, setGlobalDescription] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -64,6 +81,89 @@ function DashboardContent() {
     } catch (error: any) {
       console.error(error);
       setMessage('Failed to delete product');
+    }
+  };
+
+  const handleBatchFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+        const newFiles = Array.from(e.target.files).map(file => ({
+            id: Math.random().toString(36).substr(2, 9),
+            file,
+            title: file.name.replace('.zip', '').replace(/[-_]/g, ' '),
+            price: globalPrice,
+            description: globalDescription,
+            status: 'pending' as const,
+            progress: 0
+        }));
+        setBatchFiles(prev => [...prev, ...newFiles]);
+        // Reset input
+        e.target.value = '';
+    }
+  };
+
+  const removeBatchFile = (id: string) => {
+    setBatchFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const updateBatchFile = (id: string, field: keyof BatchFile, value: any) => {
+    setBatchFiles(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
+  };
+
+  const handleBatchUpload = async () => {
+    setLoading(true);
+    setMessage('');
+
+    const pendingFiles = batchFiles.filter(f => f.status === 'pending' || f.status === 'error');
+    
+    if (pendingFiles.length === 0) {
+        alert('No pending files to upload.');
+        setLoading(false);
+        return;
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const batchFile of pendingFiles) {
+        // Update status to uploading
+        updateBatchFile(batchFile.id, 'status', 'uploading');
+        
+        const formData = new FormData();
+        formData.append('title', batchFile.title);
+        formData.append('description', batchFile.description);
+        formData.append('price', batchFile.price);
+        formData.append('file', batchFile.file);
+        // Note: Batch upload currently doesn't support individual icons per file for simplicity, 
+        // unless we add an icon picker for each row.
+        
+        try {
+            await axios.post('/api/admin/products', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 100));
+                    updateBatchFile(batchFile.id, 'progress', percentCompleted);
+                }
+            });
+            updateBatchFile(batchFile.id, 'status', 'success');
+            updateBatchFile(batchFile.id, 'progress', 100);
+            successCount++;
+        } catch (error: any) {
+            console.error(`Failed to upload ${batchFile.title}:`, error);
+            updateBatchFile(batchFile.id, 'status', 'error');
+            updateBatchFile(batchFile.id, 'error', error.response?.data?.error || error.message);
+            failCount++;
+        }
+    }
+
+    setLoading(false);
+    fetchProducts();
+    
+    if (failCount === 0) {
+        setMessage(`Successfully uploaded ${successCount} products!`);
+        // Optional: Clear successful uploads
+        // setBatchFiles(prev => prev.filter(f => f.status !== 'success'));
+    } else {
+        setMessage(`Uploaded ${successCount} products. ${failCount} failed.`);
     }
   };
 
@@ -162,9 +262,27 @@ function DashboardContent() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Upload Form */}
             <div className="bg-[#111] p-6 rounded-2xl border border-gray-800 h-fit">
-            <h2 className="text-xl font-bold mb-6 text-white flex items-center gap-2">
-                Upload New Model
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    Upload New Model
+                </h2>
+                <div className="flex bg-gray-900 rounded-lg p-1">
+                    <button 
+                        onClick={() => setUploadMode('single')}
+                        className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${uploadMode === 'single' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        Single
+                    </button>
+                    <button 
+                        onClick={() => setUploadMode('batch')}
+                        className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${uploadMode === 'batch' ? 'bg-blue-900/50 text-blue-200' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        Batch
+                    </button>
+                </div>
+            </div>
+
+            {uploadMode === 'single' ? (
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Title</label>
@@ -235,12 +353,120 @@ function DashboardContent() {
                 >
                 {loading ? 'Uploading...' : 'Upload Product'}
                 </button>
-                {message && (
-                <div className={`mt-4 p-3 rounded-lg text-sm font-medium ${message.includes('success') || message.includes('deleted') ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`}>
-                    {message}
-                </div>
-                )}
             </form>
+            ) : (
+                <div className="space-y-4">
+                    <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-800">
+                        <h3 className="text-sm font-bold text-gray-300 mb-3">Default Settings</h3>
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Default Price ($)</label>
+                                <input
+                                    type="number"
+                                    value={globalPrice}
+                                    onChange={(e) => setGlobalPrice(e.target.value)}
+                                    className="w-full bg-black border border-gray-800 p-2 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none text-white text-sm"
+                                    placeholder="0.00"
+                                    step="0.01"
+                                    min="0"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Default Description</label>
+                                <input
+                                    type="text"
+                                    value={globalDescription}
+                                    onChange={(e) => setGlobalDescription(e.target.value)}
+                                    className="w-full bg-black border border-gray-800 p-2 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none text-white text-sm"
+                                    placeholder="Description for all files..."
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="relative">
+                            <input
+                                type="file"
+                                multiple
+                                accept=".zip"
+                                onChange={handleBatchFileSelect}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            />
+                            <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center hover:bg-gray-800/50 transition-colors">
+                                <p className="text-gray-400 font-medium">Click or Drag ZIP files here</p>
+                                <p className="text-xs text-gray-600 mt-1">Select multiple files to batch upload</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {batchFiles.length > 0 && (
+                        <div className="space-y-2 max-h-[400px] overflow-y-auto custom-scrollbar pr-1">
+                            {batchFiles.map((file, index) => (
+                                <div key={file.id} className="bg-black/40 border border-gray-800 rounded p-3 text-sm">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="flex-1 mr-2">
+                                            <input 
+                                                value={file.title}
+                                                onChange={(e) => updateBatchFile(file.id, 'title', e.target.value)}
+                                                className="bg-transparent border-b border-transparent hover:border-gray-700 focus:border-blue-500 outline-none text-white font-medium w-full"
+                                                placeholder="Title"
+                                            />
+                                            <div className="text-xs text-gray-500 mt-0.5">{file.file.name} ({(file.file.size / 1024 / 1024).toFixed(2)} MB)</div>
+                                        </div>
+                                        <button onClick={() => removeBatchFile(file.id)} className="text-gray-600 hover:text-red-400">
+                                            ×
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="flex gap-2 mb-2">
+                                        <input 
+                                            type="number"
+                                            value={file.price}
+                                            onChange={(e) => updateBatchFile(file.id, 'price', e.target.value)}
+                                            className="bg-black border border-gray-800 rounded px-2 py-1 w-20 text-white"
+                                            placeholder="Price"
+                                        />
+                                        <input 
+                                            value={file.description}
+                                            onChange={(e) => updateBatchFile(file.id, 'description', e.target.value)}
+                                            className="bg-black border border-gray-800 rounded px-2 py-1 flex-1 text-white"
+                                            placeholder="Description"
+                                        />
+                                    </div>
+
+                                    {file.status !== 'pending' && (
+                                        <div className="mt-2">
+                                            <div className="h-1 bg-gray-800 rounded-full overflow-hidden">
+                                                <div 
+                                                    className={`h-full transition-all duration-300 ${
+                                                        file.status === 'success' ? 'bg-green-500' : 
+                                                        file.status === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                                                    }`}
+                                                    style={{ width: `${file.progress}%` }}
+                                                />
+                                            </div>
+                                            {file.error && <p className="text-xs text-red-400 mt-1">{file.error}</p>}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <button
+                        onClick={handleBatchUpload}
+                        disabled={loading || batchFiles.length === 0}
+                        className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-lg shadow-blue-900/20"
+                    >
+                        {loading ? `Uploading ${batchFiles.filter(f => f.status === 'pending').length} Files...` : 'Upload All Files'}
+                    </button>
+                </div>
+            )}
+
+            {message && (
+            <div className={`mt-4 p-3 rounded-lg text-sm font-medium ${message.includes('success') || message.includes('deleted') ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`}>
+                {message}
+            </div>
+            )}
             </div>
 
             {/* Product List */}
