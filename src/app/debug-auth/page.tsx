@@ -14,6 +14,26 @@ export default async function DebugAuthPage() {
     VERCEL_URL: process.env.VERCEL_URL || 'NOT_SET',
   };
 
+  const getHeader = (key: string) => {
+    try {
+        // @ts-ignore
+        const val = headersList.get(key);
+        return val || 'null';
+    } catch (e) {
+        return 'error';
+    }
+  }
+
+  const cookieLength = () => {
+      try {
+          // @ts-ignore
+          const cookie = headersList.get('cookie');
+          return cookie ? cookie.length : 0;
+      } catch (e) {
+          return 0;
+      }
+  }
+
   return (
     <div className="min-h-screen bg-black text-white p-8 font-mono">
       <h1 className="text-2xl font-bold mb-6 text-red-500">Auth Debugger</h1>
@@ -52,19 +72,19 @@ export default async function DebugAuthPage() {
           <div className="space-y-1 text-xs">
             <div className="flex justify-between">
                 <span className="text-gray-400">Host:</span>
-                <span>{headersList.get('host')}</span>
+                <span>{getHeader('host')}</span>
             </div>
             <div className="flex justify-between">
                 <span className="text-gray-400">X-Forwarded-Proto:</span>
-                <span>{headersList.get('x-forwarded-proto')}</span>
+                <span>{getHeader('x-forwarded-proto')}</span>
             </div>
             <div className="flex justify-between">
                 <span className="text-gray-400">X-Forwarded-Host:</span>
-                <span>{headersList.get('x-forwarded-host')}</span>
+                <span>{getHeader('x-forwarded-host')}</span>
             </div>
             <div className="flex justify-between">
                 <span className="text-gray-400">Cookie (Length):</span>
-                <span>{headersList.get('cookie')?.length || 0} chars</span>
+                <span>{cookieLength()} chars</span>
             </div>
           </div>
         </section>
