@@ -60,7 +60,8 @@ export async function POST(req: Request) {
     const hairColor = formData.get('hairColor') as string;
     const bodyType = formData.get('bodyType') as string;
     const theme = formData.get('theme') as string;
-    const tags = formData.get('tags') as string;
+    const tagsString = formData.get('tags') as string;
+    const tags = tagsString ? tagsString.split(',').map(tag => tag.trim()).filter(Boolean) : [];
 
     const fileEntry = formData.get('file');
     // More flexible check: if it has a 'name' (string) and 'size' (number), it's likely a File-like object

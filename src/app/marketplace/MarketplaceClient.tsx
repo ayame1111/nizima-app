@@ -23,7 +23,7 @@ interface Product {
   hairColor?: string | null;
   bodyType?: string | null;
   theme?: string | null;
-  tags?: string | null;
+  tags?: string[] | null;
 }
 
 interface MarketplaceClientProps {
