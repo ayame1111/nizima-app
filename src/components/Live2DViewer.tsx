@@ -624,25 +624,55 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 
                 console.log('[Live2DViewer] Initializing PIXI...');
                 (window as any).PIXI = PIXI;
-                const { Live2DModel, config, Cubism4InternalModel } = await import('pixi-live2d-display');
+                const live2dExports = await import('pixi-live2d-display');
+                const { Live2DModel, config, Cubism4InternalModel } = live2dExports;
+                const Cubism2InternalModel = (live2dExports as any).Cubism2InternalModel;
 
-                if (config) {
-                    // Force logging to see if config is applied
-                    console.log('[Live2DViewer] Applying mask configuration...');
-                    
-                    // Unified configuration for all internal models
-                    const setMaskSettings = (target: any) => {
-                        if (!target) return;
+                // Force logging to see if config is applied
+                console.log('[Live2DViewer] Applying mask configuration...');
+                
+                // Unified configuration for all internal models
+                const setMaskSettings = (target: any) => {
+                    if (!target) return;
+                    try {
                         target.maskSize = 4096;
                         target.maskLimit = 256;
-                    };
+                    } catch (e) {
+                        console.warn('[Live2DViewer] Failed to set mask settings on target:', e);
+                    }
+                };
 
+                // 1. Config Object
+                if (config) {
                     setMaskSettings(config.cubism4);
                     setMaskSettings((config as any).cubism2);
-
                     if (config.cubism4) {
                         (config.cubism4 as any).supportMoreMaskDivisions = true;
                     }
+                }
+
+                // 2. Live2DModel Config (Static)
+                if ((Live2DModel as any).config) {
+                     const l2dConfig = (Live2DModel as any).config;
+                     setMaskSettings(l2dConfig.cubism4);
+                     setMaskSettings(l2dConfig.cubism2);
+                     if (l2dConfig.cubism4) {
+                         (l2dConfig.cubism4 as any).supportMoreMaskDivisions = true;
+                     }
+                }
+
+                // 3. Internal Models (Static)
+                if (Cubism4InternalModel) setMaskSettings(Cubism4InternalModel);
+                if (Cubism2InternalModel) setMaskSettings(Cubism2InternalModel);
+
+                // 4. Register Settings (Official Method)
+                if (typeof (Live2DModel as any).registerSettings === 'function') {
+                    try {
+                        (Live2DModel as any).registerSettings({
+                            cubism4: { maskLimit: 256, maskSize: 4096, supportMoreMaskDivisions: true },
+                            cubism2: { maskLimit: 256, maskSize: 4096 }
+                        });
+                    } catch (e) {}
                 }
                 
                 if (!mounted || !canvasRef.current || !canvasWrapperRef.current) {
