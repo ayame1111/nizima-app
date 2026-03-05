@@ -201,6 +201,115 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No .model3.json file found in the zip archive' }, { status: 400 });
     }
 
+    // -------------------------------------------------------------------------
+    // FIX: Resolve Case-Sensitivity Issues in .model3.json
+    // -------------------------------------------------------------------------
+    try {
+        const modelDir = path.dirname(model3Path);
+        let modelJsonChanged = false;
+        const modelJson = JSON.parse(fs.readFileSync(model3Path, 'utf8'));
+
+        const resolvePathCaseInsensitive = (baseDir: string, relativePath: string): string | null => {
+            if (!relativePath) return null;
+            const parts = relativePath.split(/[/\\]/);
+            let currentPath = baseDir;
+            let correctedParts = [];
+
+            for (const part of parts) {
+                if (part === '.' || part === '..') {
+                    correctedParts.push(part);
+                    currentPath = path.join(currentPath, part);
+                    continue;
+                }
+
+                const checkPath = path.join(currentPath, part);
+                if (fs.existsSync(checkPath)) {
+                    correctedParts.push(part);
+                    currentPath = checkPath;
+                    continue;
+                }
+
+                try {
+                    if (!fs.existsSync(currentPath)) return null;
+                    const entries = fs.readdirSync(currentPath);
+                    const match = entries.find(e => e.toLowerCase() === part.toLowerCase());
+                    if (match) {
+                        correctedParts.push(match);
+                        currentPath = path.join(currentPath, match);
+                    } else {
+                        return null; // Not found even case-insensitively
+                    }
+                } catch (e) {
+                    return null;
+                }
+            }
+            return correctedParts.join('/');
+        };
+
+        const fixReference = (ref: string, isExpression = false): string => {
+             let resolved = resolvePathCaseInsensitive(modelDir, ref);
+
+             // Special handling for Expressions: Try swapping .json <-> .exp3.json
+             if (!resolved && isExpression) {
+                 if (ref.endsWith('.json') && !ref.endsWith('.exp3.json')) {
+                     // Try adding .exp3
+                     const altRef = ref.replace('.json', '.exp3.json');
+                     resolved = resolvePathCaseInsensitive(modelDir, altRef);
+                 } else if (ref.endsWith('.exp3.json')) {
+                     // Try removing .exp3
+                     const altRef = ref.replace('.exp3.json', '.json');
+                     resolved = resolvePathCaseInsensitive(modelDir, altRef);
+                 }
+             }
+
+             if (resolved && resolved !== ref.split('\\').join('/')) {
+                 console.log(`[AutoFix] Fixed path: "${ref}" -> "${resolved}"`);
+                 modelJsonChanged = true;
+                 return resolved;
+             }
+             return ref;
+         };
+ 
+         if (modelJson.FileReferences) {
+             // Fix Textures
+             if (Array.isArray(modelJson.FileReferences.Textures)) {
+                 modelJson.FileReferences.Textures = modelJson.FileReferences.Textures.map((t: string) => fixReference(t));
+             }
+             // Fix Physics
+             if (typeof modelJson.FileReferences.Physics === 'string') {
+                 modelJson.FileReferences.Physics = fixReference(modelJson.FileReferences.Physics);
+             }
+             // Fix Expressions
+             if (Array.isArray(modelJson.FileReferences.Expressions)) {
+                 modelJson.FileReferences.Expressions = modelJson.FileReferences.Expressions.map((exp: any) => {
+                     if (exp.File) exp.File = fixReference(exp.File, true);
+                     return exp;
+                 });
+             }
+             // Fix Motions
+             if (modelJson.FileReferences.Motions) {
+                 for (const groupKey in modelJson.FileReferences.Motions) {
+                     const group = modelJson.FileReferences.Motions[groupKey];
+                     if (Array.isArray(group)) {
+                         modelJson.FileReferences.Motions[groupKey] = group.map((motion: any) => {
+                             if (motion.File) motion.File = fixReference(motion.File);
+                             return motion;
+                         });
+                     }
+                 }
+             }
+         }
+
+        if (modelJsonChanged) {
+            fs.writeFileSync(model3Path, JSON.stringify(modelJson, null, 2));
+            console.log('Updated .model3.json with fixed paths');
+        }
+    } catch (fixErr) {
+        console.error('Error fixing model references:', fixErr);
+        // Continue anyway, don't fail upload just because auto-fix failed
+    }
+    // -------------------------------------------------------------------------
+
     // Convert absolute path to relative public URL
     // We need to be careful here: we want the path relative to the public uploads root
     const relativePath = path.relative(publicUploadsDir, model3Path);
