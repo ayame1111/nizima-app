@@ -635,7 +635,7 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 
                 if ((config as any)?.cubism2) {
                      console.log('[Live2DViewer] Configuring Cubism2 mask settings');
-                     (config.cubism2 as any).maskSize = 4096;
+                     (config as any).cubism2.maskSize = 4096;
                 }
                 
                 if (!mounted || !canvasRef.current || !canvasWrapperRef.current) {
