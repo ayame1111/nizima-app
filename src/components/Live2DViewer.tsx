@@ -751,6 +751,12 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     autoFocus: false,
                     // @ts-ignore - maskBufferCount is valid but missing in types
                     maskBufferCount: 4, 
+                    // @ts-ignore - Some versions use maskCount instead
+                    maskCount: 4,
+                    // @ts-ignore - Direct override for mask limit
+                    maskLimit: 256,
+                    // @ts-ignore - Direct override for mask size
+                    maskSize: 4096,
                     onError: (e: any) => {
                         console.error('Model internal error:', e);
                         // Only set error if it's a critical loading failure
@@ -762,11 +768,10 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
 
                 // Force increase mask limit on the internal model instance
                 if (model.internalModel && (model.internalModel as any).maskSpriteManager) {
-                    // Default is often 2 or 4 textures depending on library version
+                    const manager = (model.internalModel as any).maskSpriteManager;
                     // We need to support 78 masks, so we need more capacity
-                    // capacity = maskSize * maskSize / (mask_resolution)
-                    // But also 'maskLimit' in the manager might be capping it
-                    (model.internalModel as any).maskSpriteManager.capacity = 128; 
+                    manager.capacity = 256;
+                    if ('maskLimit' in manager) manager.maskLimit = 256;
                 }
                 
                 console.log('[Live2DViewer] Model loaded successfully');
