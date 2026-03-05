@@ -21,6 +21,7 @@ export default function PayPalButtonComponent({ amount, productId, productIds, o
     currency: "USD",
     intent: "capture",
     components: "buttons", // Only load buttons component
+    disableFunding: "p24,blik", // Disable Przelewy24 and BLIK
   };
 
   return (
