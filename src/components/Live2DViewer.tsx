@@ -1190,8 +1190,8 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
         };
 
         if (isMouseTracking) {
-             console.log('[Live2DViewer] Mouse tracking enabled - Disabling idle motions & physics');
-
+             console.log('[Live2DViewer] Mouse tracking enabled - Disabling idle motions & physics (Whitelist Strategy)');
+             
              // 1. Stop all current motions immediately
              if (motionManager) {
                  if (typeof motionManager.stopAll === 'function') {
@@ -1206,36 +1206,39 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                  motionManager.idleMotionGroup = undefined;
              }
 
-             // 2. Override Update Loop to forcefully skip Physics, Breath, Blink
-             if (!internal._originalUpdate) {
-                 internal._originalUpdate = internal.update;
+             // 2. Dynamically Disable All Updaters EXCEPT Whitelisted Ones
+             // This ensures we catch physics/breath/blink regardless of property name
+             const whitelist = [
+                 'focusController', '_focusController', 
+                 'motionManager', '_motionManager', 
+                 'expressionManager', '_expressionManager',
+                 'coreModel', '_coreModel',
+                 'settings', '_settings'
+             ];
+             
+             // Iterate all properties (including prototype if needed, but usually own props)
+             // We use a comprehensive loop to catch everything
+             for (const key in internal) {
+                 // Skip if whitelisted
+                 if (whitelist.includes(key)) continue;
                  
-                 // We replace the update function to only update what we want
-                 // standard signature: update(dt, now)
-                 internal.update = function(dt: number, now: number) {
-                     // 1. Update Focus (Essential for tracking)
-                     if (this.focusController) {
-                         this.focusController.update(dt);
-                     }
-                     
-                     // 2. Update Motions (For manual interactions, but idle is disabled via group=undefined)
-                     if (this.motionManager) {
-                         this.motionManager.update(dt);
-                     }
-                     
-                     // 3. Skip Physics, Breath, Blink, Pose to stop swaying
-                 };
-                 console.log('[Live2DViewer] Internal update loop overridden');
+                 const prop = (internal as any)[key];
+                 // Check if it's an object with an update function
+                 // We also check if it's NOT a primitive to avoid errors
+                 if (prop && typeof prop === 'object' && typeof prop.update === 'function') {
+                     disableUpdater(prop, key);
+                 }
              }
 
         } else {
              console.log('[Live2DViewer] Mouse tracking disabled - Restoring state');
 
-             // 1. Restore Update Loop
-             if (internal._originalUpdate) {
-                 internal.update = internal._originalUpdate;
-                 delete internal._originalUpdate;
-                 console.log('[Live2DViewer] Internal update loop restored');
+             // 1. Restore All Updaters
+             for (const key in internal) {
+                 const prop = (internal as any)[key];
+                 if (prop && typeof prop === 'object') {
+                     restoreUpdater(prop, key);
+                 }
              }
 
              // 2. Restore Idle Motions
