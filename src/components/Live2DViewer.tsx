@@ -1206,31 +1206,39 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                  motionManager.idleMotionGroup = undefined;
              }
 
-             // 2. Disable Automatic Updates (Physics, Breath, Blink)
-             // We iterate over potential property names to catch them all
-             const systems = ['physics', 'breath', 'eyeBlink', 'pose', '_physics', '_breath', '_eyeBlink'];
-             systems.forEach(sys => disableUpdater(internal[sys], sys));
-             
-             // 3. Ensure Update Loop is RESTORED (if it was overridden previously)
-             if (internal._originalUpdate) {
-                 internal.update = internal._originalUpdate;
-                 delete internal._originalUpdate;
+             // 2. Override Update Loop to forcefully skip Physics, Breath, Blink
+             if (!internal._originalUpdate) {
+                 internal._originalUpdate = internal.update;
+                 
+                 // We replace the update function to only update what we want
+                 // standard signature: update(dt, now)
+                 internal.update = function(dt: number, now: number) {
+                     // 1. Update Focus (Essential for tracking)
+                     if (this.focusController) {
+                         this.focusController.update(dt);
+                     }
+                     
+                     // 2. Update Motions (For manual interactions, but idle is disabled via group=undefined)
+                     if (this.motionManager) {
+                         this.motionManager.update(dt);
+                     }
+                     
+                     // 3. Skip Physics, Breath, Blink, Pose to stop swaying
+                 };
+                 console.log('[Live2DViewer] Internal update loop overridden');
              }
 
         } else {
              console.log('[Live2DViewer] Mouse tracking disabled - Restoring state');
 
-             // 1. Restore Update Loop (just in case)
+             // 1. Restore Update Loop
              if (internal._originalUpdate) {
                  internal.update = internal._originalUpdate;
                  delete internal._originalUpdate;
+                 console.log('[Live2DViewer] Internal update loop restored');
              }
 
-             // 2. Restore Automatic Updates
-             const systems = ['physics', 'breath', 'eyeBlink', 'pose', '_physics', '_breath', '_eyeBlink'];
-             systems.forEach(sys => restoreUpdater(internal[sys], sys));
-
-             // 3. Restore Idle Motions
+             // 2. Restore Idle Motions
              if (motionManager && motionManager._originalIdleGroup) {
                  motionManager.idleMotionGroup = motionManager._originalIdleGroup;
                  delete motionManager._originalIdleGroup;
