@@ -632,7 +632,7 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     (config.cubism4 as any).maskLimit = 256; // Increase limit from default
                 }
                 
-                if (config?.cubism2) {
+                if ((config as any)?.cubism2) {
                      console.log('[Live2DViewer] Configuring Cubism2 mask settings');
                      (config.cubism2 as any).maskSize = 4096;
                 }
