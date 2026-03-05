@@ -627,8 +627,14 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 const { Live2DModel, config } = await import('pixi-live2d-display');
 
                 if (config?.cubism4) {
-                    console.log('[Live2DViewer] Configuring Cubism4 mask settings to 4096');
+                    console.log('[Live2DViewer] Configuring Cubism4 mask settings');
                     (config.cubism4 as any).maskSize = 4096;
+                    (config.cubism4 as any).maskLimit = 256; // Increase limit from default
+                }
+                
+                if (config?.cubism2) {
+                     console.log('[Live2DViewer] Configuring Cubism2 mask settings');
+                     (config.cubism2 as any).maskSize = 4096;
                 }
                 
                 if (!mounted || !canvasRef.current || !canvasWrapperRef.current) {
@@ -750,6 +756,15 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                         }
                     }
                 });
+
+                // Force increase mask limit on the internal model instance
+                if (model.internalModel && (model.internalModel as any).maskSpriteManager) {
+                    // Default is often 2 or 4 textures depending on library version
+                    // We need to support 78 masks, so we need more capacity
+                    // capacity = maskSize * maskSize / (mask_resolution)
+                    // But also 'maskLimit' in the manager might be capping it
+                    (model.internalModel as any).maskSpriteManager.capacity = 128; 
+                }
                 
                 console.log('[Live2DViewer] Model loaded successfully');
 
