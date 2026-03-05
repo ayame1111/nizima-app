@@ -15,6 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const product = await prisma.product.findUnique({
     where: { slug },
+    include: { creator: true }
   });
 
   if (!product) {
@@ -39,6 +40,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   
   const product = await prisma.product.findUnique({
     where: { slug },
+    include: { creator: true }
   });
 
   if (!product) {
@@ -100,8 +102,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               <ProductPurchase 
                 product={{
                   id: product.id,
+                  title: product.title,
                   price: product.price,
-                  isSold: product.isSold
+                  isSold: product.isSold,
+                  iconUrl: product.iconUrl,
+                  creatorName: product.creator?.name || 'Unknown Artist'
                 }} 
               />
               <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-500">

@@ -4,10 +4,14 @@ import Link from 'next/link';
 import { ShoppingBag, Search, Menu, User, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
+import { useCart } from '@/context/CartContext';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar({ session }: { session: any }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { cart } = useCart();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +20,10 @@ export default function Navbar({ session }: { session: any }) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const isDarkPage = pathname?.startsWith('/admin');
+  const textColorClass = isScrolled ? 'text-gray-500' : (isDarkPage ? 'text-gray-300 hover:text-white' : 'text-gray-500 hover:text-gray-900');
+  const logoTextGradient = isScrolled ? 'from-gray-900 to-gray-600' : (isDarkPage ? 'from-white to-gray-300' : 'from-gray-900 to-gray-600');
 
   return (
     <nav className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm' : 'bg-transparent border-b border-transparent'}`}>
@@ -26,13 +34,13 @@ export default function Navbar({ session }: { session: any }) {
                             <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:shadow-blue-500/30 transition-all duration-300">
                                 A
                             </div>
-                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+                            <span className={`text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r ${logoTextGradient}`}>
                                 Avatar Atelier
                             </span>
                         </Link>
-              <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-500">
-                <Link href="/" className="hover:text-gray-900 transition-colors">Marketplace</Link>
-                <Link href="/become-creator" className="hover:text-gray-900 transition-colors">Become a Creator</Link>
+              <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+                <Link href="/" className={`transition-colors ${textColorClass}`}>Marketplace</Link>
+                <Link href="/become-creator" className={`transition-colors ${textColorClass}`}>Become a Creator</Link>
               </div>
             </div>
 
@@ -87,10 +95,14 @@ export default function Navbar({ session }: { session: any }) {
                   </Link>
               )}
 
-              <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors relative">
+              <Link href="/cart" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors relative">
                 <ShoppingBag size={20} />
-                {/* <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span> */}
-              </button>
+                {cart.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">
+                        {cart.length}
+                    </span>
+                )}
+              </Link>
               <button className="md:hidden p-2 text-gray-600" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 <Menu size={24} />
               </button>

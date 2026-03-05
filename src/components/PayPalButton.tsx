@@ -7,11 +7,12 @@ import { useState } from "react";
 
 interface PayPalButtonProps {
   amount: number;
-  productId: string;
+  productId?: string;
+  productIds?: string[];
   onSuccess: (orderData: any) => void;
 }
 
-export default function PayPalButtonComponent({ amount, productId, onSuccess }: PayPalButtonProps) {
+export default function PayPalButtonComponent({ amount, productId, productIds, onSuccess }: PayPalButtonProps) {
   const [error, setError] = useState<string | null>(null);
 
   // In production, clientId should be from env
@@ -32,7 +33,7 @@ export default function PayPalButtonComponent({ amount, productId, onSuccess }: 
             color: "gold",
             label: "paypal"
           }}
-          forceReRender={[amount, productId]}
+          forceReRender={[amount, productId, productIds]}
           fundingSource={undefined} // Let PayPal decide smart buttons (PayPal, Card, Venmo, etc)
           createOrder={(data, actions) => {
             return actions.order.create({
@@ -42,7 +43,7 @@ export default function PayPalButtonComponent({ amount, productId, onSuccess }: 
                     value: amount.toString(),
                     currency_code: "USD"
                   },
-                  description: `Live2D Model #${productId}`
+                  description: productIds ? `Cart Checkout (${productIds.length} items)` : `Live2D Model #${productId}`
                 },
               ],
               intent: "CAPTURE"
@@ -58,6 +59,7 @@ export default function PayPalButtonComponent({ amount, productId, onSuccess }: 
               const response = await axios.post('/api/checkout', {
                 paypalOrderId: order.id,
                 productId,
+                productIds,
                 payerEmail: order.payer?.email_address,
                 transactionId: order.purchase_units?.[0]?.payments?.captures?.[0]?.id || order.id,
               });
@@ -71,7 +73,7 @@ export default function PayPalButtonComponent({ amount, productId, onSuccess }: 
           onError={(err) => {
               console.error("PayPal Error:", err);
               setError("An error occurred with PayPal.");
-          }}
+            }}
         />
       </PayPalScriptProvider>
 

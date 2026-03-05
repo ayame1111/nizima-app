@@ -2,18 +2,26 @@
 
 import { useState } from 'react';
 import PayPalButton from './PayPalButton';
+import { useCart } from '@/context/CartContext';
+import { ShoppingCart, Check } from 'lucide-react';
 
 interface ProductPurchaseProps {
   product: {
     id: string;
+    title: string;
     price: number;
     isSold: boolean;
+    iconUrl?: string | null;
+    creatorName?: string;
   };
 }
 
 export default function ProductPurchase({ product }: ProductPurchaseProps) {
   const [purchased, setPurchased] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState('');
+  const { addToCart, isInCart } = useCart();
+
+  const inCart = isInCart(product.id);
 
   if (product.isSold) {
     return (
@@ -39,16 +47,47 @@ export default function ProductPurchase({ product }: ProductPurchaseProps) {
   }
 
   return (
-    <PayPalButton 
-      amount={product.price} 
-      productId={product.id} 
-      onSuccess={(data) => {
-        console.log('Purchase successful:', data);
-        setPurchased(true);
-        if (data.downloadUrl) {
-            setDownloadUrl(data.downloadUrl);
-        }
-      }}
-    />
+    <div className="space-y-4">
+        <button 
+            onClick={() => addToCart(product)}
+            disabled={inCart}
+            className={`w-full py-3 px-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-all ${
+                inCart 
+                ? 'bg-green-100 text-green-700 border border-green-200' 
+                : 'bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+            }`}
+        >
+            {inCart ? (
+                <>
+                    <Check size={20} /> Added to Cart
+                </>
+            ) : (
+                <>
+                    <ShoppingCart size={20} /> Add to Cart
+                </>
+            )}
+        </button>
+        
+        <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-700/50"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-[#2a2a2a] px-2 text-gray-500">Or Buy Now</span>
+            </div>
+        </div>
+
+        <PayPalButton 
+          amount={product.price} 
+          productId={product.id} 
+          onSuccess={(data) => {
+            console.log('Purchase successful:', data);
+            setPurchased(true);
+            if (data.downloadUrl) {
+                setDownloadUrl(data.downloadUrl);
+            }
+          }}
+        />
+    </div>
   );
 }
