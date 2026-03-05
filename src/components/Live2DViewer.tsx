@@ -1163,35 +1163,68 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
         };
     }, [enableZoomPan, isMouseTracking]); // Added isMouseTracking to deps
 
-    // Toggle Idle Animation based on Mouse Tracking
+    // Toggle Idle Animation, Physics, Blink, Breath based on Mouse Tracking
     useEffect(() => {
         const model = modelRef.current;
-        if (!model || !model.internalModel || !model.internalModel.motionManager) return;
+        if (!model || !model.internalModel) return;
 
-        const motionManager = model.internalModel.motionManager;
+        const internal = model.internalModel;
+        const motionManager = internal.motionManager;
 
         if (isMouseTracking) {
+             // --- DISABLE IDLE MOTIONS ---
              // Save original group if needed
-             if (!(motionManager as any)._originalIdleGroup) {
+             if (motionManager && !(motionManager as any)._originalIdleGroup) {
                  (motionManager as any)._originalIdleGroup = motionManager.idleMotionGroup;
              }
              
-             console.log('[Live2DViewer] Mouse tracking enabled, disabling idle animation');
-             // Disable idle
-             motionManager.idleMotionGroup = undefined;
-             if (typeof motionManager.stopAll === 'function') {
-                 motionManager.stopAll();
-             } else if (typeof (motionManager as any).stopAllMotions === 'function') {
-                 (motionManager as any).stopAllMotions();
+             if (motionManager) {
+                 console.log('[Live2DViewer] Mouse tracking enabled, disabling idle animation');
+                 motionManager.idleMotionGroup = undefined;
+                 if (typeof motionManager.stopAll === 'function') {
+                     motionManager.stopAll();
+                 } else if (typeof (motionManager as any).stopAllMotions === 'function') {
+                     (motionManager as any).stopAllMotions();
+                 }
              }
+
+             // --- DISABLE AUTOMATIC UPDATES (Physics, Blink, Breath) ---
+             // Helper to disable an updater
+             const disableUpdater = (target: any, name: string) => {
+                 if (target && target.update && !target._originalUpdate) {
+                     target._originalUpdate = target.update;
+                     target.update = () => {}; // No-op
+                     console.log(`[Live2DViewer] Disabled ${name}`);
+                 }
+             };
+
+             disableUpdater(internal.eyeBlink, 'eyeBlink');
+             // Note: breath might be handled differently in some versions, but usually it's an updater
+             disableUpdater(internal.breath || (internal as any)._breath, 'breath'); 
+             disableUpdater(internal.physics || (internal as any)._physics, 'physics');
+             
         } else {
-             // Restore
-             if ((motionManager as any)._originalIdleGroup) {
+             // --- RESTORE IDLE MOTIONS ---
+             if (motionManager && (motionManager as any)._originalIdleGroup) {
                  console.log('[Live2DViewer] Mouse tracking disabled, enabling idle animation');
                  motionManager.idleMotionGroup = (motionManager as any)._originalIdleGroup;
+                 (motionManager as any)._originalIdleGroup = undefined;
                  // Force start
                  motionManager.startRandomMotion(motionManager.idleMotionGroup);
              }
+
+             // --- RESTORE AUTOMATIC UPDATES ---
+             const enableUpdater = (target: any, name: string) => {
+                 if (target && target._originalUpdate) {
+                     target.update = target._originalUpdate;
+                     target._originalUpdate = undefined;
+                     console.log(`[Live2DViewer] Enabled ${name}`);
+                 }
+             };
+
+             enableUpdater(internal.eyeBlink, 'eyeBlink');
+             enableUpdater(internal.breath || (internal as any)._breath, 'breath');
+             enableUpdater(internal.physics || (internal as any)._physics, 'physics');
         }
     }, [isMouseTracking]);
 
