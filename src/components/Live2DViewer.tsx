@@ -1575,7 +1575,7 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                         </div>
                         
                         {expressions.length === 0 ? (
-                            <div className="text-gray-500 text-xs italic opacity-50 pl-1">No expressions found</div>
+                            <div className="text-gray-500 text-xs italic opacity-50 pl-1">No expressions set to dedicated buttons, you can assign them yourself</div>
                         ) : (
                             <div className="grid grid-cols-2 gap-2">
                             {expressions.map((exp) => {
