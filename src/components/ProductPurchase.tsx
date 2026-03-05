@@ -70,10 +70,10 @@ export default function ProductPurchase({ product }: ProductPurchaseProps) {
         
         <div className="relative">
             <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-700/50"></div>
+                <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-[#2a2a2a] px-2 text-gray-500">Or Buy Now</span>
+                <span className="bg-gray-50 dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">Or Buy Now</span>
             </div>
         </div>
 

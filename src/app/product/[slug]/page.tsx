@@ -48,56 +48,56 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
       {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-gray-500">
-         <Link href="/" className="hover:text-gray-900">Home</Link>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-gray-500 dark:text-gray-400">
+         <Link href="/" className="hover:text-gray-900 dark:hover:text-white">Home</Link>
          <span className="mx-2">/</span>
-         <span className="text-gray-900 font-medium truncate">{product.title}</span>
+         <span className="text-gray-900 dark:text-white font-medium truncate">{product.title}</span>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-[#252525] rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-5 border border-gray-800 w-full">
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-5 border border-gray-100 dark:border-gray-800 w-full transition-colors duration-300">
           {/* Left: Preview (Larger area) */}
-          <div className="lg:col-span-3 bg-[#1e1e1e] relative h-[400px] sm:h-[500px] lg:h-auto lg:min-h-[600px] border-b lg:border-b-0 lg:border-r border-gray-800 flex items-center justify-center w-full">
+          <div className="lg:col-span-3 bg-gray-100 dark:bg-gray-950 relative h-[400px] sm:h-[500px] lg:h-auto lg:min-h-[600px] border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 flex items-center justify-center w-full transition-colors duration-300">
             {product.previewUrl ? (
               <LazyLive2DViewer modelUrl={product.previewUrl} className="w-full h-full" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-500">No Preview Available</div>
             )}
             <div className="absolute bottom-6 left-0 right-0 flex justify-center pointer-events-none px-4 text-center">
-              <span className="bg-black/60 backdrop-blur-md px-5 py-2.5 rounded-full text-xs md:text-sm font-medium text-white/90 shadow-lg border border-white/10">
+              <span className="bg-white/80 dark:bg-black/60 backdrop-blur-md px-5 py-2.5 rounded-full text-xs md:text-sm font-medium text-gray-900 dark:text-white/90 shadow-lg border border-gray-200 dark:border-white/10 transition-colors duration-300">
                 Click to Interact & Control
               </span>
             </div>
           </div>
           
           {/* Right: Details */}
-          <div className="lg:col-span-2 p-8 lg:p-10 flex flex-col bg-[#252525]">
+          <div className="lg:col-span-2 p-8 lg:p-10 flex flex-col bg-white dark:bg-gray-900 transition-colors duration-300">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-5">
-                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${product.isSold ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-green-500/20 text-green-400 border border-green-500/30'}`}>
+                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${product.isSold ? 'bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30' : 'bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30'}`}>
                    {product.isSold ? 'Sold Out' : 'Available'}
                  </span>
-                 <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                 <span className="bg-purple-50 text-purple-600 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                    One-of-a-kind
                  </span>
               </div>
-              <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight tracking-tight">{product.title}</h1>
-              <div className="text-3xl font-light text-gray-200 mb-8 border-b border-gray-700 pb-6">
+              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight tracking-tight transition-colors duration-300">{product.title}</h1>
+              <div className="text-3xl font-light text-gray-600 dark:text-gray-200 mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 transition-colors duration-300">
                 {formatCurrency(product.price)}
               </div>
             </div>
             
-            <div className="prose prose-invert prose-lg text-gray-300 mb-10 flex-grow">
-              <h3 className="text-lg font-semibold text-white mb-3 uppercase tracking-wide text-sm opacity-70">About this Model</h3>
+            <div className="prose prose-lg dark:prose-invert text-gray-600 dark:text-gray-300 mb-10 flex-grow transition-colors duration-300">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide text-sm opacity-70">About this Model</h3>
               <p className="whitespace-pre-wrap leading-relaxed opacity-90">{product.description}</p>
             </div>
             
-            <div className="mt-auto bg-[#2a2a2a] p-6 rounded-2xl border border-gray-700 shadow-inner">
-              <h3 className="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+            <div className="mt-auto bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-inner transition-colors duration-300">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-5 flex items-center gap-2 transition-colors duration-300">
                 <span>Purchase License</span>
-                <div className="h-px bg-gray-600 flex-grow ml-2"></div>
+                <div className="h-px bg-gray-200 dark:bg-gray-600 flex-grow ml-2 transition-colors duration-300"></div>
               </h3>
               <ProductPurchase 
                 product={{
@@ -109,7 +109,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   creatorName: product.creator?.name || 'Unknown Artist'
                 }} 
               />
-              <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-500">
+              <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-400 dark:text-gray-500 transition-colors duration-300">
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
                 <span>Secure encrypted transaction via PayPal</span>
               </div>

@@ -15,7 +15,7 @@ export default function ProductCardImage({ src, alt, previewUrl }: ProductCardIm
 
     if (error || !src) {
         return (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100 absolute inset-0 z-30">
+            <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 absolute inset-0 z-30 transition-colors duration-300">
                 {previewUrl ? (
                     showLive2D ? (
                         <div className="w-full h-full relative z-40">
@@ -23,7 +23,7 @@ export default function ProductCardImage({ src, alt, previewUrl }: ProductCardIm
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-3 p-4 text-center relative z-50">
-                            <span className="text-gray-500 text-sm font-bold">Image Missing</span>
+                            <span className="text-gray-500 dark:text-gray-400 text-sm font-bold">Image Missing</span>
                             <button 
                                 onClick={(e) => {
                                     e.preventDefault();
@@ -37,7 +37,7 @@ export default function ProductCardImage({ src, alt, previewUrl }: ProductCardIm
                         </div>
                     )
                 ) : (
-                    <div className="flex flex-col items-center gap-2 text-gray-400 relative z-50">
+                    <div className="flex flex-col items-center gap-2 text-gray-400 dark:text-gray-500 relative z-50">
                         <span className="text-sm font-medium">No Preview</span>
                     </div>
                 )}
