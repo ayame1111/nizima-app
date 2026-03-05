@@ -22,8 +22,12 @@ export default function Navbar({ session }: { session: any }) {
   }, []);
 
   const isDarkPage = pathname?.startsWith('/admin');
-  const textColorClass = isScrolled ? 'text-gray-500' : (isDarkPage ? 'text-gray-300 hover:text-white' : 'text-gray-500 hover:text-gray-900');
-  const logoTextGradient = isScrolled ? 'from-gray-900 to-gray-600' : (isDarkPage ? 'from-white to-gray-300' : 'from-gray-900 to-gray-600');
+  
+  // Dynamic styles based on scroll state
+  const textColorClass = isScrolled ? 'text-gray-900' : 'text-white';
+  const logoTextGradient = isScrolled ? 'bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600' : 'text-white';
+  const cartButtonClass = isScrolled ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-white/10 text-white hover:bg-white/20 border border-white/20';
+  const menuButtonClass = isScrolled ? 'text-gray-900' : 'text-white';
 
   return (
     <nav className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm' : 'bg-transparent border-b border-transparent'}`}>
@@ -34,13 +38,13 @@ export default function Navbar({ session }: { session: any }) {
                             <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:shadow-blue-500/30 transition-all duration-300">
                                 A
                             </div>
-                            <span className={`text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r ${logoTextGradient}`}>
+                            <span className={`text-xl font-bold ${logoTextGradient}`}>
                                 Avatar Atelier
                             </span>
                         </Link>
-              <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-                <Link href="/" className={`transition-colors ${textColorClass}`}>Marketplace</Link>
-                <Link href="/become-creator" className={`transition-colors ${textColorClass}`}>Become a Creator</Link>
+              <div className={`hidden md:flex items-center gap-6 text-sm font-medium ${textColorClass}`}>
+                <Link href="/" className="transition-colors hover:opacity-80">Marketplace</Link>
+                <Link href="/become-creator" className="transition-colors hover:opacity-80">Become a Creator</Link>
               </div>
             </div>
 
@@ -54,18 +58,18 @@ export default function Navbar({ session }: { session: any }) {
 
             {/* Creator Dashboard Link - Only for Creators/Admins */}
               {session?.user && (['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
-                  <Link href="/dashboard" className="text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors hidden sm:block">
+                  <Link href="/dashboard" className={`text-sm font-medium transition-colors hidden sm:block ${textColorClass} hover:opacity-80`}>
                     Creator Dashboard
                   </Link>
               )}
 
               {session ? (
                   <div className="relative group">
-                      <button className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-purple-600">
+                      <button className={`flex items-center gap-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
                           {session.user?.image ? (
-                              <img src={session.user.image} className="w-8 h-8 rounded-full" />
+                              <img src={session.user.image} className="w-8 h-8 rounded-full border-2 border-white/20" />
                           ) : (
-                              <div className="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isScrolled ? 'bg-purple-100 text-purple-600' : 'bg-white/10 text-white border border-white/20'}`}>
                                   <User size={16} />
                               </div>
                           )}
@@ -90,12 +94,12 @@ export default function Navbar({ session }: { session: any }) {
                       </div>
                   </div>
               ) : (
-                  <Link href="/login" className="text-sm font-bold text-white bg-gray-900 px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+                  <Link href="/login" className={`text-sm font-bold px-4 py-2 rounded-lg transition-colors ${isScrolled ? 'text-white bg-gray-900 hover:bg-gray-800' : 'text-gray-900 bg-white hover:bg-gray-100'}`}>
                       Login
                   </Link>
               )}
 
-              <Link href="/cart" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors relative">
+              <Link href="/cart" className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors relative ${cartButtonClass}`}>
                 <ShoppingBag size={20} />
                 {cart.length > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">
@@ -103,7 +107,7 @@ export default function Navbar({ session }: { session: any }) {
                     </span>
                 )}
               </Link>
-              <button className="md:hidden p-2 text-gray-600" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <button className={`md:hidden p-2 ${menuButtonClass}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 <Menu size={24} />
               </button>
             </div>

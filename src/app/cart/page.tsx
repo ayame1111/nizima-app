@@ -11,11 +11,19 @@ import { useSession } from 'next-auth/react';
 
 export default function CartPage() {
   const { cart, removeFromCart, clearCart } = useCart();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [success, setSuccess] = useState(false);
   const [downloadUrls, setDownloadUrls] = useState<string[]>([]);
 
   const total = cart.reduce((sum, item) => sum + item.price, 0);
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   if (success) {
     return (
@@ -125,7 +133,7 @@ export default function CartPage() {
                         ) : (
                             <div className="bg-gray-50 p-4 rounded-lg text-center">
                                 <p className="text-sm text-gray-600 mb-3">Please login to complete your purchase.</p>
-                                <Link href="/login" className="block w-full bg-gray-900 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors">
+                                <Link href="/login?callbackUrl=/cart" className="block w-full bg-gray-900 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors">
                                     Login to Checkout
                                 </Link>
                             </div>
