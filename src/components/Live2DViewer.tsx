@@ -1318,24 +1318,23 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                             </div>
                         </div>
 
-                        {!isMobile && (
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    if (isFaceTracking) setIsFaceTracking(false);
-                                    setIsMouseTracking(!isMouseTracking);
-                                }}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-lg backdrop-blur-md cursor-pointer select-none pointer-events-auto ${
-                                    isMouseTracking 
-                                        ? 'bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30' 
-                                        : 'bg-black/50 text-gray-400 border-gray-600 hover:bg-black/70'
-                                }`}
-                            >
-                                {isMouseTracking ? <Eye size={14} /> : <EyeOff size={14} />}
-                                <span>MOUSE TRACKING</span>
-                            </button>
-                        )}
+                        {/* Mouse Tracking Button - Hidden on mobile unless requested, but let's show it if not explicitly mobile to debug */}
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (isFaceTracking) setIsFaceTracking(false);
+                                setIsMouseTracking(!isMouseTracking);
+                            }}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-lg backdrop-blur-md cursor-pointer select-none pointer-events-auto ${
+                                isMouseTracking 
+                                    ? 'bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30' 
+                                    : 'bg-black/50 text-gray-400 border-gray-600 hover:bg-black/70'
+                            } ${isMobile ? 'hidden' : 'flex'}`}
+                        >
+                            {isMouseTracking ? <Eye size={14} /> : <EyeOff size={14} />}
+                            <span>MOUSE TRACKING</span>
+                        </button>
                         
                         <button
                             onClick={(e) => {
