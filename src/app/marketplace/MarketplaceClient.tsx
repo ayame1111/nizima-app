@@ -99,12 +99,12 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
   };
 
   const FilterSection = ({ title, options, current, setFn }: { title: string, options: string[], current: string[], setFn: (val: string[]) => void }) => (
-      <div className="border-b border-gray-100 pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
-          <h3 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wider">{title}</h3>
+      <div className="border-b border-gray-100 dark:border-gray-700 pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
+          <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-sm uppercase tracking-wider">{title}</h3>
           <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
               {options.map(option => (
                   <label key={option} className="flex items-center gap-2 cursor-pointer group">
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${current.includes(option) ? 'bg-purple-600 border-purple-600' : 'bg-white border-gray-300 group-hover:border-purple-400'}`}>
+                      <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${current.includes(option) ? 'bg-purple-600 border-purple-600' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 group-hover:border-purple-400'}`}>
                           {current.includes(option) && <ChevronDown size={12} className="text-white" />} 
                           {/* Reusing ChevronDown as a checkmark replacement or just use simple styling */}
                           {current.includes(option) && (
@@ -119,7 +119,7 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
                           checked={current.includes(option)}
                           onChange={() => toggleFilter(current, setFn, option)}
                       />
-                      <span className={`text-sm ${current.includes(option) ? 'text-gray-900 font-medium' : 'text-gray-600 group-hover:text-gray-900'}`}>{option}</span>
+                      <span className={`text-sm ${current.includes(option) ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white'}`}>{option}</span>
                   </label>
               ))}
           </div>
@@ -127,9 +127,9 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 transition-colors duration-300">
       {/* Header / Search Bar */}
-      <div className="bg-white border-b border-gray-200 sticky top-16 z-30 shadow-sm">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-16 z-30 shadow-sm transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div className="relative w-full md:max-w-md">
@@ -139,16 +139,16 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
                         placeholder="Search models..." 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-gray-100 border border-transparent focus:bg-white focus:border-purple-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-all"
+                        className="w-full bg-gray-100 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:border-purple-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-all text-gray-900 dark:text-white placeholder-gray-500"
                     />
                 </div>
                 <button 
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    className="md:hidden w-full flex items-center justify-center gap-2 bg-gray-100 px-4 py-2.5 rounded-lg font-medium text-gray-700"
+                    className="md:hidden w-full flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 px-4 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-200"
                 >
                     <Filter size={20} /> Filters
                 </button>
-                <div className="hidden md:block text-sm text-gray-500">
+                <div className="hidden md:block text-sm text-gray-500 dark:text-gray-400">
                     Showing {filteredProducts.length} results
                 </div>
             </div>
@@ -159,26 +159,26 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
         <div className="flex flex-col md:flex-row gap-8">
             {/* Sidebar Filters */}
             <aside className={`md:w-64 flex-shrink-0 ${isFilterOpen ? 'block' : 'hidden md:block'}`}>
-                <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-36 space-y-8">
+                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 sticky top-36 space-y-8 transition-colors duration-300">
                     <div className="flex justify-between items-center md:hidden mb-4">
-                        <h3 className="font-bold text-lg">Filters</h3>
-                        <button onClick={() => setIsFilterOpen(false)}><X size={20} /></button>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white">Filters</h3>
+                        <button onClick={() => setIsFilterOpen(false)} className="text-gray-500 dark:text-gray-400"><X size={20} /></button>
                     </div>
 
                     {/* Sex Filter */}
                     <div>
-                        <h3 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wider">Sex</h3>
+                        <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-sm uppercase tracking-wider">Sex</h3>
                         <div className="space-y-2">
-                            {['All', 'Female', 'Male', 'Unisex', 'Other'].map(option => (
+                            {['All', 'Female', 'Male', 'Other'].map(option => (
                                 <label key={option} className="flex items-center gap-2 cursor-pointer">
                                     <input 
                                         type="radio" 
                                         name="sex" 
                                         checked={sexFilter === option}
                                         onChange={() => setSexFilter(option)}
-                                        className="text-purple-600 focus:ring-purple-500 border-gray-300"
+                                        className="text-purple-600 focus:ring-purple-500 border-gray-300 dark:border-gray-600 dark:bg-gray-800"
                                     />
-                                    <span className={`text-sm ${sexFilter === option ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>{option}</span>
+                                    <span className={`text-sm ${sexFilter === option ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-600 dark:text-gray-400'}`}>{option}</span>
                                 </label>
                             ))}
                         </div>
@@ -186,7 +186,7 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
 
                     {/* Price Range */}
                     <div>
-                        <h3 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wider">Price Range</h3>
+                        <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-sm uppercase tracking-wider">Price Range</h3>
                         <div className="space-y-4">
                             <input 
                                 type="range" 
@@ -195,9 +195,9 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
                                 step="100"
                                 value={priceRange[1]}
                                 onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-600"
                             />
-                            <div className="flex justify-between text-sm text-gray-600">
+                            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                                 <span>${priceRange[0]}</span>
                                 <span>${priceRange[1].toLocaleString()}</span>
                             </div>
@@ -206,7 +206,7 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
 
                     {/* Attributes */}
                     <div className="space-y-6">
-                        <h3 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wider border-t border-gray-100 pt-4">Attributes</h3>
+                        <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-sm uppercase tracking-wider border-t border-gray-100 dark:border-gray-800 pt-4">Attributes</h3>
                         
                         <FilterSection 
                             title="Theme" 
@@ -251,7 +251,7 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
                             setTagsFilter([]);
                             setSearchQuery('');
                         }}
-                        className="w-full py-2 text-sm text-gray-500 hover:text-gray-900 underline"
+                        className="w-full py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white underline"
                     >
                         Reset Filters
                     </button>
@@ -261,25 +261,25 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
             {/* Product Grid */}
             <main className="flex-grow">
                 {filteredProducts.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-dashed border-gray-200 text-center">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                            <Search className="text-gray-400" size={24} />
+                    <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center transition-colors duration-300">
+                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                            <Search className="text-gray-400 dark:text-gray-500" size={24} />
                         </div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">No matches found</h3>
-                        <p className="text-gray-500">Try adjusting your filters or search query.</p>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">No matches found</h3>
+                        <p className="text-gray-500 dark:text-gray-400">Try adjusting your filters or search query.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredProducts.map((product) => (
-                            <div key={product.id} className="group bg-white rounded-2xl overflow-hidden hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300 border border-gray-100 flex flex-col h-full">
-                                <Link href={`/product/${product.slug || product.id}`} className="relative aspect-[4/5] bg-gray-100 overflow-hidden block">
+                            <div key={product.id} className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_40px_-15px_rgba(255,255,255,0.05)] transition-all duration-300 border border-gray-100 dark:border-gray-700 flex flex-col h-full">
+                                <Link href={`/product/${product.slug || product.id}`} className="relative aspect-[4/5] bg-gray-100 dark:bg-gray-700 overflow-hidden block">
                                     <ProductCardImage 
                                         src={product.iconUrl || ''} 
                                         alt={product.title} 
                                         previewUrl={product.previewUrl} 
                                     />
                                     
-                                    <div className="absolute top-3 left-3 z-20 bg-white/90 text-gray-900 text-[10px] font-bold px-2 py-1 rounded-md backdrop-blur-md uppercase tracking-wide shadow-sm flex items-center gap-1">
+                                    <div className="absolute top-3 left-3 z-20 bg-white/90 dark:bg-gray-900/90 text-gray-900 dark:text-white text-[10px] font-bold px-2 py-1 rounded-md backdrop-blur-md uppercase tracking-wide shadow-sm flex items-center gap-1">
                                         <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Live2D
                                     </div>
 
@@ -294,7 +294,7 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
                                 
                                 <div className="p-4 flex flex-col flex-grow">
                                     <div className="flex justify-between items-start mb-2">
-                                        <h3 className="text-base font-bold text-gray-900 truncate pr-2 group-hover:text-purple-600 transition-colors" title={product.title}>
+                                        <h3 className="text-base font-bold text-gray-900 dark:text-white truncate pr-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" title={product.title}>
                                             {product.title}
                                         </h3>
                                     </div>
@@ -303,19 +303,19 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
                                         {product.creator?.image ? (
                                             <img src={product.creator.image} className="w-5 h-5 rounded-full object-cover" alt={product.creator.name || 'Creator'} />
                                         ) : (
-                                            <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-500">
+                                            <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold text-gray-500 dark:text-gray-400">
                                                 {(product.creator?.name || 'U').charAt(0)}
                                             </div>
                                         )}
-                                        <span className="text-xs text-gray-500 font-medium">{product.creator?.name || 'Unknown Artist'}</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">{product.creator?.name || 'Unknown Artist'}</span>
                                     </div>
                                     
-                                    <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
-                                        <span className="text-lg font-bold text-gray-900">
+                                    <div className="mt-auto pt-3 border-t border-gray-50 dark:border-gray-700 flex items-center justify-between">
+                                        <span className="text-lg font-bold text-gray-900 dark:text-white">
                                             {formatCurrency(product.price)}
                                         </span>
                                         {product.sex && (
-                                            <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded uppercase">{product.sex}</span>
+                                            <span className="text-[10px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded uppercase">{product.sex}</span>
                                         )}
                                     </div>
                                 </div>
@@ -328,4 +328,3 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
       </div>
     </div>
   );
-}
