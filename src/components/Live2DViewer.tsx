@@ -826,10 +826,14 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 const model = await Live2DModel.from(modelUrl, {
                     autoHitTest: false,
                     autoFocus: false,
-                    // Use every possible property name to force the limit
+                    // Note: Properties below are for versions that support them
+                    // @ts-ignore
                     maskBufferCount: 4, 
+                    // @ts-ignore
                     maskCount: 4,
+                    // @ts-ignore
                     maskLimit: 256,
+                    // @ts-ignore
                     maskSize: 4096,
                     onError: (e: any) => {
                         console.error('Model internal error:', e);
