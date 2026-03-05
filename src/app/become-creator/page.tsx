@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormState } from 'react-dom';
 import { submitCreatorApplication } from '@/app/actions/creator';
 import Navbar from '@/components/Navbar';
@@ -8,8 +8,16 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
 export default function BecomeCreatorPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [state, dispatch] = useFormState(submitCreatorApplication, undefined);
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white text-gray-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
