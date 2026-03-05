@@ -1230,11 +1230,12 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                          const fx = this.focusController.x;
                          const fy = this.focusController.y;
                          
-                         // Helper to add parameter safely (supports C2, C4, and direct access)
-                         const addParam = (id: string, value: number) => {
+                         // Helper to set parameter safely (supports C2, C4, and direct access)
+                         // CRITICAL FIX: Changed from ADD to SET to prevent accumulation/saturation
+                         const setParam = (id: string, value: number) => {
                              // Strategy 1: InternalModel method (Preferred)
-                             if (this.addParameterValueById) {
-                                 this.addParameterValueById(id, value);
+                             if (this.setParameterValueById) {
+                                 this.setParameterValueById(id, value);
                                  return;
                              }
                              
@@ -1252,45 +1253,44 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                                  }
                                  
                                  if (idx !== -1) {
-                                     const current = this.coreModel.parameters.values[idx];
-                                     this.coreModel.parameters.values[idx] = current + value;
+                                     this.coreModel.parameters.values[idx] = value;
                                  }
                                  return;
                              }
                              
                              // Strategy 3: Cubism 2 Core
-                             if (this.coreModel.addToParamFloat) {
+                             if (this.coreModel.setParamFloat) {
                                  let idx = -1;
                                  if (this.coreModel.getParamIndex) {
                                      idx = this.coreModel.getParamIndex(id);
                                  }
                                  if (idx !== -1) {
-                                     this.coreModel.addToParamFloat(idx, value);
+                                     this.coreModel.setParamFloat(idx, value);
                                  }
                                  return;
                              }
 
                              // Strategy 4: Cubism 4 SDK method (if exposed)
-                             if (this.coreModel.addParameterValueById) {
-                                 this.coreModel.addParameterValueById(id, value);
+                             if (this.coreModel.setParameterValueById) {
+                                 this.coreModel.setParameterValueById(id, value);
                              }
                          };
                          
                          // Standard IDs (Cubism 4 / 2)
-                         addParam('ParamAngleX', fx * 30);
-                         addParam('ParamAngleY', fy * 30);
-                         addParam('ParamAngleZ', fx * fy * -30);
-                         addParam('ParamBodyAngleX', fx * 10);
-                         addParam('ParamEyeBallX', fx);
-                         addParam('ParamEyeBallY', fy);
+                         setParam('ParamAngleX', fx * 30);
+                         setParam('ParamAngleY', fy * 30);
+                         setParam('ParamAngleZ', fx * fy * -30);
+                         setParam('ParamBodyAngleX', fx * 10);
+                         setParam('ParamEyeBallX', fx);
+                         setParam('ParamEyeBallY', fy);
                          
                          // Cubism 2 IDs (Upper Snake Case)
-                         addParam('PARAM_ANGLE_X', fx * 30);
-                         addParam('PARAM_ANGLE_Y', fy * 30);
-                         addParam('PARAM_ANGLE_Z', fx * fy * -30);
-                         addParam('PARAM_BODY_ANGLE_X', fx * 10);
-                         addParam('PARAM_EYE_BALL_X', fx);
-                         addParam('PARAM_EYE_BALL_Y', fy);
+                         setParam('PARAM_ANGLE_X', fx * 30);
+                         setParam('PARAM_ANGLE_Y', fy * 30);
+                         setParam('PARAM_ANGLE_Z', fx * fy * -30);
+                         setParam('PARAM_BODY_ANGLE_X', fx * 10);
+                         setParam('PARAM_EYE_BALL_X', fx);
+                         setParam('PARAM_EYE_BALL_Y', fy);
                      }
                      
                      // 2. Update Motions
@@ -1359,6 +1359,26 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                  motionManager.idleMotionGroup = motionManager._originalIdleGroup;
                  delete motionManager._originalIdleGroup;
                  motionManager.startRandomMotion(motionManager.idleMotionGroup);
+             }
+             
+             // 3. Reset Focus Parameters to Neutral (0)
+             // This ensures the avatar doesn't get stuck looking at the last position
+             if (internal.coreModel) {
+                 const resetParam = (id: string) => {
+                     // Try all strategies to force reset
+                     try {
+                         if (internal.setParameterValueById) internal.setParameterValueById(id, 0);
+                         else if (internal.coreModel.setParameterValueById) internal.coreModel.setParameterValueById(id, 0);
+                         else if (internal.coreModel.setParamFloat) {
+                             const idx = internal.coreModel.getParamIndex(id);
+                             if (idx !== -1) internal.coreModel.setParamFloat(idx, 0);
+                         }
+                     } catch(e) {}
+                 };
+                 
+                 ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ', 'ParamBodyAngleX', 'ParamEyeBallX', 'ParamEyeBallY',
+                  'PARAM_ANGLE_X', 'PARAM_ANGLE_Y', 'PARAM_ANGLE_Z', 'PARAM_BODY_ANGLE_X', 'PARAM_EYE_BALL_X', 'PARAM_EYE_BALL_Y'
+                 ].forEach(resetParam);
              }
         }
     }, [isMouseTracking]);
