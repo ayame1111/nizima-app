@@ -1224,6 +1224,75 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                          this.focusController.update(dt);
                      }
                      
+                     // 1.5. Apply Focus to Model Parameters (Manual & Robust Implementation)
+                     // We bypass this.updateFocus() to ensure values are applied regardless of internal state/version
+                     if (this.focusController && this.coreModel) {
+                         const fx = this.focusController.x;
+                         const fy = this.focusController.y;
+                         
+                         // Helper to add parameter safely (supports C2, C4, and direct access)
+                         const addParam = (id: string, value: number) => {
+                             // Strategy 1: InternalModel method (Preferred)
+                             if (this.addParameterValueById) {
+                                 this.addParameterValueById(id, value);
+                                 return;
+                             }
+                             
+                             // Strategy 2: Cubism 4 Core Direct Access (Fastest fallback)
+                             if (this.coreModel.parameters && this.coreModel.parameters.ids && this.coreModel.parameters.values) {
+                                 const ids = this.coreModel.parameters.ids;
+                                 // Simple linear search (fast enough for few params)
+                                 let idx = -1;
+                                 if (ids.indexOf) idx = ids.indexOf(id);
+                                 else {
+                                     // Fallback for array-like objects
+                                     for (let i = 0; i < ids.length; i++) {
+                                         if (ids[i] === id) { idx = i; break; }
+                                     }
+                                 }
+                                 
+                                 if (idx !== -1) {
+                                     const current = this.coreModel.parameters.values[idx];
+                                     this.coreModel.parameters.values[idx] = current + value;
+                                 }
+                                 return;
+                             }
+                             
+                             // Strategy 3: Cubism 2 Core
+                             if (this.coreModel.addToParamFloat) {
+                                 let idx = -1;
+                                 if (this.coreModel.getParamIndex) {
+                                     idx = this.coreModel.getParamIndex(id);
+                                 }
+                                 if (idx !== -1) {
+                                     this.coreModel.addToParamFloat(idx, value);
+                                 }
+                                 return;
+                             }
+
+                             // Strategy 4: Cubism 4 SDK method (if exposed)
+                             if (this.coreModel.addParameterValueById) {
+                                 this.coreModel.addParameterValueById(id, value);
+                             }
+                         };
+                         
+                         // Standard IDs (Cubism 4 / 2)
+                         addParam('ParamAngleX', fx * 30);
+                         addParam('ParamAngleY', fy * 30);
+                         addParam('ParamAngleZ', fx * fy * -30);
+                         addParam('ParamBodyAngleX', fx * 10);
+                         addParam('ParamEyeBallX', fx);
+                         addParam('ParamEyeBallY', fy);
+                         
+                         // Cubism 2 IDs (Upper Snake Case)
+                         addParam('PARAM_ANGLE_X', fx * 30);
+                         addParam('PARAM_ANGLE_Y', fy * 30);
+                         addParam('PARAM_ANGLE_Z', fx * fy * -30);
+                         addParam('PARAM_BODY_ANGLE_X', fx * 10);
+                         addParam('PARAM_EYE_BALL_X', fx);
+                         addParam('PARAM_EYE_BALL_Y', fy);
+                     }
+                     
                      // 2. Update Motions
                      // Cubism 4 expects Seconds. Cubism 2 expects MS.
                      if (this.motionManager) {
