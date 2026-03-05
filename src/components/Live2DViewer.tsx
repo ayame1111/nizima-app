@@ -1179,7 +1179,11 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
              console.log('[Live2DViewer] Mouse tracking enabled, disabling idle animation');
              // Disable idle
              motionManager.idleMotionGroup = undefined;
-             motionManager.stopAll();
+             if (typeof motionManager.stopAll === 'function') {
+                 motionManager.stopAll();
+             } else if (typeof (motionManager as any).stopAllMotions === 'function') {
+                 (motionManager as any).stopAllMotions();
+             }
         } else {
              // Restore
              if ((motionManager as any)._originalIdleGroup) {
