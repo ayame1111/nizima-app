@@ -42,6 +42,7 @@ model Product {
   bodyType    String?
   theme       String?
   tags        String[] // General tags
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   Order       Order[]

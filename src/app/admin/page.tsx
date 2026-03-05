@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import AdminDashboardClient from "./AdminDashboardClient";
 
 export default async function AdminPage() {
   const session = await auth();
@@ -10,12 +10,6 @@ export default async function AdminPage() {
   if (session?.user?.role !== 'ADMIN') {
     redirect("/");
   }
-
-  // Fetch products (you might want to paginate this in a real app)
-  const products = await prisma.product.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: { creator: true }
-  });
 
   return (
     <div className="min-h-screen bg-black text-gray-100 pb-12 px-4 sm:px-6 lg:px-8">
@@ -38,10 +32,7 @@ export default async function AdminPage() {
             </Link>
         </div>
         
-        {/* Placeholder for Product Management List */}
-        <div className="bg-[#111] rounded-2xl border border-gray-800 p-8 text-center">
-            <p className="text-gray-400">Product management features coming soon.</p>
-        </div>
+        <AdminDashboardClient />
       </div>
     </div>
   );

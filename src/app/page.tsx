@@ -30,6 +30,7 @@ export default async function Home() {
   }
 
   const products = await prisma.product.findMany({
+    where: { status: 'APPROVED' },
     take: 12, // Increased limit for carousel
     orderBy: { createdAt: 'desc' },
     include: {

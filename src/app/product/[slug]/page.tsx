@@ -35,8 +35,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+import { auth } from '@/auth';
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const session = await auth();
   
   const product = await prisma.product.findUnique({
     where: { slug },
@@ -44,6 +47,16 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   });
 
   if (!product) {
+    notFound();
+  }
+
+  // Security check for pending/rejected products
+  // @ts-ignore
+  const isCreator = session?.user?.id === product.creatorId;
+  // @ts-ignore
+  const isAdmin = session?.user?.role === 'ADMIN';
+
+  if (product.status !== 'APPROVED' && !isCreator && !isAdmin) {
     notFound();
   }
 

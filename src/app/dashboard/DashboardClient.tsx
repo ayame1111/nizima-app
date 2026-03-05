@@ -131,9 +131,8 @@ function DashboardContent({ user }: DashboardClientProps) {
     setHairColor(product.hairColor || '');
     setBodyType(product.bodyType || '');
     setTheme(product.theme || '');
-    setTags(product.tags ? product.tags.join(', ') : '');
-    setFile(null);
-    setIcon(null);
+      setTags(product.tags ? product.tags.join(', ') : '');
+      setPreviewUrl(product.previewUrl || null);
     setUploadMode('single');
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -652,9 +651,18 @@ function DashboardContent({ user }: DashboardClientProps) {
                                             <p className="text-xs text-gray-400 dark:text-gray-500 font-mono truncate max-w-[150px]">{product.id}</p>
                                         </div>
                                     </div>
-                                    <span className={`px-2 py-1 rounded text-xs font-bold ${product.isSold ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800' : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-800'}`}>
-                                        {product.isSold ? 'SOLD' : 'AVAILABLE'}
-                                    </span>
+                                    <div className="flex flex-col items-end gap-1">
+                                        <span className={`px-2 py-1 rounded text-xs font-bold ${product.isSold ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800' : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-800'}`}>
+                                            {product.isSold ? 'SOLD' : 'AVAILABLE'}
+                                        </span>
+                                        <span className={`px-2 py-1 rounded text-xs font-bold ${
+                                            product.status === 'APPROVED' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800' :
+                                            product.status === 'REJECTED' ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800' :
+                                            'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 border border-yellow-100 dark:border-yellow-800'
+                                        }`}>
+                                            {product.status || 'PENDING'}
+                                        </span>
+                                    </div>
                                 </div>
                                 
                                 <div className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">

@@ -108,6 +108,7 @@ export async function PATCH(
     const bodyType = formData.get('bodyType') as string;
     const theme = formData.get('theme') as string;
     const tagsStr = formData.get('tags') as string;
+    const status = formData.get('status') as string;
     const icon = formData.get('icon') as File | null;
 
     const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -123,6 +124,14 @@ export async function PATCH(
       theme,
       tags,
     };
+
+    // Only Admin can update status directly
+    if (status && isSessionAdmin) {
+        dataToUpdate.status = status;
+    } else if (!isSessionAdmin) {
+        // If creator edits, reset to PENDING for re-approval
+        dataToUpdate.status = 'PENDING';
+    }
 
     // Handle Icon Update
     if (icon && icon.size > 0) {

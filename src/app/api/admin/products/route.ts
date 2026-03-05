@@ -340,6 +340,7 @@ export async function POST(req: Request) {
             fileUrl: path.join(secureStorageDir, 'model.zip'), // Store absolute path for secure access
             iconUrl,
             isSold: false,
+            status: isSessionAdmin ? 'APPROVED' : 'PENDING',
             // @ts-ignore
             creatorId: session?.user?.id || null,
           },
