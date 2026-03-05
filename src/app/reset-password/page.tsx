@@ -11,11 +11,17 @@ export default function ResetPasswordPage() {
   const [state, dispatch] = useFormState(resetPassword, undefined)
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a] text-white">
-      <div className="bg-[#252525] p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-800">
-        <h1 className="text-2xl font-bold mb-6 text-center">Set New Password</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-sm w-full max-w-md border border-gray-100">
+        <div className="text-center mb-8">
+            <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 shadow-lg shadow-blue-500/20">
+                A
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Set New Password</h1>
+            <p className="text-gray-500 text-sm mt-1">Please enter a secure password.</p>
+        </div>
         
-        <Suspense fallback={<div className="text-center">Loading...</div>}>
+        <Suspense fallback={<div className="text-center text-gray-500">Loading...</div>}>
             <TokenForm dispatch={dispatch} state={state} />
         </Suspense>
       </div>
@@ -29,9 +35,9 @@ function TokenForm({ dispatch, state }: { dispatch: any, state: any }) {
 
     if (!token) {
         return (
-            <div className="text-center">
-                <p className="text-red-500">Invalid link. Missing token.</p>
-                <Link href="/login" className="text-purple-400 mt-4 block">Back to Login</Link>
+            <div className="text-center bg-red-50 p-4 rounded-lg border border-red-100">
+                <p className="text-red-600 font-medium">Invalid link. Missing token.</p>
+                <Link href="/login" className="text-red-700 font-bold mt-2 block hover:underline">Back to Login</Link>
             </div>
         )
     }
@@ -40,20 +46,20 @@ function TokenForm({ dispatch, state }: { dispatch: any, state: any }) {
         <form action={dispatch} className="space-y-4">
           <input type="hidden" name="token" value={token} />
           <div>
-            <label className="block text-sm font-medium mb-1">New Password</label>
-            <input name="password" type="password" required minLength={6} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none" />
+            <label className="block text-sm font-medium mb-1 text-gray-700">New Password</label>
+            <input name="password" type="password" required minLength={6} className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 transition-all" />
           </div>
 
-          {state?.error && <p className="text-red-500 text-sm">{state.error}</p>}
+          {state?.error && <p className="text-red-500 text-sm bg-red-50 p-2 rounded border border-red-100">{state.error}</p>}
           {state?.success && (
-              <div className="text-green-500 text-sm">
-                  {state.success}
-                  <Link href="/login" className="block mt-2 text-purple-400 underline">Proceed to Login</Link>
+              <div className="text-green-600 text-sm bg-green-50 p-4 rounded-lg border border-green-100 text-center">
+                  <p className="font-medium mb-2">{state.success}</p>
+                  <Link href="/login" className="inline-block bg-gray-900 text-white px-4 py-2 rounded-lg font-bold hover:bg-gray-800 transition-colors text-xs">Proceed to Login</Link>
               </div>
           )}
 
           {!state?.success && (
-              <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg transition-colors">
+              <button type="submit" className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 rounded-lg transition-colors shadow-lg shadow-gray-900/10">
                 Update Password
               </button>
           )}
