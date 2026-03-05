@@ -629,7 +629,8 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 if (config?.cubism4) {
                     console.log('[Live2DViewer] Configuring Cubism4 mask settings');
                     (config.cubism4 as any).maskSize = 4096;
-                    (config.cubism4 as any).maskLimit = 256; // Increase limit from default
+                    (config.cubism4 as any).maskLimit = 256;
+                    (config.cubism4 as any).supportMoreMaskDivisions = true; 
                 }
                 
                 if ((config as any)?.cubism2) {
@@ -748,6 +749,8 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 const model = await Live2DModel.from(modelUrl, {
                     autoHitTest: false,
                     autoFocus: false,
+                    // @ts-ignore - maskBufferCount is valid but missing in types
+                    maskBufferCount: 4, 
                     onError: (e: any) => {
                         console.error('Model internal error:', e);
                         // Only set error if it's a critical loading failure
