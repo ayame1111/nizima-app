@@ -624,7 +624,12 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 
                 console.log('[Live2DViewer] Initializing PIXI...');
                 (window as any).PIXI = PIXI;
-                const { Live2DModel } = await import('pixi-live2d-display');
+                const { Live2DModel, config } = await import('pixi-live2d-display');
+
+                if (config?.cubism4) {
+                    console.log('[Live2DViewer] Configuring Cubism4 mask settings to 4096');
+                    config.cubism4.maskSize = 4096;
+                }
                 
                 if (!mounted || !canvasRef.current || !canvasWrapperRef.current) {
                     console.log('[Live2DViewer] Aborted init: Component unmounted or refs missing');
@@ -804,6 +809,8 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     let message = err.message || 'Failed to load model';
                     if (message.includes('checkMaxIfStatementsInShader') || message.includes('WebGL')) {
                         message = 'Graphics Error: Your device/browser may not support the required WebGL features. Try updating drivers or using a different browser.';
+                    } else if (message.toLowerCase().includes('not supported mask count')) {
+                        message = 'Model Error: This model uses too many masks (Clipping Mask Count Exceeded). The viewer has been updated to support more masks, but if this persists, the model may be too complex for web viewing.';
                     }
                     setError(message);
                 }
