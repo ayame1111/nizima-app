@@ -631,6 +631,15 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 // Force logging to see if config is applied
                 console.log('[Live2DViewer] Applying mask configuration...');
                 
+                // CRITICAL OVERRIDE FOR V7 BETA
+                // The library checks `MaskSpriteManager.MAX_TEXTURES` in some versions
+                if (live2dExports.MaskSpriteManager) {
+                     try {
+                         (live2dExports.MaskSpriteManager as any).MAX_TEXTURES = 16;
+                         console.log('[Live2DViewer] Patched MaskSpriteManager.MAX_TEXTURES');
+                     } catch(e) {}
+                }
+
                 // Set Global Defaults FIRST (before anything else happens)
                 // This targets the shared state used by the library
                 if (config) {
@@ -852,12 +861,16 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     }
                 });
                 
-                // Restore console
-                console.log = originalLog;
-                console.warn = originalWarn;
-                console.error = originalError;
-
-                // DIRECT PATCH: Access the internal MaskSpriteManager immediately
+                // FORCE THE MASK LIMIT ON THE INSTANCE IMMEDIATELY
+                if (model.internalModel && (model.internalModel as any).maskSpriteManager) {
+                    const manager = (model.internalModel as any).maskSpriteManager;
+                    // Reset texture allocation
+                    if (manager._maskTextures) manager._maskTextures = [];
+                    // Force resize immediately before first update
+                    if (manager.resize) {
+                        try { manager.resize(4096, 4096); } catch(e) {}
+                    }
+                }
                 if (model.internalModel && (model.internalModel as any).maskSpriteManager) {
                     const manager = (model.internalModel as any).maskSpriteManager;
                     console.log('[Live2DViewer] Forcing mask manager capacity to 256');
@@ -1591,7 +1604,10 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
 
     return (
         <div ref={containerRef} className={`relative flex flex-col md:flex-row ${className}`}>
-            <div className={`relative flex-grow h-full overflow-hidden ${showControls ? 'w-full md:w-3/4' : 'w-full'} order-1 md:order-1`} onClick={onToggleFullscreen}>
+            <div 
+                className={`relative flex-grow h-full overflow-hidden ${showControls ? 'w-full md:w-3/4' : 'w-full'} order-1 md:order-1`} 
+                onClick={!showControls ? onToggleFullscreen : undefined}
+            >
                 {loading && (
                     <div className="absolute inset-0 flex items-center justify-center text-gray-400 gap-2 z-50 pointer-events-none">
                         <RefreshCw className="animate-spin" /> Loading Model...
