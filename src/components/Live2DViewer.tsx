@@ -1213,8 +1213,11 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                  // We replace the update function to only update what we want
                  // standard signature: update(dt, now)
                  internal.update = function(dt: number, now: number) {
-                     // Cubism 4 detection: has 'parameters' object in coreModel
-                     const isCubism4 = this.coreModel && this.coreModel.parameters;
+                     // Robust Cubism 4 detection:
+                     // 1. Check for 'parameters' object (standard Cubism 4)
+                     // 2. Check for lack of getParamFloat (standard Cubism 2)
+                     const isCubism4 = (this.coreModel && this.coreModel.parameters) || 
+                                       (this.coreModel && typeof this.coreModel.getParamFloat !== 'function');
                      
                      // 1. Update Focus (Always uses MS in InternalModel base)
                      if (this.focusController) {
@@ -1233,20 +1236,19 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                      
                      // 3. Update Physics (Hair/Clothes) - RESTORED to fix "stiff" look
                      if (this.physics) {
-                         if (isCubism4) {
-                             // Cubism 4 physics.evaluate() takes seconds
+                         // Safely check for evaluate (Cubism 4) or update (Cubism 2)
+                         if (typeof this.physics.evaluate === 'function') {
                              this.physics.evaluate(this.coreModel, dt / 1000);
-                         } else {
-                             // Cubism 2 physics.update() takes MS
+                         } else if (typeof this.physics.update === 'function') {
                              this.physics.update(now);
                          }
                      }
                      
                      // 4. Update Pose (Parts visibility) - RESTORED
                      if (this.pose) {
-                         if (isCubism4) {
+                         if (typeof this.pose.updateParameters === 'function') {
                              this.pose.updateParameters(this.coreModel, dt / 1000);
-                         } else {
+                         } else if (typeof this.pose.update === 'function') {
                              this.pose.update(dt);
                          }
                      }
@@ -1254,9 +1256,9 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                      // 5. Update EyeBlink (Blinking) - RESTORED
                      // We intentionally skip `updateNaturalMovements` because that adds the sway/breathing
                      if (this.eyeBlink) {
-                         if (isCubism4) {
+                         if (typeof this.eyeBlink.updateParameters === 'function') {
                              this.eyeBlink.updateParameters(this.coreModel, dt / 1000);
-                         } else {
+                         } else if (typeof this.eyeBlink.update === 'function') {
                              this.eyeBlink.update(dt);
                          }
                      }
