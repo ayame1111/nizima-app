@@ -246,59 +246,45 @@ export async function POST(req: Request) {
             return correctedParts.join('/');
         };
 
-        const fixReference = (ref: string, isExpression = false): string => {
-             let resolved = resolvePathCaseInsensitive(modelDir, ref);
+        const fixReference = (ref: string): string => {
+            const resolved = resolvePathCaseInsensitive(modelDir, ref);
+            if (resolved && resolved !== ref.split('\\').join('/')) {
+                console.log(`[AutoFix] Fixed path: "${ref}" -> "${resolved}"`);
+                modelJsonChanged = true;
+                return resolved;
+            }
+            return ref;
+        };
 
-             // Special handling for Expressions: Try swapping .json <-> .exp3.json
-             if (!resolved && isExpression) {
-                 if (ref.endsWith('.json') && !ref.endsWith('.exp3.json')) {
-                     // Try adding .exp3
-                     const altRef = ref.replace('.json', '.exp3.json');
-                     resolved = resolvePathCaseInsensitive(modelDir, altRef);
-                 } else if (ref.endsWith('.exp3.json')) {
-                     // Try removing .exp3
-                     const altRef = ref.replace('.exp3.json', '.json');
-                     resolved = resolvePathCaseInsensitive(modelDir, altRef);
-                 }
-             }
-
-             if (resolved && resolved !== ref.split('\\').join('/')) {
-                 console.log(`[AutoFix] Fixed path: "${ref}" -> "${resolved}"`);
-                 modelJsonChanged = true;
-                 return resolved;
-             }
-             return ref;
-         };
- 
-         if (modelJson.FileReferences) {
-             // Fix Textures
-             if (Array.isArray(modelJson.FileReferences.Textures)) {
-                 modelJson.FileReferences.Textures = modelJson.FileReferences.Textures.map((t: string) => fixReference(t));
-             }
-             // Fix Physics
-             if (typeof modelJson.FileReferences.Physics === 'string') {
-                 modelJson.FileReferences.Physics = fixReference(modelJson.FileReferences.Physics);
-             }
-             // Fix Expressions
-             if (Array.isArray(modelJson.FileReferences.Expressions)) {
-                 modelJson.FileReferences.Expressions = modelJson.FileReferences.Expressions.map((exp: any) => {
-                     if (exp.File) exp.File = fixReference(exp.File, true);
-                     return exp;
-                 });
-             }
-             // Fix Motions
-             if (modelJson.FileReferences.Motions) {
-                 for (const groupKey in modelJson.FileReferences.Motions) {
-                     const group = modelJson.FileReferences.Motions[groupKey];
-                     if (Array.isArray(group)) {
-                         modelJson.FileReferences.Motions[groupKey] = group.map((motion: any) => {
-                             if (motion.File) motion.File = fixReference(motion.File);
-                             return motion;
-                         });
-                     }
-                 }
-             }
-         }
+        if (modelJson.FileReferences) {
+            // Fix Textures
+            if (Array.isArray(modelJson.FileReferences.Textures)) {
+                modelJson.FileReferences.Textures = modelJson.FileReferences.Textures.map((t: string) => fixReference(t));
+            }
+            // Fix Physics
+            if (typeof modelJson.FileReferences.Physics === 'string') {
+                modelJson.FileReferences.Physics = fixReference(modelJson.FileReferences.Physics);
+            }
+            // Fix Expressions
+            if (Array.isArray(modelJson.FileReferences.Expressions)) {
+                modelJson.FileReferences.Expressions = modelJson.FileReferences.Expressions.map((exp: any) => {
+                    if (exp.File) exp.File = fixReference(exp.File);
+                    return exp;
+                });
+            }
+            // Fix Motions
+            if (modelJson.FileReferences.Motions) {
+                for (const groupKey in modelJson.FileReferences.Motions) {
+                    const group = modelJson.FileReferences.Motions[groupKey];
+                    if (Array.isArray(group)) {
+                        modelJson.FileReferences.Motions[groupKey] = group.map((motion: any) => {
+                            if (motion.File) motion.File = fixReference(motion.File);
+                            return motion;
+                        });
+                    }
+                }
+            }
+        }
 
         if (modelJsonChanged) {
             fs.writeFileSync(model3Path, JSON.stringify(modelJson, null, 2));
