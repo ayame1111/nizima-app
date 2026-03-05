@@ -624,18 +624,25 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 
                 console.log('[Live2DViewer] Initializing PIXI...');
                 (window as any).PIXI = PIXI;
-                const { Live2DModel, config } = await import('pixi-live2d-display');
+                const { Live2DModel, config, Cubism4InternalModel } = await import('pixi-live2d-display');
 
-                if (config?.cubism4) {
-                    console.log('[Live2DViewer] Configuring Cubism4 mask settings');
-                    (config.cubism4 as any).maskSize = 4096;
-                    (config.cubism4 as any).maskLimit = 256;
-                    (config.cubism4 as any).supportMoreMaskDivisions = true; 
-                }
-                
-                if ((config as any)?.cubism2) {
-                     console.log('[Live2DViewer] Configuring Cubism2 mask settings');
-                     (config as any).cubism2.maskSize = 4096;
+                if (config) {
+                    // Force logging to see if config is applied
+                    console.log('[Live2DViewer] Applying mask configuration...');
+                    
+                    // Unified configuration for all internal models
+                    const setMaskSettings = (target: any) => {
+                        if (!target) return;
+                        target.maskSize = 4096;
+                        target.maskLimit = 256;
+                    };
+
+                    setMaskSettings(config.cubism4);
+                    setMaskSettings((config as any).cubism2);
+
+                    if (config.cubism4) {
+                        (config.cubism4 as any).supportMoreMaskDivisions = true;
+                    }
                 }
                 
                 if (!mounted || !canvasRef.current || !canvasWrapperRef.current) {
