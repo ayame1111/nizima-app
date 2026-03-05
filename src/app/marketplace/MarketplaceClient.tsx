@@ -328,3 +328,4 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
       </div>
     </div>
   );
+}
