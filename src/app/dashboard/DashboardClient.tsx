@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+import { FILTER_OPTIONS } from '@/lib/constants';
+
 interface DashboardClientProps {
   user: any;
 }
@@ -325,61 +327,88 @@ function DashboardContent({ user }: DashboardClientProps) {
                             onChange={(e) => setSex(e.target.value)}
                             className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
                         >
-                            <option value="Female">Female</option>
-                            <option value="Male">Male</option>
-                            <option value="Unisex">Unisex</option>
-                            <option value="Other">Other</option>
+                            {FILTER_OPTIONS.sex.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Theme</label>
-                        <input
-                            type="text"
-                            value={theme}
+                        <select 
+                            value={theme} 
                             onChange={(e) => setTheme(e.target.value)}
                             className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
-                            placeholder="e.g. Fantasy, Sci-Fi"
-                        />
+                        >
+                            <option value="">Select Theme</option>
+                            {FILTER_OPTIONS.theme.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Eye Color</label>
-                        <input
-                            type="text"
-                            value={eyeColor}
+                        <select 
+                            value={eyeColor} 
                             onChange={(e) => setEyeColor(e.target.value)}
                             className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
-                            placeholder="e.g. Blue, Red"
-                        />
+                        >
+                            <option value="">Select Color</option>
+                            {FILTER_OPTIONS.eyeColor.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Hair Color</label>
-                        <input
-                            type="text"
-                            value={hairColor}
+                        <select 
+                            value={hairColor} 
                             onChange={(e) => setHairColor(e.target.value)}
                             className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
-                            placeholder="e.g. Blonde, Pink"
-                        />
+                        >
+                            <option value="">Select Color</option>
+                            {FILTER_OPTIONS.hairColor.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Body Type</label>
-                        <input
-                            type="text"
-                            value={bodyType}
+                        <select 
+                            value={bodyType} 
                             onChange={(e) => setBodyType(e.target.value)}
                             className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
-                            placeholder="e.g. Slim, Chibi"
-                        />
+                        >
+                            <option value="">Select Body Type</option>
+                            {FILTER_OPTIONS.bodyType.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma separated)</label>
-                        <input
-                            type="text"
-                            value={tags}
-                            onChange={(e) => setTags(e.target.value)}
-                            className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
-                            placeholder="e.g. cute, cat ears, maid"
-                        />
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                        <div className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg bg-white max-h-32 overflow-y-auto">
+                            {FILTER_OPTIONS.tags.map(tag => (
+                                <label key={tag} className="flex items-center gap-1.5 text-xs bg-gray-50 px-2 py-1 rounded cursor-pointer hover:bg-gray-100 border border-gray-100">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={tags.split(',').map(t => t.trim()).includes(tag)}
+                                        onChange={(e) => {
+                                            const currentTags = tags ? tags.split(',').map(t => t.trim()) : [];
+                                            let newTags;
+                                            if (e.target.checked) {
+                                                newTags = [...currentTags, tag];
+                                            } else {
+                                                newTags = currentTags.filter(t => t !== tag);
+                                            }
+                                            setTags(newTags.join(', '));
+                                        }}
+                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    {tag}
+                                </label>
+                            ))}
+                        </div>
+                        <input type="hidden" value={tags} name="tags" />
                     </div>
                 </div>
                 

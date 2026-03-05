@@ -5,6 +5,7 @@ import ProductCardImage from '@/components/ProductCardImage';
 import LikeButton from '@/components/LikeButton';
 import Link from 'next/link';
 import { ShoppingBag, Search, Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { FILTER_OPTIONS } from '@/lib/constants';
 
 interface Product {
   id: string;
@@ -41,15 +42,16 @@ const formatCurrency = (amount: number) => {
 
 export default function MarketplaceClient({ initialProducts, userId, favoriteIds }: MarketplaceClientProps) {
   const [sexFilter, setSexFilter] = useState<string>('All');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
-  // Specific attribute filters
-  const [themeFilter, setThemeFilter] = useState('');
-  const [eyeColorFilter, setEyeColorFilter] = useState('');
-  const [hairColorFilter, setHairColorFilter] = useState('');
-  const [bodyTypeFilter, setBodyTypeFilter] = useState('');
+  // Specific attribute filters (Multi-select)
+  const [themeFilter, setThemeFilter] = useState<string[]>([]);
+  const [eyeColorFilter, setEyeColorFilter] = useState<string[]>([]);
+  const [hairColorFilter, setHairColorFilter] = useState<string[]>([]);
+  const [bodyTypeFilter, setBodyTypeFilter] = useState<string[]>([]);
+  const [tagsFilter, setTagsFilter] = useState<string[]>([]);
 
   const filteredProducts = useMemo(() => {
     return initialProducts.filter(product => {
@@ -61,8 +63,6 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
 
       // Sex
       if (sexFilter !== 'All') {
-          // If product sex is null/undefined, it matches nothing specific, or maybe 'Other'?
-          // Let's assume strict match for now.
           if (product.sex !== sexFilter) return false;
       }
 
@@ -71,15 +71,60 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
         return false;
       }
 
-      // Attributes (Simple partial match)
-      if (themeFilter && !product.theme?.toLowerCase().includes(themeFilter.toLowerCase())) return false;
-      if (eyeColorFilter && !product.eyeColor?.toLowerCase().includes(eyeColorFilter.toLowerCase())) return false;
-      if (hairColorFilter && !product.hairColor?.toLowerCase().includes(hairColorFilter.toLowerCase())) return false;
-      if (bodyTypeFilter && !product.bodyType?.toLowerCase().includes(bodyTypeFilter.toLowerCase())) return false;
+      // Attributes (Checkbox logic: OR within category)
+      // If no filter selected, show all. If selected, product must match at least one.
+      if (themeFilter.length > 0 && (!product.theme || !themeFilter.includes(product.theme))) return false;
+      if (eyeColorFilter.length > 0 && (!product.eyeColor || !eyeColorFilter.includes(product.eyeColor))) return false;
+      if (hairColorFilter.length > 0 && (!product.hairColor || !hairColorFilter.includes(product.hairColor))) return false;
+      if (bodyTypeFilter.length > 0 && (!product.bodyType || !bodyTypeFilter.includes(product.bodyType))) return false;
+      
+      // Tags (AND logic or OR logic? Usually filters are OR within category, AND across categories. 
+      // But for tags, maybe we want "contains at least one of selected tags"?)
+      if (tagsFilter.length > 0) {
+          if (!product.tags || product.tags.length === 0) return false;
+          const hasMatchingTag = product.tags.some(t => tagsFilter.includes(t));
+          if (!hasMatchingTag) return false;
+      }
 
       return true;
     });
-  }, [initialProducts, searchQuery, sexFilter, priceRange, themeFilter, eyeColorFilter, hairColorFilter, bodyTypeFilter]);
+  }, [initialProducts, searchQuery, sexFilter, priceRange, themeFilter, eyeColorFilter, hairColorFilter, bodyTypeFilter, tagsFilter]);
+
+  const toggleFilter = (current: string[], setFn: (val: string[]) => void, value: string) => {
+      if (current.includes(value)) {
+          setFn(current.filter(i => i !== value));
+      } else {
+          setFn([...current, value]);
+      }
+  };
+
+  const FilterSection = ({ title, options, current, setFn }: { title: string, options: string[], current: string[], setFn: (val: string[]) => void }) => (
+      <div className="border-b border-gray-100 pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
+          <h3 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wider">{title}</h3>
+          <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
+              {options.map(option => (
+                  <label key={option} className="flex items-center gap-2 cursor-pointer group">
+                      <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${current.includes(option) ? 'bg-purple-600 border-purple-600' : 'bg-white border-gray-300 group-hover:border-purple-400'}`}>
+                          {current.includes(option) && <ChevronDown size={12} className="text-white" />} 
+                          {/* Reusing ChevronDown as a checkmark replacement or just use simple styling */}
+                          {current.includes(option) && (
+                              <svg width="10" height="8" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M1 5L4.5 8.5L11 1.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                          )}
+                      </div>
+                      <input 
+                          type="checkbox" 
+                          className="hidden"
+                          checked={current.includes(option)}
+                          onChange={() => toggleFilter(current, setFn, option)}
+                      />
+                      <span className={`text-sm ${current.includes(option) ? 'text-gray-900 font-medium' : 'text-gray-600 group-hover:text-gray-900'}`}>{option}</span>
+                  </label>
+              ))}
+          </div>
+      </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -146,73 +191,64 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
                             <input 
                                 type="range" 
                                 min="0" 
-                                max="5000" 
-                                step="10"
+                                max="100000" 
+                                step="100"
                                 value={priceRange[1]}
                                 onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
                                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
                             />
                             <div className="flex justify-between text-sm text-gray-600">
                                 <span>${priceRange[0]}</span>
-                                <span>${priceRange[1]}</span>
+                                <span>${priceRange[1].toLocaleString()}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Attributes */}
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         <h3 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wider border-t border-gray-100 pt-4">Attributes</h3>
                         
-                        <div>
-                            <label className="text-xs font-medium text-gray-500 mb-1 block">Theme</label>
-                            <input 
-                                type="text" 
-                                value={themeFilter}
-                                onChange={(e) => setThemeFilter(e.target.value)}
-                                placeholder="Any Theme"
-                                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500"
-                            />
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500 mb-1 block">Eye Color</label>
-                            <input 
-                                type="text" 
-                                value={eyeColorFilter}
-                                onChange={(e) => setEyeColorFilter(e.target.value)}
-                                placeholder="Any Color"
-                                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500"
-                            />
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500 mb-1 block">Hair Color</label>
-                            <input 
-                                type="text" 
-                                value={hairColorFilter}
-                                onChange={(e) => setHairColorFilter(e.target.value)}
-                                placeholder="Any Color"
-                                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500"
-                            />
-                        </div>
-                        <div>
-                            <label className="text-xs font-medium text-gray-500 mb-1 block">Body Type</label>
-                            <input 
-                                type="text" 
-                                value={bodyTypeFilter}
-                                onChange={(e) => setBodyTypeFilter(e.target.value)}
-                                placeholder="Any Body Type"
-                                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500"
-                            />
-                        </div>
+                        <FilterSection 
+                            title="Theme" 
+                            options={FILTER_OPTIONS.theme} 
+                            current={themeFilter} 
+                            setFn={setThemeFilter} 
+                        />
+                        <FilterSection 
+                            title="Eye Color" 
+                            options={FILTER_OPTIONS.eyeColor} 
+                            current={eyeColorFilter} 
+                            setFn={setEyeColorFilter} 
+                        />
+                        <FilterSection 
+                            title="Hair Color" 
+                            options={FILTER_OPTIONS.hairColor} 
+                            current={hairColorFilter} 
+                            setFn={setHairColorFilter} 
+                        />
+                        <FilterSection 
+                            title="Body Type" 
+                            options={FILTER_OPTIONS.bodyType} 
+                            current={bodyTypeFilter} 
+                            setFn={setBodyTypeFilter} 
+                        />
+                        <FilterSection 
+                            title="Tags" 
+                            options={FILTER_OPTIONS.tags} 
+                            current={tagsFilter} 
+                            setFn={setTagsFilter} 
+                        />
                     </div>
 
                     <button 
                         onClick={() => {
                             setSexFilter('All');
-                            setPriceRange([0, 5000]);
-                            setThemeFilter('');
-                            setEyeColorFilter('');
-                            setHairColorFilter('');
-                            setBodyTypeFilter('');
+                            setPriceRange([0, 100000]);
+                            setThemeFilter([]);
+                            setEyeColorFilter([]);
+                            setHairColorFilter([]);
+                            setBodyTypeFilter([]);
+                            setTagsFilter([]);
                             setSearchQuery('');
                         }}
                         className="w-full py-2 text-sm text-gray-500 hover:text-gray-900 underline"
