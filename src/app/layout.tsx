@@ -41,7 +41,7 @@ export default async function RootLayout({
             src="https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js"
             strategy="beforeInteractive"
         />
-        <Providers>
+        <Providers session={session}>
           <Navbar session={session} />
           <main className="flex-grow">
             {children}
