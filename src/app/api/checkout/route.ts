@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
+import { auth } from '@/auth';
 
 export async function POST(req: Request) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
     const { productId, productIds, paypalOrderId, payerEmail, transactionId } = await req.json();
 
     const itemsToProcess = productIds || (productId ? [productId] : []);
@@ -38,6 +42,7 @@ export async function POST(req: Request) {
               buyerEmail: payerEmail || 'unknown@example.com',
               status: 'COMPLETED',
               transactionId: transactionId || paypalOrderId,
+              userId: userId, // Link to logged-in user
             },
           });
 
