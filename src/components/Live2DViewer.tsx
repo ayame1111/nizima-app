@@ -1163,6 +1163,34 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
         };
     }, [enableZoomPan, isMouseTracking]); // Added isMouseTracking to deps
 
+    // Toggle Idle Animation based on Mouse Tracking
+    useEffect(() => {
+        const model = modelRef.current;
+        if (!model || !model.internalModel || !model.internalModel.motionManager) return;
+
+        const motionManager = model.internalModel.motionManager;
+
+        if (isMouseTracking) {
+             // Save original group if needed
+             if (!(motionManager as any)._originalIdleGroup) {
+                 (motionManager as any)._originalIdleGroup = motionManager.idleMotionGroup;
+             }
+             
+             console.log('[Live2DViewer] Mouse tracking enabled, disabling idle animation');
+             // Disable idle
+             motionManager.idleMotionGroup = undefined;
+             motionManager.stopAll();
+        } else {
+             // Restore
+             if ((motionManager as any)._originalIdleGroup) {
+                 console.log('[Live2DViewer] Mouse tracking disabled, enabling idle animation');
+                 motionManager.idleMotionGroup = (motionManager as any)._originalIdleGroup;
+                 // Force start
+                 motionManager.startRandomMotion(motionManager.idleMotionGroup);
+             }
+        }
+    }, [isMouseTracking]);
+
     // Helpers
     const updateModelParameter = (id: string, value: number, currentParams: ModelParameter[]) => {
         if (modelRef.current && modelRef.current.internalModel) {
