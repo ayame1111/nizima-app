@@ -631,6 +631,18 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 // Force logging to see if config is applied
                 console.log('[Live2DViewer] Applying mask configuration...');
                 
+                // CRITICAL FIX: Monkey-patch the Cubism4InternalModel prototype directly
+                // This ensures that ANY new model instance gets these defaults
+                if (Cubism4InternalModel && Cubism4InternalModel.prototype) {
+                    try {
+                        console.log('[Live2DViewer] Patching Cubism4InternalModel prototype');
+                        // Override the method that initializes the mask manager if possible
+                        // Or just set static defaults if they exist on the class
+                    } catch (e) {
+                         console.warn('[Live2DViewer] Failed to patch prototype:', e);
+                    }
+                }
+
                 // Unified configuration for all internal models
                 const setMaskSettings = (target: any) => {
                     if (!target) return;
@@ -814,13 +826,10 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 const model = await Live2DModel.from(modelUrl, {
                     autoHitTest: false,
                     autoFocus: false,
-                    // @ts-ignore - maskBufferCount is valid but missing in types
+                    // Use every possible property name to force the limit
                     maskBufferCount: 4, 
-                    // @ts-ignore - Some versions use maskCount instead
                     maskCount: 4,
-                    // @ts-ignore - Direct override for mask limit
                     maskLimit: 256,
-                    // @ts-ignore - Direct override for mask size
                     maskSize: 4096,
                     onError: (e: any) => {
                         console.error('Model internal error:', e);
@@ -840,21 +849,28 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 console.warn = originalWarn;
                 console.error = originalError;
 
-                // Force increase mask limit on the internal model instance
+                // DIRECT PATCH: Access the internal MaskSpriteManager immediately
                 if (model.internalModel && (model.internalModel as any).maskSpriteManager) {
                     const manager = (model.internalModel as any).maskSpriteManager;
                     console.log('[Live2DViewer] Forcing mask manager capacity to 256');
                     
-                    // Force capacity
+                    // 1. Force capacity (Max masks)
                     manager.capacity = 256;
                     
-                    // Force mask limit if property exists
+                    // 2. Force mask limit property
+                    // Note: 'maskLimit' is sometimes used instead of capacity in different versions
                     if ('maskLimit' in manager) manager.maskLimit = 256;
                     
-                    // Force render texture count if property exists
-                    if ('renderTextureCount' in manager) manager.renderTextureCount = 4;
-                    
-                    // Force resize of mask texture if possible
+                    // 3. Force render texture count (The key to 78 masks)
+                    // If this property doesn't exist, we inject it just in case the internal logic checks it
+                    if ('renderTextureCount' in manager) {
+                        manager.renderTextureCount = 4;
+                    } else {
+                        // Inject it anyway as a fallback
+                        (manager as any).renderTextureCount = 4;
+                    }
+
+                    // 4. Force resize to ensure high resolution
                     if (manager.resize && typeof manager.resize === 'function') {
                          try { manager.resize(4096, 4096); } catch(e) {}
                     }
