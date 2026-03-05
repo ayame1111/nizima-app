@@ -1565,14 +1565,18 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     )}
 
                     {/* Expressions Section */}
-                    {expressions.length > 0 && (
-                        <div className="p-6 border-b border-gray-800">
-                             <div className="flex items-center justify-between mb-4">
-                                 <h3 className="font-bold text-white flex items-center gap-2 text-sm uppercase tracking-wider">
-                                    <Smile size={16} className="text-purple-400" />
-                                    <span>Expressions</span>
-                                </h3>
-                            </div>
+                    <div className="p-6 border-b border-gray-800">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-bold text-white flex items-center gap-2 text-sm uppercase tracking-wider">
+                                <Smile size={16} className="text-purple-400" />
+                                <span>Expressions</span>
+                                <span className="text-[10px] font-normal text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">{expressions.length}</span>
+                            </h3>
+                        </div>
+                        
+                        {expressions.length === 0 ? (
+                            <div className="text-gray-500 text-xs italic opacity-50 pl-1">No expressions found</div>
+                        ) : (
                             <div className="grid grid-cols-2 gap-2">
                             {expressions.map((exp) => {
                                 const isActive = activeExpressions.includes(exp.name);
@@ -1593,8 +1597,8 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                                 );
                             })}
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
 
                     {/* Parameters Section */}
                     <div className="p-6 hidden md:block">
