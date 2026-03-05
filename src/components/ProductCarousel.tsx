@@ -36,6 +36,7 @@ const formatCurrency = (amount: number) => {
 export default function ProductCarousel({ products, favoriteIds }: ProductCarouselProps) {
   const [startIndex, setStartIndex] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,20 +57,22 @@ export default function ProductCarousel({ products, favoriteIds }: ProductCarous
   }, [itemsPerPage, maxIndex, startIndex]);
 
   const nextSlide = () => {
-    setStartIndex((prev) => Math.min(prev + 1, maxIndex));
+    setStartIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
   };
 
   const prevSlide = () => {
-    setStartIndex((prev) => Math.max(prev - 1, 0));
+    setStartIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
   };
 
-  // Auto-slide functionality (optional, can be removed if strictly manual)
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setStartIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-  //   }, 5000);
-  //   return () => clearInterval(interval);
-  // }, [maxIndex]);
+  // Auto-slide functionality
+  useEffect(() => {
+    if (isHovered || products.length <= itemsPerPage) return;
+    
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [maxIndex, isHovered, products.length, itemsPerPage]);
 
   if (products.length === 0) {
     return (
@@ -94,30 +97,24 @@ export default function ProductCarousel({ products, favoriteIds }: ProductCarous
   };
   
   return (
-    <div className="relative group">
+    <div 
+      className="relative group/carousel"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Navigation Buttons */}
       {products.length > itemsPerPage && (
         <>
             <button 
                 onClick={prevSlide}
-                disabled={startIndex === 0}
-                className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 p-3 rounded-full shadow-lg transition-all duration-300 ${
-                    startIndex === 0 
-                        ? 'bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed opacity-0' 
-                        : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 opacity-100'
-                }`}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 p-3 rounded-full shadow-lg transition-all duration-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 opacity-0 group-hover/carousel:opacity-100"
                 aria-label="Previous slide"
             >
                 <ChevronLeft size={24} />
             </button>
             <button 
                 onClick={nextSlide}
-                disabled={startIndex >= maxIndex}
-                className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 p-3 rounded-full shadow-lg transition-all duration-300 ${
-                    startIndex >= maxIndex 
-                        ? 'bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed opacity-0' 
-                        : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 opacity-100'
-                }`}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 p-3 rounded-full shadow-lg transition-all duration-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 opacity-0 group-hover/carousel:opacity-100"
                 aria-label="Next slide"
             >
                 <ChevronRight size={24} />

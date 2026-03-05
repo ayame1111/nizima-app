@@ -30,6 +30,7 @@ function DashboardContent({ user }: DashboardClientProps) {
   const [products, setProducts] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(false);
   const [uploadMode, setUploadMode] = useState<'single' | 'batch'>('single');
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
   
   // Batch Upload State
   interface BatchFile {
@@ -118,6 +119,45 @@ function DashboardContent({ user }: DashboardClientProps) {
     setBatchFiles(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
   };
 
+  const handleEdit = (product: any) => {
+    setEditingProduct(product);
+    setTitle(product.title);
+    setDescription(product.description);
+    setPrice(product.price.toString());
+    setSex(product.sex || 'Female');
+    setEyeColor(product.eyeColor || '');
+    setHairColor(product.hairColor || '');
+    setBodyType(product.bodyType || '');
+    setTheme(product.theme || '');
+    setTags(product.tags ? product.tags.join(', ') : '');
+    setFile(null);
+    setIcon(null);
+    setUploadMode('single');
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingProduct(null);
+    setTitle('');
+    setDescription('');
+    setPrice('');
+    setSex('Female');
+    setEyeColor('');
+    setHairColor('');
+    setBodyType('');
+    setTheme('');
+    setTags('');
+    setFile(null);
+    setIcon(null);
+    
+    // Reset file inputs
+    const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+    const iconInput = document.getElementById('icon-upload') as HTMLInputElement;
+    if (iconInput) iconInput.value = '';
+  };
+
   const handleBatchUpload = async () => {
     setLoading(true);
     setMessage('');
@@ -180,13 +220,13 @@ function DashboardContent({ user }: DashboardClientProps) {
     e.preventDefault();
     console.log('handleSubmit called');
     
-    if (!file) {
+    if (!file && !editingProduct) {
         console.log('No file selected');
         alert('Please select a ZIP file first.');
         return;
     }
 
-    console.log('Starting upload...', { title, description, price, fileName: file.name, fileSize: file.size });
+    console.log('Starting upload...', { title, description, price, fileName: file?.name, fileSize: file?.size });
     setLoading(true);
     setMessage('');
     
@@ -201,48 +241,44 @@ function DashboardContent({ user }: DashboardClientProps) {
     formData.append('bodyType', bodyType);
     formData.append('theme', theme);
     formData.append('tags', tags);
-    formData.append('file', file);
+    if (file) formData.append('file', file);
     if (icon) formData.append('icon', icon);
 
     try {
-      console.log('Sending request to /api/admin/products...');
-      const response = await axios.post('/api/admin/products', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 100));
-            console.log(`Upload progress: ${percentCompleted}%`);
-        }
-      });
-      console.log('Upload success:', response.data);
-      setMessage('Product uploaded successfully!');
-      setTitle('');
-      setDescription('');
-      setPrice('');
-      setSex('Female');
-      setEyeColor('');
-      setHairColor('');
-      setBodyType('');
-      setTheme('');
-      setTags('');
-      setFile(null);
-      setIcon(null);
-      // Reset file inputs
-      const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
-      const iconInput = document.getElementById('icon-upload') as HTMLInputElement;
-      if (iconInput) iconInput.value = '';
+      let response;
+      if (editingProduct) {
+        console.log(`Sending PATCH request to /api/admin/products/${editingProduct.id}...`);
+        response = await axios.patch(`/api/admin/products/${editingProduct.id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        setMessage('Product updated successfully!');
+      } else {
+        console.log('Sending request to /api/admin/products...');
+        response = await axios.post('/api/admin/products', formData, {
+            headers: {
+            'Content-Type': 'multipart/form-data',
+            },
+            onUploadProgress: (progressEvent) => {
+                const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 100));
+                console.log(`Upload progress: ${percentCompleted}%`);
+            }
+        });
+        setMessage('Product uploaded successfully!');
+      }
       
+      console.log('Success:', response.data);
+      
+      // Reset form
+      cancelEdit();
       fetchProducts(); // Refresh list
     } catch (error: any) {
-      console.error('Upload failed:', error);
-      const errorMsg = error.response?.data?.error || error.message || 'Failed to upload product.';
+      console.error('Operation failed:', error);
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to save product.';
       setMessage(`Error: ${errorMsg}`);
-      alert(`Upload failed: ${errorMsg}`);
+      alert(`Error: ${errorMsg}`);
     } finally {
       setLoading(false);
-      console.log('Upload finished (finally block)');
+      console.log('Finished (finally block)');
     }
   };
 
@@ -286,6 +322,17 @@ function DashboardContent({ user }: DashboardClientProps) {
 
             {uploadMode === 'single' ? (
             <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                        {editingProduct ? 'Edit Model Details' : 'Product Details'}
+                    </h3>
+                    {editingProduct && (
+                        <button type="button" onClick={cancelEdit} className="text-sm text-red-500 hover:text-red-700">
+                            Cancel Edit
+                        </button>
+                    )}
+                </div>
+
                 <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
                 <input
@@ -426,27 +473,29 @@ function DashboardContent({ user }: DashboardClientProps) {
                 </p>
                 </div>
 
-                <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model ZIP File</label>
-                <input
-                    id="file-upload"
-                    type="file"
-                    onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-2 rounded-lg text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-400 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/50 transition-all"
-                    accept=".zip"
-                    required
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Upload a ZIP file containing the Live2D model assets. 
-                    Must include a valid .model3.json file.
-                </p>
-                </div>
+                {!editingProduct && (
+                    <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model ZIP File</label>
+                    <input
+                        id="file-upload"
+                        type="file"
+                        onChange={(e) => setFile(e.target.files?.[0] || null)}
+                        className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-2 rounded-lg text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-400 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/50 transition-all"
+                        accept=".zip"
+                        required={!editingProduct}
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Upload a ZIP file containing the Live2D model assets. 
+                        Must include a valid .model3.json file.
+                    </p>
+                    </div>
+                )}
                 <button
                 type="submit"
                 disabled={loading}
                 className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 transition-colors shadow-lg shadow-gray-900/10 dark:shadow-white/10"
                 >
-                {loading ? 'Uploading...' : 'Upload Product'}
+                {loading ? (editingProduct ? 'Updating...' : 'Uploading...') : (editingProduct ? 'Update Product' : 'Upload Product')}
                 </button>
             </form>
             ) : (
@@ -613,13 +662,19 @@ function DashboardContent({ user }: DashboardClientProps) {
                                 <div className="flex justify-between items-center pt-3 border-t border-gray-50 dark:border-gray-700">
                                     <span className="font-bold text-lg text-gray-900 dark:text-white">${product.price}</span>
                                     <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleEdit(product)}
+                                            className="text-xs bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-lg transition-colors font-medium border border-blue-100 dark:border-blue-900/30"
+                                        >
+                                            Edit
+                                        </button>
                                         <a 
                                             href={`/product/${product.slug || product.id}`} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
                                             className="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-lg transition-colors border border-gray-200 dark:border-gray-600 font-medium"
                                         >
-                                            View Page
+                                            View
                                         </a>
                                         <button
                                             onClick={() => handleDelete(product.id)}
