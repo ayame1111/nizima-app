@@ -236,28 +236,28 @@ function DashboardContent({ user }: DashboardClientProps) {
             <h1 className="text-3xl font-bold text-gray-900">Creator Dashboard</h1>
             <p className="mt-1 text-sm text-gray-500">Manage your Live2D models and sales.</p>
           </div>
-          <Link href="/account" className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium">
+          <Link href="/account" className="bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium shadow-sm">
              My Account
           </Link>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Upload Form */}
-            <div className="bg-[#111] p-6 rounded-2xl border border-gray-800 h-fit">
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-fit">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                     Upload New Model
                 </h2>
-                <div className="flex bg-gray-900 rounded-lg p-1">
+                <div className="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
                     <button 
                         onClick={() => setUploadMode('single')}
-                        className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${uploadMode === 'single' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
+                        className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${uploadMode === 'single' ? 'bg-white text-gray-900 shadow-sm border border-gray-200' : 'text-gray-500 hover:text-gray-900'}`}
                     >
                         Single
                     </button>
                     <button 
                         onClick={() => setUploadMode('batch')}
-                        className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${uploadMode === 'batch' ? 'bg-blue-900/50 text-blue-200' : 'text-gray-400 hover:text-white'}`}
+                        className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${uploadMode === 'batch' ? 'bg-white text-blue-600 shadow-sm border border-gray-200' : 'text-gray-500 hover:text-gray-900'}`}
                     >
                         Batch
                     </button>
@@ -267,32 +267,32 @@ function DashboardContent({ user }: DashboardClientProps) {
             {uploadMode === 'single' ? (
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Title</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                 <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-black border border-gray-800 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
+                    className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
                     required
                 />
                 </div>
                 <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full bg-black border border-gray-800 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
+                    className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
                     rows={4}
                     required
                 />
                 </div>
                 <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Price ($)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
                 <input
                     type="number"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="w-full bg-black border border-gray-800 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
+                    className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
                     required
                     step="0.01"
                     min="0"
@@ -300,12 +300,12 @@ function DashboardContent({ user }: DashboardClientProps) {
                 </div>
                 
                 <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Icon Image (Optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Icon Image (Optional)</label>
                 <input
                     id="icon-upload"
                     type="file"
                     onChange={(e) => setIcon(e.target.files?.[0] || null)}
-                    className="w-full bg-black border border-gray-800 p-2 rounded-lg text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                    className="w-full bg-white border border-gray-200 p-2 rounded-lg text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all"
                     accept="image/*"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -314,12 +314,12 @@ function DashboardContent({ user }: DashboardClientProps) {
                 </div>
 
                 <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Model ZIP File</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Model ZIP File</label>
                 <input
                     id="file-upload"
                     type="file"
                     onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    className="w-full bg-black border border-gray-800 p-2 rounded-lg text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                    className="w-full bg-white border border-gray-200 p-2 rounded-lg text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all"
                     accept=".zip"
                     required
                 />
@@ -331,15 +331,15 @@ function DashboardContent({ user }: DashboardClientProps) {
                 <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-lg shadow-blue-900/20"
+                className="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors shadow-lg shadow-gray-900/10"
                 >
                 {loading ? 'Uploading...' : 'Upload Product'}
                 </button>
             </form>
             ) : (
                 <div className="space-y-4">
-                    <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-800">
-                        <h3 className="text-sm font-bold text-gray-300 mb-3">Default Settings</h3>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h3 className="text-sm font-bold text-gray-900 mb-3">Default Settings</h3>
                         <div className="grid grid-cols-2 gap-3 mb-3">
                             <div>
                                 <label className="block text-xs font-medium text-gray-500 mb-1">Default Price ($)</label>
@@ -347,7 +347,7 @@ function DashboardContent({ user }: DashboardClientProps) {
                                     type="number"
                                     value={globalPrice}
                                     onChange={(e) => setGlobalPrice(e.target.value)}
-                                    className="w-full bg-black border border-gray-800 p-2 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none text-white text-sm"
+                                    className="w-full bg-white border border-gray-200 p-2 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none text-gray-900 text-sm"
                                     placeholder="0.00"
                                     step="0.01"
                                     min="0"
@@ -359,7 +359,7 @@ function DashboardContent({ user }: DashboardClientProps) {
                                     type="text"
                                     value={globalDescription}
                                     onChange={(e) => setGlobalDescription(e.target.value)}
-                                    className="w-full bg-black border border-gray-800 p-2 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none text-white text-sm"
+                                    className="w-full bg-white border border-gray-200 p-2 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none text-gray-900 text-sm"
                                     placeholder="Description for all files..."
                                 />
                             </div>
@@ -373,9 +373,9 @@ function DashboardContent({ user }: DashboardClientProps) {
                                 onChange={handleBatchFileSelect}
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             />
-                            <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center hover:bg-gray-800/50 transition-colors">
-                                <p className="text-gray-400 font-medium">Click or Drag ZIP files here</p>
-                                <p className="text-xs text-gray-600 mt-1">Select multiple files to batch upload</p>
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-100 transition-colors bg-white">
+                                <p className="text-gray-600 font-medium">Click or Drag ZIP files here</p>
+                                <p className="text-xs text-gray-400 mt-1">Select multiple files to batch upload</p>
                             </div>
                         </div>
                     </div>
@@ -383,18 +383,18 @@ function DashboardContent({ user }: DashboardClientProps) {
                     {batchFiles.length > 0 && (
                         <div className="space-y-2 max-h-[400px] overflow-y-auto custom-scrollbar pr-1">
                             {batchFiles.map((file, index) => (
-                                <div key={file.id} className="bg-black/40 border border-gray-800 rounded p-3 text-sm">
+                                <div key={file.id} className="bg-white border border-gray-200 rounded p-3 text-sm shadow-sm">
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="flex-1 mr-2">
                                             <input 
                                                 value={file.title}
                                                 onChange={(e) => updateBatchFile(file.id, 'title', e.target.value)}
-                                                className="bg-transparent border-b border-transparent hover:border-gray-700 focus:border-blue-500 outline-none text-white font-medium w-full"
+                                                className="bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-500 outline-none text-gray-900 font-medium w-full"
                                                 placeholder="Title"
                                             />
-                                            <div className="text-xs text-gray-500 mt-0.5">{file.file.name} ({(file.file.size / 1024 / 1024).toFixed(2)} MB)</div>
+                                            <div className="text-xs text-gray-400 mt-0.5">{file.file.name} ({(file.file.size / 1024 / 1024).toFixed(2)} MB)</div>
                                         </div>
-                                        <button onClick={() => removeBatchFile(file.id)} className="text-gray-600 hover:text-red-400">
+                                        <button onClick={() => removeBatchFile(file.id)} className="text-gray-400 hover:text-red-500 transition-colors">
                                             ×
                                         </button>
                                     </div>
@@ -404,20 +404,20 @@ function DashboardContent({ user }: DashboardClientProps) {
                                             type="number"
                                             value={file.price}
                                             onChange={(e) => updateBatchFile(file.id, 'price', e.target.value)}
-                                            className="bg-black border border-gray-800 rounded px-2 py-1 w-20 text-white"
+                                            className="bg-gray-50 border border-gray-200 rounded px-2 py-1 w-20 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             placeholder="Price"
                                         />
                                         <input 
                                             value={file.description}
                                             onChange={(e) => updateBatchFile(file.id, 'description', e.target.value)}
-                                            className="bg-black border border-gray-800 rounded px-2 py-1 flex-1 text-white"
+                                            className="bg-gray-50 border border-gray-200 rounded px-2 py-1 flex-1 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             placeholder="Description"
                                         />
                                     </div>
 
                                     {file.status !== 'pending' && (
                                         <div className="mt-2">
-                                            <div className="h-1 bg-gray-800 rounded-full overflow-hidden">
+                                            <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
                                                 <div 
                                                     className={`h-full transition-all duration-300 ${
                                                         file.status === 'success' ? 'bg-green-500' : 
@@ -426,7 +426,7 @@ function DashboardContent({ user }: DashboardClientProps) {
                                                     style={{ width: `${file.progress}%` }}
                                                 />
                                             </div>
-                                            {file.error && <p className="text-xs text-red-400 mt-1">{file.error}</p>}
+                                            {file.error && <p className="text-xs text-red-500 mt-1">{file.error}</p>}
                                         </div>
                                     )}
                                 </div>
@@ -437,7 +437,7 @@ function DashboardContent({ user }: DashboardClientProps) {
                     <button
                         onClick={handleBatchUpload}
                         disabled={loading || batchFiles.length === 0}
-                        className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-lg shadow-blue-900/20"
+                        className="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors shadow-lg shadow-gray-900/10"
                     >
                         {loading ? `Uploading ${batchFiles.filter(f => f.status === 'pending').length} Files...` : 'Upload All Files'}
                     </button>
@@ -445,19 +445,19 @@ function DashboardContent({ user }: DashboardClientProps) {
             )}
 
             {message && (
-            <div className={`mt-4 p-3 rounded-lg text-sm font-medium ${message.includes('success') || message.includes('deleted') ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`}>
+            <div className={`mt-4 p-3 rounded-lg text-sm font-medium ${message.includes('success') || message.includes('deleted') ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
                 {message}
             </div>
             )}
             </div>
 
             {/* Product List */}
-            <div className="bg-[#111] p-6 rounded-2xl border border-gray-800 h-fit">
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-fit">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-white">Your Models</h2>
+                    <h2 className="text-xl font-bold text-gray-900">Your Models</h2>
                     <button 
                     onClick={fetchProducts} 
-                    className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                    className="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium"
                     disabled={loadingList}
                     >
                     {loadingList ? 'Loading...' : 'Refresh List'}
@@ -465,52 +465,52 @@ function DashboardContent({ user }: DashboardClientProps) {
                 </div>
                 
                 {products.length === 0 ? (
-                    <div className="text-gray-500 text-center py-12 bg-black/20 rounded-xl border border-gray-800 border-dashed">
+                    <div className="text-gray-500 text-center py-12 bg-gray-50 rounded-xl border border-gray-200 border-dashed">
                         {loadingList ? 'Loading products...' : 'You haven\'t uploaded any models yet.'}
                     </div>
                 ) : (
                     <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
                         {products.map((product) => (
-                            <div key={product.id} className="bg-black/40 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors flex flex-col gap-3">
+                            <div key={product.id} className="bg-white border border-gray-100 rounded-xl p-4 hover:shadow-md transition-all flex flex-col gap-3">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                                        <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                                             {product.iconUrl ? (
                                                 <img src={product.iconUrl} alt={product.title} className="w-full h-full object-cover" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-600 font-bold">
+                                                <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold">
                                                     {product.title.charAt(0)}
                                                 </div>
                                             )}
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-gray-200">{product.title}</h3>
-                                            <p className="text-xs text-gray-500 font-mono truncate max-w-[150px]">{product.id}</p>
+                                            <h3 className="font-bold text-gray-900">{product.title}</h3>
+                                            <p className="text-xs text-gray-400 font-mono truncate max-w-[150px]">{product.id}</p>
                                         </div>
                                     </div>
-                                    <span className={`px-2 py-1 rounded text-xs font-bold ${product.isSold ? 'bg-red-900/30 text-red-400 border border-red-800' : 'bg-green-900/30 text-green-400 border border-green-800'}`}>
+                                    <span className={`px-2 py-1 rounded text-xs font-bold ${product.isSold ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'}`}>
                                         {product.isSold ? 'SOLD' : 'AVAILABLE'}
                                     </span>
                                 </div>
                                 
-                                <div className="text-sm text-gray-400 line-clamp-2">
+                                <div className="text-sm text-gray-500 line-clamp-2">
                                     {product.description}
                                 </div>
                                 
-                                <div className="flex justify-between items-center pt-3 border-t border-gray-800">
-                                    <span className="font-bold text-lg text-white">${product.price}</span>
+                                <div className="flex justify-between items-center pt-3 border-t border-gray-50">
+                                    <span className="font-bold text-lg text-gray-900">${product.price}</span>
                                     <div className="flex gap-2">
                                         <a 
                                             href={`/product/${product.slug || product.id}`} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
-                                            className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg transition-colors border border-gray-700"
+                                            className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition-colors border border-gray-200 font-medium"
                                         >
                                             View Page
                                         </a>
                                         <button
                                             onClick={() => handleDelete(product.id)}
-                                            className="text-xs bg-red-900/20 hover:bg-red-900/40 text-red-400 px-3 py-1.5 rounded-lg transition-colors font-medium border border-red-900/30"
+                                            className="text-xs bg-white hover:bg-red-50 text-red-500 px-3 py-1.5 rounded-lg transition-colors font-medium border border-red-100 hover:border-red-200"
                                         >
                                             Delete
                                         </button>

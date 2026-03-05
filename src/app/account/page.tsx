@@ -24,7 +24,7 @@ export default async function AccountPage() {
   });
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-gray-50 text-gray-900 pb-20">
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-gray-500">
          <Link href="/" className="hover:text-gray-900">Home</Link>
@@ -32,93 +32,105 @@ export default async function AccountPage() {
          <span className="text-gray-900 font-medium">My Account</span>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="mb-8">
            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Account</h1>
            <p className="text-gray-500">Manage your profile and purchases.</p>
         </div>
 
-        {/* Purchases Section */}
-        <div className="mt-8 border-t border-gray-100 pt-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Purchased Models</h2>
-          
-          {purchases.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 bg-black/20 rounded-xl border border-gray-800 border-dashed">
-              <p>You haven't purchased any models yet.</p>
-              <Link href="/" className="text-blue-400 hover:text-blue-300 mt-2 inline-block">
-                Browse Marketplace
-              </Link>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Purchases Section */}
+            <div className="lg:col-span-2 space-y-6">
+                <h2 className="text-xl font-bold text-gray-900">Purchased Models</h2>
+                
+                {purchases.length === 0 ? (
+                    <div className="bg-white rounded-2xl shadow-sm p-12 text-center border border-gray-100">
+                        <div className="w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Package size={32} />
+                        </div>
+                        <p className="text-gray-900 font-medium mb-2">No purchases yet</p>
+                        <p className="text-gray-500 text-sm mb-6">You haven't purchased any models yet.</p>
+                        <Link href="/" className="inline-block bg-gray-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-800 transition-colors text-sm">
+                            Browse Marketplace
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                    {purchases.map((purchase) => (
+                        <div key={purchase.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4 items-center">
+                            <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                {purchase.product.iconUrl ? (
+                                    <img src={purchase.product.iconUrl} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                        <Package size={24} />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex-grow min-w-0">
+                                <h3 className="font-bold text-gray-900 truncate">{purchase.product.title}</h3>
+                                <p className="text-sm text-gray-500 truncate">{purchase.product.creator?.name || 'Unknown Artist'}</p>
+                                <p className="text-xs text-gray-400 mt-1">Purchased on {new Date(purchase.createdAt).toLocaleDateString()}</p>
+                            </div>
+                            <a 
+                                href={`/api/download/${purchase.id}`} 
+                                className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                                title="Download"
+                            >
+                                <Download size={20} />
+                            </a>
+                        </div>
+                    ))}
+                    </div>
+                )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {purchases.map((purchase) => (
-                <div key={purchase.id} className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
-                  <div className="aspect-square bg-gray-50 relative overflow-hidden">
-                      {purchase.product.iconUrl ? (
-                           <img src={purchase.product.iconUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                      ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                              <Package size={32} />
-                          </div>
-                      )}
-                  </div>
-                  <div className="p-4">
-                       <h3 className="font-bold text-gray-900 truncate">{purchase.product.title}</h3>
-                       <p className="text-sm text-gray-500 mb-4 truncate">{purchase.product.creator?.name || 'Unknown Artist'}</p>
-                       
-                       <a href={`/api/download/${purchase.id}`} className="block w-full text-center bg-gray-900 text-white py-2 rounded-lg font-bold hover:bg-gray-800 transition-colors">
-                           Download
-                       </a>
-                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* Security Section */}
-        <div className="bg-[#111] rounded-2xl border border-gray-800 p-6">
-          <h2 className="text-xl font-bold text-white mb-6">Security</h2>
-          <form action={async (formData) => {
-              'use server'
-              await updatePassword(formData);
-          }} className="space-y-4 max-w-md">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Current Password</label>
-              <input 
-                type="password" 
-                name="currentPassword"
-                required
-                className="w-full bg-black border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
-              />
+            {/* Security Section */}
+            <div className="lg:col-span-1">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-24">
+                    <h2 className="text-lg font-bold text-gray-900 mb-6">Security</h2>
+                    <form action={async (formData) => {
+                        'use server'
+                        await updatePassword(formData);
+                    }} className="space-y-4">
+                        <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                        <input 
+                            type="password" 
+                            name="currentPassword"
+                            required
+                            className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        />
+                        </div>
+                        <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                        <input 
+                            type="password" 
+                            name="newPassword"
+                            required
+                            minLength={6}
+                            className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        />
+                        </div>
+                        <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                        <input 
+                            type="password" 
+                            name="confirmPassword"
+                            required
+                            minLength={6}
+                            className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        />
+                        </div>
+                        <button 
+                        type="submit"
+                        className="w-full bg-gray-900 text-white px-4 py-2.5 rounded-lg font-bold hover:bg-gray-800 transition-colors mt-2"
+                        >
+                        Update Password
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">New Password</label>
-              <input 
-                type="password" 
-                name="newPassword"
-                required
-                minLength={6}
-                className="w-full bg-black border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Confirm New Password</label>
-              <input 
-                type="password" 
-                name="confirmPassword"
-                required
-                minLength={6}
-                className="w-full bg-black border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
-              />
-            </div>
-            <button 
-              type="submit"
-              className="bg-white text-black px-6 py-2 rounded-lg font-bold hover:bg-gray-200 transition-colors"
-            >
-              Update Password
-            </button>
-          </form>
         </div>
       </div>
     </div>
