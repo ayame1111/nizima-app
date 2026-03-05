@@ -776,9 +776,21 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 // Force increase mask limit on the internal model instance
                 if (model.internalModel && (model.internalModel as any).maskSpriteManager) {
                     const manager = (model.internalModel as any).maskSpriteManager;
-                    // We need to support 78 masks, so we need more capacity
+                    console.log('[Live2DViewer] Forcing mask manager capacity to 256');
+                    
+                    // Force capacity
                     manager.capacity = 256;
+                    
+                    // Force mask limit if property exists
                     if ('maskLimit' in manager) manager.maskLimit = 256;
+                    
+                    // Force render texture count if property exists
+                    if ('renderTextureCount' in manager) manager.renderTextureCount = 4;
+                    
+                    // Force resize of mask texture if possible
+                    if (manager.resize && typeof manager.resize === 'function') {
+                         try { manager.resize(4096, 4096); } catch(e) {}
+                    }
                 }
                 
                 console.log('[Live2DViewer] Model loaded successfully');
