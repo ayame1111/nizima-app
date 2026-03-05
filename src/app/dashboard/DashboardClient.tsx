@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Info, ChevronDown, ChevronUp, FileText, Folder, CheckCircle, AlertCircle } from 'lucide-react';
+// Removed lucide-react imports for instructions
+// import { Info, ChevronDown, ChevronUp, FileText, Folder, CheckCircle, AlertCircle } from 'lucide-react';
 
 import { FILTER_OPTIONS } from '@/lib/constants';
 
@@ -32,7 +33,6 @@ function DashboardContent({ user }: DashboardClientProps) {
   const [loadingList, setLoadingList] = useState(false);
   const [uploadMode, setUploadMode] = useState<'single' | 'batch'>('single');
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
-  const [showInstructions, setShowInstructions] = useState(false);
   
   // Batch Upload State
   interface BatchFile {
@@ -320,58 +320,6 @@ function DashboardContent({ user }: DashboardClientProps) {
                         Batch
                     </button>
                 </div>
-            </div>
-
-            <div className="mb-6">
-                <button 
-                    onClick={() => setShowInstructions(!showInstructions)}
-                    className="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors bg-blue-50 dark:bg-blue-900/10 px-3 py-2 rounded-lg w-full border border-blue-100 dark:border-blue-900/30"
-                >
-                    <Info size={16} />
-                    <span>How to prepare your model? (Click to expand)</span>
-                    <div className="ml-auto">
-                        {showInstructions ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </div>
-                </button>
-                
-                {showInstructions && (
-                    <div className="mt-3 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 shadow-inner">
-                        <div>
-                            <p className="font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-2">
-                                <FileText size={14} className="text-blue-500" /> File Requirements:
-                            </p>
-                            <ul className="space-y-2 ml-1 text-xs text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-blue-500/20">
-                                <li>Upload a single <strong>.zip</strong> file containing all model assets.</li>
-                                <li>The ZIP must contain a valid <strong>.model3.json</strong> (Cubism 3/4) or <strong>.model.json</strong> (Cubism 2).</li>
-                                <li>Ensure all referenced files (textures, physics, expressions) are included.</li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <p className="font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-2">
-                                <AlertCircle size={14} className="text-amber-500" /> Common Issues:
-                            </p>
-                            <ul className="space-y-2 ml-1 text-xs text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-amber-500/20">
-                                <li><strong>Case Sensitivity:</strong> If your JSON says "Texture.png" but the file is "texture.png", it might fail. (We try to auto-fix this!)</li>
-                                <li><strong>Expressions:</strong> If your JSON references <code>.json</code> but you have <code>.exp3.json</code>, please rename them to match exactly.</li>
-                            </ul>
-                        </div>
-
-                        <div className="bg-white dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs">
-                            <p className="font-bold mb-2 text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-1">Recommended Structure:</p>
-                            <div className="pl-2 text-gray-600 dark:text-gray-300">
-                                <div>MyModel.zip</div>
-                                <div className="pl-4">├── MyModel.model3.json</div>
-                                <div className="pl-4">├── MyModel.moc3</div>
-                                <div className="pl-4">├── textures/</div>
-                                <div className="pl-4">│   └── texture_00.png</div>
-                                <div className="pl-4">├── expressions/</div>
-                                <div className="pl-4">│   └── f01.exp3.json</div>
-                                <div className="pl-4">└── physics/</div>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
 
             {uploadMode === 'single' ? (
