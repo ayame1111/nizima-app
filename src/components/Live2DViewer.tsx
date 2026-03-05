@@ -631,52 +631,54 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 // Force logging to see if config is applied
                 console.log('[Live2DViewer] Applying mask configuration...');
                 
-                // Unified configuration for all internal models
+                // Set Global Defaults FIRST (before anything else happens)
+                // This targets the shared state used by the library
+                if (config) {
+                    config.logLevel = 0; // Verbose logging
+                }
+
+                // Define the high-capacity settings
+                const MASK_SIZE = 4096;
+                const MASK_LIMIT = 256;
+
+                // Unified configuration helper
                 const setMaskSettings = (target: any) => {
                     if (!target) return;
                     try {
-                        target.maskSize = 4096;
-                        target.maskLimit = 256;
+                        target.maskSize = MASK_SIZE;
+                        target.maskLimit = MASK_LIMIT;
                         target.supportMoreMaskDivisions = true;
-                        target.supportMoreMasks = true;
+                        target.supportMoreMasks = true; // Critical for V7
                     } catch (e) {
                         console.warn('[Live2DViewer] Failed to set mask settings on target:', e);
                     }
                 };
 
-                // 1. Config Object
+                // 1. Patch Internal Model Prototypes (The most effective early patch)
+                if (Cubism4InternalModel && Cubism4InternalModel.prototype) {
+                    console.log('[Live2DViewer] Patching Cubism4InternalModel prototype');
+                    setMaskSettings(Cubism4InternalModel.prototype);
+                }
+
+                // 2. Patch Config Object (Standard)
                 if (config) {
                     setMaskSettings(config.cubism4);
                     setMaskSettings((config as any).cubism2);
                 }
 
-                // 2. Live2DModel Config (Static)
+                // 3. Patch Live2DModel Static Config
                 if ((Live2DModel as any).config) {
                      const l2dConfig = (Live2DModel as any).config;
                      setMaskSettings(l2dConfig.cubism4);
                      setMaskSettings(l2dConfig.cubism2);
                 }
 
-                // 3. Internal Models (Static)
-                if (Cubism4InternalModel) setMaskSettings(Cubism4InternalModel);
-                if (Cubism2InternalModel) setMaskSettings(Cubism2InternalModel);
-                
-                // 4. Prototype Patching (CRITICAL for v7)
-                if (Cubism4InternalModel && Cubism4InternalModel.prototype) {
-                    try {
-                        console.log('[Live2DViewer] Patching Cubism4InternalModel prototype');
-                        setMaskSettings(Cubism4InternalModel.prototype);
-                    } catch (e) {
-                         console.warn('[Live2DViewer] Failed to patch prototype:', e);
-                    }
-                }
-
-                // 5. Register Settings (Official Method)
+                // 4. Register Settings (Official Method)
                 if (typeof (Live2DModel as any).registerSettings === 'function') {
                     try {
                         (Live2DModel as any).registerSettings({
-                            cubism4: { maskLimit: 256, maskSize: 4096, supportMoreMaskDivisions: true, supportMoreMasks: true },
-                            cubism2: { maskLimit: 256, maskSize: 4096 }
+                            cubism4: { maskLimit: MASK_LIMIT, maskSize: MASK_SIZE, supportMoreMaskDivisions: true, supportMoreMasks: true },
+                            cubism2: { maskLimit: MASK_LIMIT, maskSize: MASK_SIZE }
                         });
                     } catch (e) {}
                 }
