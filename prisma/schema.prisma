@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -36,6 +36,12 @@ model Product {
   fileUrl     String   // Path to the downloadable zip file (secure location)
   iconUrl     String?  // Path to the icon image
   isSold      Boolean  @default(false)
+  sex         String?  // Male, Female, Other
+  eyeColor    String?
+  hairColor   String?
+  bodyType    String?
+  theme       String?
+  tags        String? // Comma-separated list of tags
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   Order       Order[]

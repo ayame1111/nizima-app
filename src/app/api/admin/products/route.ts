@@ -55,6 +55,13 @@ export async function POST(req: Request) {
     const title = formData.get('title') as string;
     const description = formData.get('description') as string;
     const price = parseFloat(formData.get('price') as string);
+    const sex = formData.get('sex') as string;
+    const eyeColor = formData.get('eyeColor') as string;
+    const hairColor = formData.get('hairColor') as string;
+    const bodyType = formData.get('bodyType') as string;
+    const theme = formData.get('theme') as string;
+    const tags = formData.get('tags') as string;
+
     const fileEntry = formData.get('file');
     // More flexible check: if it has a 'name' (string) and 'size' (number), it's likely a File-like object
     const file = (fileEntry && typeof fileEntry === 'object' && 'name' in fileEntry) ? (fileEntry as any) : null;
@@ -227,6 +234,12 @@ export async function POST(req: Request) {
             title,
             description,
             price,
+            sex,
+            eyeColor,
+            hairColor,
+            bodyType,
+            theme,
+            tags,
             previewUrl: relativePreviewUrl,
             fileUrl: path.join(secureStorageDir, 'model.zip'), // Store absolute path for secure access
             iconUrl,

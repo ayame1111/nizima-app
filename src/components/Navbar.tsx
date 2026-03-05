@@ -43,8 +43,10 @@ export default function Navbar({ session }: { session: any }) {
                             </span>
                         </Link>
               <div className={`hidden md:flex items-center gap-6 text-sm font-medium ${textColorClass}`}>
-                <Link href="/" className="transition-colors duration-700 hover:opacity-80">Marketplace</Link>
-                <Link href="/become-creator" className="transition-colors duration-700 hover:opacity-80">Become a Creator</Link>
+                <Link href="/marketplace" className="transition-colors duration-700 hover:opacity-80">Marketplace</Link>
+                {(!session?.user || !['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
+                    <Link href="/become-creator" className="transition-colors duration-700 hover:opacity-80">Become a Creator</Link>
+                )}
               </div>
             </div>
 
@@ -118,8 +120,10 @@ export default function Navbar({ session }: { session: any }) {
         {isMenuOpen && (
             <div className="md:hidden border-t border-gray-100 bg-white">
                 <div className="px-4 pt-2 pb-4 space-y-1">
-                    <Link href="/" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">Marketplace</Link>
-                    <Link href="/become-creator" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">Become a Creator</Link>
+                    <Link href="/marketplace" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">Marketplace</Link>
+                    {(!session?.user || !['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
+                        <Link href="/become-creator" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">Become a Creator</Link>
+                    )}
                     {/* Admin Link for Mobile */}
                 {session?.user && (session.user as any).role === 'ADMIN' && (
                     <Link href="/admin/users" className="block px-3 py-2 text-base font-bold text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md">

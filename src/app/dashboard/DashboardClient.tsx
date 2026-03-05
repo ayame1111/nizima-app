@@ -17,6 +17,12 @@ function DashboardContent({ user }: DashboardClientProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [sex, setSex] = useState('Female');
+  const [eyeColor, setEyeColor] = useState('');
+  const [hairColor, setHairColor] = useState('');
+  const [bodyType, setBodyType] = useState('');
+  const [theme, setTheme] = useState('');
+  const [tags, setTags] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [products, setProducts] = useState<any[]>([]);
@@ -187,6 +193,12 @@ function DashboardContent({ user }: DashboardClientProps) {
     formData.append('title', title);
     formData.append('description', description);
     formData.append('price', price);
+    formData.append('sex', sex);
+    formData.append('eyeColor', eyeColor);
+    formData.append('hairColor', hairColor);
+    formData.append('bodyType', bodyType);
+    formData.append('theme', theme);
+    formData.append('tags', tags);
     formData.append('file', file);
     if (icon) formData.append('icon', icon);
 
@@ -206,6 +218,12 @@ function DashboardContent({ user }: DashboardClientProps) {
       setTitle('');
       setDescription('');
       setPrice('');
+      setSex('Female');
+      setEyeColor('');
+      setHairColor('');
+      setBodyType('');
+      setTheme('');
+      setTags('');
       setFile(null);
       setIcon(null);
       // Reset file inputs
@@ -297,6 +315,72 @@ function DashboardContent({ user }: DashboardClientProps) {
                     step="0.01"
                     min="0"
                 />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Sex</label>
+                        <select 
+                            value={sex} 
+                            onChange={(e) => setSex(e.target.value)}
+                            className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
+                        >
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Unisex">Unisex</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Theme</label>
+                        <input
+                            type="text"
+                            value={theme}
+                            onChange={(e) => setTheme(e.target.value)}
+                            className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
+                            placeholder="e.g. Fantasy, Sci-Fi"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Eye Color</label>
+                        <input
+                            type="text"
+                            value={eyeColor}
+                            onChange={(e) => setEyeColor(e.target.value)}
+                            className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
+                            placeholder="e.g. Blue, Red"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Hair Color</label>
+                        <input
+                            type="text"
+                            value={hairColor}
+                            onChange={(e) => setHairColor(e.target.value)}
+                            className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
+                            placeholder="e.g. Blonde, Pink"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Body Type</label>
+                        <input
+                            type="text"
+                            value={bodyType}
+                            onChange={(e) => setBodyType(e.target.value)}
+                            className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
+                            placeholder="e.g. Slim, Chibi"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma separated)</label>
+                        <input
+                            type="text"
+                            value={tags}
+                            onChange={(e) => setTags(e.target.value)}
+                            className="w-full bg-white border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 transition-all"
+                            placeholder="e.g. cute, cat ears, maid"
+                        />
+                    </div>
                 </div>
                 
                 <div>
