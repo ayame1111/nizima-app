@@ -17,10 +17,21 @@ const formatCurrency = (amount: number) => {
 export const revalidate = 0; // Disable caching for real-time updates
 
 export default async function Home() {
+  const session = await auth();
+  
+  let favoriteIds: string[] = [];
+  if (session?.user?.id) {
+    const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        include: { favorites: { select: { id: true } } }
+    });
+    favoriteIds = user?.favorites.map(f => f.id) || [];
+  }
+
   const products = await prisma.product.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
-      seller: true,
+      creator: true,
     }
   });
 
@@ -107,8 +118,14 @@ export default async function Home() {
                   </div>
                   
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-5 h-5 rounded-full bg-gray-200"></div>
-                    <span className="text-xs text-gray-500 font-medium">Unknown Artist</span>
+                    {product.creator?.image ? (
+                        <img src={product.creator.image} className="w-5 h-5 rounded-full object-cover" alt={product.creator.name || 'Creator'} />
+                    ) : (
+                        <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-500">
+                            {(product.creator?.name || 'U').charAt(0)}
+                        </div>
+                    )}
+                    <span className="text-xs text-gray-500 font-medium">{product.creator?.name || 'Unknown Artist'}</span>
                   </div>
                   
                   <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">

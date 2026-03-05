@@ -17,11 +17,11 @@ export default async function AccountPage() {
     where: { userId: session.user.id },
     include: {
         product: {
-            include: { seller: true }
+            include: { creator: true }
         }
     },
     orderBy: { createdAt: 'desc' }
-  }) as unknown as (Order & { product: Product & { seller: User | null } })[];
+  });
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -64,7 +64,7 @@ export default async function AccountPage() {
                   </div>
                   <div className="p-4">
                        <h3 className="font-bold text-gray-900 truncate">{purchase.product.title}</h3>
-                       <p className="text-sm text-gray-500 mb-4 truncate">{purchase.product.seller?.name || 'Unknown Artist'}</p>
+                       <p className="text-sm text-gray-500 mb-4 truncate">{purchase.product.creator?.name || 'Unknown Artist'}</p>
                        
                        <a href={`/api/download/${purchase.id}`} className="block w-full text-center bg-gray-900 text-white py-2 rounded-lg font-bold hover:bg-gray-800 transition-colors">
                            Download

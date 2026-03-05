@@ -14,7 +14,7 @@ export default async function AdminPage() {
   // Fetch products (you might want to paginate this in a real app)
   const products = await prisma.product.findMany({
     orderBy: { createdAt: 'desc' },
-    include: { seller: true }
+    include: { creator: true }
   });
 
   return (

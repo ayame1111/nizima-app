@@ -54,7 +54,10 @@ export default async function AdminUsersPage({
         <div className="bg-[#111] p-6 rounded-2xl border border-gray-800">
             <h2 className="text-xl font-bold text-white mb-4">Quick Assign Creator Role</h2>
             <p className="text-gray-400 mb-4 text-sm">Enter an email address to instantly upgrade a user to Creator status.</p>
-            <form action={assignCreatorRoleByEmail} className="flex gap-4">
+            <form action={async (formData) => {
+                'use server'
+                await assignCreatorRoleByEmail(formData)
+            }} className="flex gap-4">
                 <input 
                     type="email" 
                     name="email" 
