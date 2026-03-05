@@ -78,14 +78,14 @@ export default function PayPalButtonComponent({ amount, productId, productIds, o
         />
       </PayPalScriptProvider>
 
-      {error && <p className="text-red-400 mt-2 text-sm bg-red-900/20 p-2 rounded border border-red-900/50">{error}</p>}
+      {error && <p className="text-red-600 dark:text-red-400 mt-2 text-sm bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-200 dark:border-red-900/50">{error}</p>}
 
       {/* Safety Disclosure */}
-      <div className="bg-gray-800/50 border border-white/10 rounded-lg p-3 text-xs text-gray-400 flex items-start gap-2 mt-4">
-        <ShieldCheck className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+      <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 rounded-lg p-3 text-xs text-gray-600 dark:text-gray-400 flex items-start gap-2 mt-4">
+        <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-semibold text-gray-200 flex items-center gap-1.5">
-            Secure Transaction <Lock size={10} className="text-gray-500" />
+          <p className="font-semibold text-gray-900 dark:text-gray-200 flex items-center gap-1.5">
+            Secure Transaction <Lock size={10} className="text-gray-400 dark:text-gray-500" />
           </p>
           <p className="leading-relaxed">
             Your payment is securely processed by PayPal. We do not store your credit card details. 
