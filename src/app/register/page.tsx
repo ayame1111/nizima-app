@@ -12,34 +12,40 @@ export default function RegisterPage() {
   const [state, action] = useFormState(register, null)
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a] text-white">
-      <div className="bg-[#252525] p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-800">
-        <h1 className="text-2xl font-bold mb-6 text-center">Create Account</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-sm w-full max-w-md border border-gray-100">
+        <div className="text-center mb-8">
+            <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 shadow-lg shadow-blue-500/20">
+                A
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
+            <p className="text-gray-500 text-sm mt-1">Join our community of creators and collectors.</p>
+        </div>
         
         <form action={action} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
-            <input name="name" type="text" required className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none" />
+            <label className="block text-sm font-medium mb-1 text-gray-700">Name</label>
+            <input name="name" type="text" required className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 transition-all" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input name="email" type="email" required className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none" />
+            <label className="block text-sm font-medium mb-1 text-gray-700">Email</label>
+            <input name="email" type="email" required className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 transition-all" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <input name="password" type="password" required className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none" />
+            <label className="block text-sm font-medium mb-1 text-gray-700">Password</label>
+            <input name="password" type="password" required className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 transition-all" />
           </div>
 
-          {state?.error && <p className="text-red-500 text-sm">{state.error}</p>}
-          {state?.success && <p className="text-green-500 text-sm">{state.success} - <Link href="/login" className="underline">Login now</Link></p>}
+          {state?.error && <p className="text-red-500 text-sm bg-red-50 p-2 rounded border border-red-100">{state.error}</p>}
+          {state?.success && <p className="text-green-600 text-sm bg-green-50 p-2 rounded border border-green-100">{state.success} - <Link href="/login" className="font-bold underline">Login now</Link></p>}
 
-          <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg transition-colors">
+          <button type="submit" className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 rounded-lg transition-colors shadow-lg shadow-gray-900/10">
             Register
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-gray-400">
-          Already have an account? <Link href="/login" className="text-purple-400 hover:text-purple-300">Login</Link>
+        <p className="mt-8 text-center text-sm text-gray-500">
+          Already have an account? <Link href="/login" className="text-purple-600 font-bold hover:text-purple-700">Login</Link>
         </p>
       </div>
     </div>
