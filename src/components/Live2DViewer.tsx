@@ -1231,9 +1231,39 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                          }
                      }
                      
-                     // 3. Skip Physics, Breath, Blink, Pose to stop swaying
+                     // 3. Update Physics (Hair/Clothes) - RESTORED to fix "stiff" look
+                     if (this.physics) {
+                         if (isCubism4) {
+                             // Cubism 4 physics.evaluate() takes seconds
+                             this.physics.evaluate(this.coreModel, dt / 1000);
+                         } else {
+                             // Cubism 2 physics.update() takes MS
+                             this.physics.update(now);
+                         }
+                     }
                      
-                     // 4. IMPORTANT: Update Core Model to apply changes
+                     // 4. Update Pose (Parts visibility) - RESTORED
+                     if (this.pose) {
+                         if (isCubism4) {
+                             this.pose.updateParameters(this.coreModel, dt / 1000);
+                         } else {
+                             this.pose.update(dt);
+                         }
+                     }
+                     
+                     // 5. Update EyeBlink (Blinking) - RESTORED
+                     // We intentionally skip `updateNaturalMovements` because that adds the sway/breathing
+                     if (this.eyeBlink) {
+                         if (isCubism4) {
+                             this.eyeBlink.updateParameters(this.coreModel, dt / 1000);
+                         } else {
+                             this.eyeBlink.update(dt);
+                         }
+                     }
+                     
+                     // 6. Update Breath - SKIPPED (This is the sway)
+                     
+                     // 7. IMPORTANT: Update Core Model to apply changes
                      if (this.coreModel) {
                          if (this.coreModel.update) {
                              this.coreModel.update();
