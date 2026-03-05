@@ -31,7 +31,7 @@ export default function PayPalButtonComponent({ amount, productId, productIds, o
           style={{ 
             layout: "vertical", 
             shape: "rect",
-            color: "gold",
+            color: "white",
             label: "paypal"
           }}
           forceReRender={[amount, productId, productIds]}
