@@ -6,14 +6,20 @@ import Navbar from '@/components/Navbar'; // Assuming Navbar is used in layout, 
 import Link from 'next/link';
 import { Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import PayPalButton from '@/components/PayPalButton';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 
 export default function CartPage() {
   const { cart, removeFromCart, clearCart } = useCart();
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const [success, setSuccess] = useState(false);
   const [downloadUrls, setDownloadUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Force session update on mount to ensure we have the latest login status
+    // especially after redirecting from login page
+    update();
+  }, []);
 
   const total = cart.reduce((sum, item) => sum + item.price, 0);
 
