@@ -753,6 +753,34 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     console.warn("Pre-fetch check failed, attempting load anyway:", e);
                 }
 
+                // Add global logging hook to catch PIXI errors
+                const originalLog = console.log;
+                const originalWarn = console.warn;
+                const originalError = console.error;
+
+                (window as any)._live2d_debug_log = [];
+
+                const pushLog = (type: string, args: any[]) => {
+                    (window as any)._live2d_debug_log.push({
+                        time: new Date().toISOString(),
+                        type,
+                        message: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')
+                    });
+                };
+
+                console.log = (...args) => {
+                    originalLog(...args);
+                    pushLog('LOG', args);
+                };
+                console.warn = (...args) => {
+                    originalWarn(...args);
+                    pushLog('WARN', args);
+                };
+                console.error = (...args) => {
+                    originalError(...args);
+                    pushLog('ERROR', args);
+                };
+
                 const model = await Live2DModel.from(modelUrl, {
                     autoHitTest: false,
                     autoFocus: false,
@@ -768,10 +796,19 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                         console.error('Model internal error:', e);
                         // Only set error if it's a critical loading failure
                         if (mounted && !modelRef.current) {
-                            setError(`Failed to load model: ${e.message || 'Network Error'}`);
+                            // Dump the log on error
+                            const logs = (window as any)._live2d_debug_log || [];
+                            const logDump = logs.slice(-20).map((l: any) => `[${l.type}] ${l.message}`).join('\n');
+                            console.error('CRITICAL FAILURE LOGS:', logDump);
+                            setError(`Failed to load model: ${e.message || 'Network Error'} \n\nCheck console for details.`);
                         }
                     }
                 });
+                
+                // Restore console
+                console.log = originalLog;
+                console.warn = originalWarn;
+                console.error = originalError;
 
                 // Force increase mask limit on the internal model instance
                 if (model.internalModel && (model.internalModel as any).maskSpriteManager) {
