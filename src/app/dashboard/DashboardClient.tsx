@@ -62,6 +62,10 @@ function DashboardContent({ user }: DashboardClientProps) {
     setExistingMediaUrls(updatedUrls);
   };
 
+  // New state for multi-file upload
+  const [uploadMode, setUploadMode] = useState<'single' | 'batch'>('single');
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
+
   // Initialize form with existing product data if editing
   useEffect(() => {
     if (!editingProduct) return;
@@ -84,10 +88,6 @@ function DashboardContent({ user }: DashboardClientProps) {
   const [message, setMessage] = useState('');
   const [products, setProducts] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(false);
-
-  // New state for multi-file upload
-  const [uploadMode, setUploadMode] = useState<'single' | 'batch'>('single');
-  const [editingProduct, setEditingProduct] = useState<any | null>(null);
   
   // Batch Upload State
   interface BatchFile {
