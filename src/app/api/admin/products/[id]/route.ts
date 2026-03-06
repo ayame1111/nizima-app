@@ -136,6 +136,45 @@ export async function PATCH(
     const status = formData.get('status') as string;
     const adminNote = formData.get('adminNote') as string | null;
     const icon = formData.get('icon') as File | null;
+    
+    // Handle Media Updates (Append new files)
+    const mediaFiles = formData.getAll('media');
+    let existingMediaUrls: string[] = product.mediaUrls || [];
+
+    // Optional: Handle deletion of specific media via 'deleteMedia' field
+    const deleteMedia = formData.getAll('deleteMedia') as string[];
+    if (deleteMedia && deleteMedia.length > 0) {
+        existingMediaUrls = existingMediaUrls.filter(url => !deleteMedia.includes(url));
+        // Note: Ideally we should delete the actual files from disk too, but skipping for simplicity
+    }
+    dataToUpdate.mediaUrls = existingMediaUrls;
+
+    if (mediaFiles && mediaFiles.length > 0) {
+        const publicUploadDir = path.join(process.cwd(), 'public/uploads', id);
+        if (!fs.existsSync(publicUploadDir)) {
+            fs.mkdirSync(publicUploadDir, { recursive: true });
+        }
+
+        for (const mediaEntry of mediaFiles) {
+             const media = (mediaEntry && typeof mediaEntry === 'object' && 'name' in mediaEntry) ? (mediaEntry as any) : null;
+             
+             if (media && media.size > 0) {
+                 if (media.size > 50 * 1024 * 1024) continue; // Skip large files
+
+                 try {
+                     const mediaBuffer = Buffer.from(await media.arrayBuffer());
+                     const mediaExt = path.extname(media.name) || '.bin';
+                     const mediaFilename = `media-${Date.now()}-${Math.random().toString(36).substring(7)}${mediaExt}`;
+                     const mediaPath = path.join(publicUploadDir, mediaFilename);
+                     
+                     fs.writeFileSync(mediaPath, mediaBuffer);
+                     dataToUpdate.mediaUrls.push(`/file-proxy/${id}/${mediaFilename}`);
+                 } catch (e) {
+                     console.error('Failed to save additional media', e);
+                 }
+             }
+        }
+    }
 
     // Only Admin can update status directly
     if (status && isSessionAdmin) {

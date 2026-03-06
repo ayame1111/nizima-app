@@ -28,6 +28,8 @@ function DashboardContent({ user }: DashboardClientProps) {
   const [theme, setTheme] = useState('');
   const [tags, setTags] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [mediaPreviewUrls, setMediaPreviewUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [products, setProducts] = useState<any[]>([]);
@@ -153,6 +155,8 @@ function DashboardContent({ user }: DashboardClientProps) {
     setTheme(product.theme || '');
     setTags(product.tags ? product.tags.join(', ') : '');
     setPreviewUrl(product.previewUrl || null);
+    setMediaFiles([]);
+    setMediaPreviewUrls(product.mediaUrls || []);
     setUploadMode('single');
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -172,12 +176,16 @@ function DashboardContent({ user }: DashboardClientProps) {
     setPreviewUrl(null);
     setFile(null);
     setIcon(null);
+    setMediaFiles([]);
+    setMediaPreviewUrls([]);
     
     // Reset file inputs
     const fileInput = document.getElementById('file-upload') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
     const iconInput = document.getElementById('icon-upload') as HTMLInputElement;
     if (iconInput) iconInput.value = '';
+    const mediaInput = document.getElementById('media-upload') as HTMLInputElement;
+    if (mediaInput) mediaInput.value = '';
   };
 
   const handleBatchUpload = async () => {
@@ -265,6 +273,13 @@ function DashboardContent({ user }: DashboardClientProps) {
     formData.append('tags', tags);
     if (file) formData.append('file', file);
     if (icon) formData.append('icon', icon);
+    
+    // Append media files
+    if (mediaFiles.length > 0) {
+        mediaFiles.forEach(file => {
+            formData.append('media', file);
+        });
+    }
 
     try {
       let response;
@@ -493,6 +508,58 @@ function DashboardContent({ user }: DashboardClientProps) {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Upload an image (PNG, JPG) to display on the marketplace listing.
                 </p>
+                </div>
+
+                <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gallery Media (Optional)</label>
+                <input
+                    id="media-upload"
+                    type="file"
+                    multiple
+                    onChange={(e) => {
+                        if (e.target.files) {
+                            const newFiles = Array.from(e.target.files);
+                            setMediaFiles(prev => [...prev, ...newFiles]);
+                            
+                            // Create local preview URLs for new files
+                            const newUrls = newFiles.map(file => URL.createObjectURL(file));
+                            setMediaPreviewUrls(prev => [...prev, ...newUrls]);
+                        }
+                    }}
+                    className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-2 rounded-lg text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-400 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/50 transition-all"
+                    accept="image/*,video/*"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Upload screenshots, GIFs, or videos (max 50MB each) to showcase your model.
+                </p>
+                
+                {/* Media Preview Grid */}
+                {mediaPreviewUrls.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2 mt-2">
+                        {mediaPreviewUrls.map((url, index) => (
+                            <div key={index} className="relative aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                                {url.endsWith('.mp4') || url.endsWith('.webm') ? (
+                                    <video src={url} className="w-full h-full object-cover" />
+                                ) : (
+                                    <img src={url} alt={`Media ${index}`} className="w-full h-full object-cover" />
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setMediaPreviewUrls(prev => prev.filter((_, i) => i !== index));
+                                        setMediaFiles(prev => prev.filter((_, i) => i !== index));
+                                    }}
+                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                >
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
                 </div>
 
                 {!editingProduct && (

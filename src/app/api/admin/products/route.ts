@@ -321,6 +321,57 @@ export async function POST(req: Request) {
       counter++;
     }
 
+    // Handle Media Uploads (Screenshots, GIFs, Videos)
+    const mediaFiles = formData.getAll('media');
+    const mediaUrls: string[] = [];
+
+    if (mediaFiles && mediaFiles.length > 0) {
+        console.log(`Processing ${mediaFiles.length} media files...`);
+        for (const mediaEntry of mediaFiles) {
+             const media = (mediaEntry && typeof mediaEntry === 'object' && 'name' in mediaEntry) ? (mediaEntry as any) : null;
+             
+             if (media && media.size > 0) {
+                 // Validate file type (image or video)
+                 if (!media.type.startsWith('image/') && !media.type.startsWith('video/')) {
+                     console.warn(`Skipping invalid media type: ${media.type}`);
+                     continue;
+                 }
+                 
+                 // Validate size (50MB limit)
+                 if (media.size > 50 * 1024 * 1024) {
+                     console.warn(`Skipping large file: ${media.name} (${media.size} bytes)`);
+                     continue;
+                 }
+
+                 try {
+                     let mediaBuffer: Buffer | null = null;
+                     if (typeof media.arrayBuffer === 'function') {
+                         mediaBuffer = Buffer.from(await media.arrayBuffer());
+                     } else if (media.stream) {
+                         const chunks = [];
+                         for await (const chunk of media.stream()) {
+                             chunks.push(chunk);
+                         }
+                         mediaBuffer = Buffer.concat(chunks);
+                     }
+
+                     if (mediaBuffer) {
+                         const mediaExt = path.extname(media.name) || '.bin';
+                         // Generate unique filename to prevent collisions
+                         const mediaFilename = `media-${uuidv4().substring(0, 8)}${mediaExt}`;
+                         const mediaPath = path.join(publicUploadDir, mediaFilename);
+                         
+                         fs.writeFileSync(mediaPath, mediaBuffer);
+                         mediaUrls.push(`/file-proxy/${productId}/${mediaFilename}`);
+                         console.log('Media saved to:', mediaPath);
+                     }
+                 } catch (mediaErr) {
+                     console.error(`Failed to save media ${media.name}:`, mediaErr);
+                 }
+             }
+        }
+    }
+
     // Create product in DB
     try {
         const product = await prisma.product.create({
@@ -339,6 +390,7 @@ export async function POST(req: Request) {
             previewUrl: relativePreviewUrl,
             fileUrl: path.join(secureStorageDir, 'model.zip'), // Store absolute path for secure access
             iconUrl,
+            mediaUrls, // Save media URLs
             isSold: false,
             status: isSessionAdmin ? 'APPROVED' : 'PENDING',
             // @ts-ignore

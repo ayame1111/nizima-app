@@ -219,12 +219,15 @@ export default function Live2DViewer({ modelUrl, interactive = true, className }
 
         {/* Floating "Inspect" Button (Only when NOT open) */}
         {interactive && !isOpen && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none z-20">
+            <button 
+                onClick={() => setIsOpen(true)}
+                className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors z-20 cursor-pointer"
+            >
                 <div className="bg-white/90 backdrop-blur text-gray-900 px-5 py-3 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0 duration-300 flex items-center gap-2 font-bold tracking-wide">
                     <Maximize2 size={18} />
-                    <span>Inspect Model</span>
+                    <span>Fullscreen</span>
                 </div>
-            </div>
+            </button>
         )}
 
         {/* Close Button is now handled inside Live2DCanvas for better placement */}

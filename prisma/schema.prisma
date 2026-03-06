@@ -44,6 +44,7 @@ model Product {
   tags        String[] // General tags
   status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
   adminNote   String?  // Reason for rejection or other admin notes
+  mediaUrls   String[] // Array of URLs for additional screenshots, gifs, videos
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   Order       Order[]
