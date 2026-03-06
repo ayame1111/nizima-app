@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 
 interface ProductGalleryProps {
@@ -11,7 +11,24 @@ export default function ProductGallery({ mediaUrls }: ProductGalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   if (!mediaUrls || mediaUrls.length === 0) return null;
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+        const scrollAmount = 300; // Approximate width of one item
+        const currentScroll = scrollContainerRef.current.scrollLeft;
+        const newScrollLeft = direction === 'left' 
+            ? currentScroll - scrollAmount 
+            : currentScroll + scrollAmount;
+        
+        scrollContainerRef.current.scrollTo({
+            left: newScrollLeft,
+            behavior: 'smooth'
+        });
+    }
+  };
 
   const openLightbox = (index: number) => {
     setCurrentIndex(index);
@@ -38,7 +55,25 @@ export default function ProductGallery({ mediaUrls }: ProductGalleryProps) {
       
       {/* Scrollable Carousel Container */}
       <div className="relative group">
-          <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide">
+          {/* Scroll Buttons */}
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 dark:bg-black/60 hover:bg-white dark:hover:bg-black p-2 rounded-full shadow-lg backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0"
+          >
+            <ChevronLeft className="w-6 h-6 text-gray-800 dark:text-white" />
+          </button>
+          
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 dark:bg-black/60 hover:bg-white dark:hover:bg-black p-2 rounded-full shadow-lg backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0"
+          >
+            <ChevronRight className="w-6 h-6 text-gray-800 dark:text-white" />
+          </button>
+
+          <div 
+            ref={scrollContainerRef}
+            className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth"
+          >
             {mediaUrls.map((url, index) => (
             <div 
                 key={index} 
