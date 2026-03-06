@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import ProductPurchase from '@/components/ProductPurchase';
 import LazyLive2DViewer from '@/components/LazyLive2DViewer';
 import ProductGallery from '@/components/ProductGallery';
+import ExpandableDescription from '@/components/ExpandableDescription';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -103,10 +104,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               </div>
             </div>
             
-            <div className="prose prose-lg dark:prose-invert text-gray-600 dark:text-gray-300 mb-10 flex-grow transition-colors duration-300">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide text-sm opacity-70">About this Model</h3>
-              <p className="whitespace-pre-wrap leading-relaxed opacity-90">{product.description}</p>
-            </div>
+            <ExpandableDescription description={product.description} />
             
             <div className="mt-auto bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-inner transition-colors duration-300">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-5 flex items-center gap-2 transition-colors duration-300">

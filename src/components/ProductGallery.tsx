@@ -36,43 +36,49 @@ export default function ProductGallery({ mediaUrls }: ProductGalleryProps) {
     <div className="mt-12">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Gallery</h2>
       
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mediaUrls.map((url, index) => (
-          <div 
-            key={index} 
-            className="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 aspect-video relative group cursor-pointer"
-            onClick={() => openLightbox(index)}
-          >
-            {url.endsWith('.mp4') || url.endsWith('.webm') ? (
-              <video 
-                src={url} 
-                className="w-full h-full object-contain pointer-events-none" 
-                preload="metadata"
-              />
-            ) : (
-              <img 
-                src={url} 
-                alt={`Gallery image ${index + 1}`} 
-                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-              />
-            )}
-            
-            {/* Hover Overlay with Icon */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 duration-300">
-                <div className="bg-white/90 dark:bg-black/80 p-3 rounded-full shadow-lg backdrop-blur-sm transform translate-y-4 group-hover:translate-y-0 transition-all">
-                    <Maximize2 className="text-gray-900 dark:text-white w-6 h-6" />
+      {/* Scrollable Carousel Container */}
+      <div className="relative group">
+          <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide">
+            {mediaUrls.map((url, index) => (
+            <div 
+                key={index} 
+                className="flex-shrink-0 w-80 md:w-96 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 aspect-video relative group/item cursor-pointer snap-center"
+                onClick={() => openLightbox(index)}
+            >
+                {url.endsWith('.mp4') || url.endsWith('.webm') ? (
+                <video 
+                    src={url} 
+                    className="w-full h-full object-contain pointer-events-none" 
+                    preload="metadata"
+                />
+                ) : (
+                <img 
+                    src={url} 
+                    alt={`Gallery image ${index + 1}`} 
+                    className="w-full h-full object-contain transition-transform duration-300 group-hover/item:scale-105"
+                />
+                )}
+                
+                {/* Hover Overlay with Icon */}
+                <div className="absolute inset-0 bg-black/0 group-hover/item:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover/item:opacity-100 duration-300">
+                    <div className="bg-white/90 dark:bg-black/80 p-3 rounded-full shadow-lg backdrop-blur-sm transform translate-y-4 group-hover/item:translate-y-0 transition-all">
+                        <Maximize2 className="text-gray-900 dark:text-white w-6 h-6" />
+                    </div>
                 </div>
+                
+                {/* Video Indicator */}
+                {(url.endsWith('.mp4') || url.endsWith('.webm')) && (
+                    <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+                        VIDEO
+                    </div>
+                )}
             </div>
-            
-            {/* Video Indicator */}
-            {(url.endsWith('.mp4') || url.endsWith('.webm')) && (
-                <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
-                    VIDEO
-                </div>
-            )}
+            ))}
           </div>
-        ))}
+          
+          {/* Fade gradients for scrolling indication */}
+          <div className="absolute top-0 bottom-4 left-0 w-12 bg-gradient-to-r from-white dark:from-gray-950 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="absolute top-0 bottom-4 right-0 w-12 bg-gradient-to-l from-white dark:from-gray-950 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
 
       {/* Lightbox Overlay */}
