@@ -52,20 +52,6 @@ export default function Navbar({ session }: { session: any }) {
             </div>
 
             <div className="flex items-center gap-4">
-            {/* Admin Panel Link - Only for Admins */}
-            {session?.user && (session.user as any).role === 'ADMIN' && (
-                <Link href="/admin/users" className="text-sm font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors duration-700 hidden sm:block">
-                  Admin Panel
-                </Link>
-            )}
-
-            {/* Creator Dashboard Link - Only for Creators/Admins */}
-              {session?.user && (['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
-                  <Link href="/dashboard" className={`text-sm font-medium transition-colors duration-700 hidden sm:block ${textColorClass} hover:opacity-80`}>
-                    Creator Dashboard
-                  </Link>
-              )}
-
               {session ? (
                   <div className="relative group">
                       <button className={`flex items-center gap-2 text-sm font-medium hover:opacity-80 transition-colors duration-700 ${textColorClass}`}>
@@ -85,6 +71,21 @@ export default function Navbar({ session }: { session: any }) {
                           <div className="absolute -top-2 left-0 w-full h-2"></div>
                           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2">
                             <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">My Account</Link>
+                            
+                            {/* Creator Dashboard Link - Only for Creators/Admins */}
+                            {session?.user && (['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
+                                <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                  Creator Dashboard
+                                </Link>
+                            )}
+
+                            {/* Admin Panel Link - Only for Admins */}
+                            {session?.user && (session.user as any).role === 'ADMIN' && (
+                                <Link href="/admin/users" className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                  Admin Panel
+                                </Link>
+                            )}
+
                             {/* <Link href="/favorites" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Favorites</Link> */}
                             <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
                             <button 
