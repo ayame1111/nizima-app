@@ -4,8 +4,14 @@ import { auth } from '@/auth';
 
 export const revalidate = 0;
 
-export default async function MarketplacePage() {
+export default async function MarketplacePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
   const session = await auth();
+  const params = await searchParams;
+  const sort = params.sort as string | undefined;
   
   let favoriteIds: string[] = [];
   if (session?.user?.id) {
@@ -16,8 +22,20 @@ export default async function MarketplacePage() {
     favoriteIds = user?.favorites.map(f => f.id) || [];
   }
 
+  let orderBy: any = { createdAt: 'desc' };
+
+  if (sort === 'popular') {
+     orderBy = { favoritedBy: { _count: 'desc' } };
+  } else if (sort === 'oldest') {
+     orderBy = { createdAt: 'asc' };
+  } else if (sort === 'price_asc') {
+     orderBy = { price: 'asc' };
+  } else if (sort === 'price_desc') {
+     orderBy = { price: 'desc' };
+  }
+
   const products = await prisma.product.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy,
     include: {
       creator: true,
     }

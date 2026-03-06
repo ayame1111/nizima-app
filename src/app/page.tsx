@@ -29,10 +29,26 @@ export default async function Home() {
     favoriteIds = user?.favorites.map(f => f.id) || [];
   }
 
-  const products = await prisma.product.findMany({
+  const latestArrivals = await prisma.product.findMany({
     where: { status: 'APPROVED' },
-    take: 12, // Increased limit for carousel
+    take: 12,
     orderBy: { createdAt: 'desc' },
+    include: {
+      creator: true,
+    }
+  });
+
+  const mostLiked = await prisma.product.findMany({
+    where: { 
+      status: 'APPROVED',
+      isSold: false 
+    },
+    take: 12,
+    orderBy: {
+      favoritedBy: {
+        _count: 'desc'
+      }
+    },
     include: {
       creator: true,
     }
@@ -75,7 +91,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Featured Grid (Carousel) */}
+      {/* Featured Grid (Carousel) - Latest Arrivals */}
       <section className="py-20 bg-white dark:bg-gray-900 transition-colors duration-300 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-10">
@@ -83,12 +99,30 @@ export default async function Home() {
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest Arrivals</h2>
               <p className="text-gray-500 dark:text-gray-400">Freshly rigged models ready for debut.</p>
             </div>
-            <Link href="/marketplace" className="text-purple-600 dark:text-purple-400 font-semibold hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1 group">
+            <Link href="/marketplace?sort=newest" className="text-purple-600 dark:text-purple-400 font-semibold hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1 group">
               View all <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <ProductCarousel products={products} favoriteIds={favoriteIds} />
+          <ProductCarousel products={latestArrivals} favoriteIds={favoriteIds} />
+          
+        </div>
+      </section>
+
+      {/* Featured Grid (Carousel) - Most Liked */}
+      <section className="py-20 bg-gray-50 dark:bg-gray-950 transition-colors duration-300 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-end mb-10">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Most Liked</h2>
+              <p className="text-gray-500 dark:text-gray-400">Popular models loved by the community.</p>
+            </div>
+            <Link href="/marketplace?sort=popular" className="text-purple-600 dark:text-purple-400 font-semibold hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1 group">
+              View all <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <ProductCarousel products={mostLiked} favoriteIds={favoriteIds} />
           
         </div>
       </section>
