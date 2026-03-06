@@ -56,10 +56,11 @@ model Product {
   mediaUrls   String[] // Array of URLs for additional screenshots, gifs, videos
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  Order       Order[]
   favoritedBy User[]   @relation("UserFavorites")
   creatorId   String?
   creator     User?    @relation("UserProducts", fields: [creatorId], references: [id])
+  orderItems  OrderItem[]
+  downloadLogs DownloadLog[]
 }
 
 model Order {
@@ -80,6 +81,8 @@ model Order {
   userId        String?
   items         OrderItem[]
   downloadLogs  DownloadLog[]
+  
+  @@index([userId])
 }
 
 model OrderItem {
@@ -89,6 +92,9 @@ model OrderItem {
   productId String
   product   Product @relation(fields: [productId], references: [id])
   price     Float
+  
+  @@index([orderId])
+  @@index([productId])
 }
 
 model DownloadLog {
@@ -109,4 +115,5 @@ model DownloadLog {
 
   @@index([orderId])
   @@index([userId])
+  @@index([productId])
 }
