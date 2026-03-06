@@ -35,14 +35,15 @@ const formatCurrency = (amount: number) => {
 
 export default function ProductCarousel({ products, favoriteIds }: ProductCarouselProps) {
   const [startIndex, setStartIndex] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 640) setItemsPerPage(1);
-      else if (window.innerWidth < 1024) setItemsPerPage(2);
-      else setItemsPerPage(3);
+      if (window.innerWidth < 640) setItemsPerPage(2);
+      else if (window.innerWidth < 1024) setItemsPerPage(3);
+      else if (window.innerWidth < 1280) setItemsPerPage(4);
+      else setItemsPerPage(5);
     };
 
     handleResize(); // Initial check
@@ -91,9 +92,15 @@ export default function ProductCarousel({ products, favoriteIds }: ProductCarous
   // Calculate width percentage based on itemsPerPage
   // Using 100% / itemsPerPage and padding for gaps ensures perfect alignment
   const getItemWidthClass = () => {
+      // Tailwind classes for standard fractions
       if (itemsPerPage === 1) return 'w-full';
       if (itemsPerPage === 2) return 'w-1/2';
-      return 'w-1/3';
+      if (itemsPerPage === 3) return 'w-1/3';
+      if (itemsPerPage === 4) return 'w-1/4';
+      if (itemsPerPage === 5) return 'w-1/5';
+      if (itemsPerPage === 6) return 'w-1/6';
+      // Fallback to inline style if needed, but here just use percentage
+      return `w-[${100 / itemsPerPage}%]`;
   };
   
   return (
