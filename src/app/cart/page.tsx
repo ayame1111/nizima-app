@@ -108,7 +108,7 @@ export default function CartPage() {
 
                 {/* Summary */}
                 <div className="lg:col-span-1">
-                    <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 sticky top-24 transition-colors duration-300">
+                    <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 sticky top-24 z-0 transition-colors duration-300">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Order Summary</h3>
                         <div className="space-y-3 mb-6">
                             <div className="flex justify-between text-gray-600 dark:text-gray-400">

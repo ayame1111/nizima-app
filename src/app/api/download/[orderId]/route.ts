@@ -112,7 +112,7 @@ export async function GET(
     const content = await zip.generateAsync({ type: 'nodebuffer' });
     const bundleName = `order_${order.paymentId || order.id}.zip`;
 
-    return new NextResponse(content, {
+    return new NextResponse(content as any, {
         headers: {
             'Content-Type': 'application/zip',
             'Content-Disposition': `attachment; filename="${bundleName}"`,
