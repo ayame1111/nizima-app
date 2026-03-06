@@ -16,8 +16,12 @@ export default async function AccountPage() {
   const purchases = await prisma.order.findMany({
     where: { userId: session.user.id },
     include: {
-        product: {
-            include: { creator: true }
+        items: {
+            include: { 
+                product: {
+                    include: { creator: true }
+                }
+            }
         }
     },
     orderBy: { createdAt: 'desc' }
@@ -62,11 +66,12 @@ export default async function AccountPage() {
                     </div>
                 ) : (
                     <div className="space-y-4">
-                    {purchases.map((purchase) => (
-                        <div key={purchase.id} className="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex gap-4 items-center transition-colors duration-300">
+                    {purchases.flatMap((purchase) => 
+                        purchase.items.map((item) => (
+                        <div key={item.id} className="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex gap-4 items-center transition-colors duration-300">
                             <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0 relative">
-                                {purchase.product.iconUrl ? (
-                                    <img src={purchase.product.iconUrl} className="w-full h-full object-cover" />
+                                {item.product.iconUrl ? (
+                                    <img src={item.product.iconUrl} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
                                         <Package size={24} />
@@ -74,8 +79,8 @@ export default async function AccountPage() {
                                 )}
                             </div>
                             <div className="flex-grow min-w-0">
-                                <h3 className="font-bold text-gray-900 dark:text-white truncate">{purchase.product.title}</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{purchase.product.creator?.name || 'Unknown Artist'}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white truncate">{item.product.title}</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{item.product.creator?.name || 'Unknown Artist'}</p>
                                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Purchased on {new Date(purchase.createdAt).toLocaleDateString()}</p>
                             </div>
                             <a 
@@ -86,7 +91,7 @@ export default async function AccountPage() {
                                 <Download size={20} />
                             </a>
                         </div>
-                    ))}
+                    )))}
                     </div>
                 )}
             </div>
