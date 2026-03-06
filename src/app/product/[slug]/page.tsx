@@ -68,6 +68,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-gray-500 dark:text-gray-400">
          <Link href="/" className="hover:text-gray-900 dark:hover:text-white">Home</Link>
          <span className="mx-2">/</span>
+         <Link href="/marketplace" className="hover:text-gray-900 dark:hover:text-white">Marketplace</Link>
+         <span className="mx-2">/</span>
          <span className="text-gray-900 dark:text-white font-medium truncate">{product.title}</span>
       </div>
 
@@ -113,7 +115,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                         </div>
                     )}
                 </div>
-                <span className="text-gray-500 dark:text-gray-400 text-sm">Created by</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Sold by</span>
                 <Link href={`/creator/${product.creator?.id}`} className="font-semibold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                     {product.creator?.name || 'Unknown Artist'}
                 </Link>
