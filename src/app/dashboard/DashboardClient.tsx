@@ -27,10 +27,13 @@ function DashboardContent({ user }: DashboardClientProps) {
   const [bodyType, setBodyType] = useState('');
   const [theme, setTheme] = useState('');
   const [tags, setTags] = useState('');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [products, setProducts] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(false);
+
+  // New state for multi-file upload
   const [uploadMode, setUploadMode] = useState<'single' | 'batch'>('single');
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   
@@ -131,8 +134,8 @@ function DashboardContent({ user }: DashboardClientProps) {
     setHairColor(product.hairColor || '');
     setBodyType(product.bodyType || '');
     setTheme(product.theme || '');
-      setTags(product.tags ? product.tags.join(', ') : '');
-      setPreviewUrl(product.previewUrl || null);
+    setTags(product.tags ? product.tags.join(', ') : '');
+    setPreviewUrl(product.previewUrl || null);
     setUploadMode('single');
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -149,6 +152,7 @@ function DashboardContent({ user }: DashboardClientProps) {
     setBodyType('');
     setTheme('');
     setTags('');
+    setPreviewUrl(null);
     setFile(null);
     setIcon(null);
     
