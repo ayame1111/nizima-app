@@ -33,6 +33,7 @@ model User {
   favorites     Product[] @relation("UserFavorites")
   purchases     Order[]
   createdProducts Product[] @relation("UserProducts")
+  downloadLogs DownloadLog[]
 }
 
 model Product {
