@@ -23,15 +23,18 @@ export default function Navbar({ session }: { session: any }) {
   }, []);
 
   const isDarkPage = pathname?.startsWith('/admin');
+  const isHomePage = pathname === '/';
   
   // Dynamic styles based on scroll state
-  const textColorClass = isScrolled ? 'text-gray-900 dark:text-white' : 'text-white';
-  const logoTextGradient = isScrolled ? 'bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300' : 'text-white';
-  const cartButtonClass = isScrolled ? 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700' : 'bg-white/10 text-white hover:bg-white/20 border border-white/20';
-  const menuButtonClass = isScrolled ? 'text-gray-900 dark:text-white' : 'text-white';
+  const isTransparent = !isScrolled && (isHomePage || isDarkPage);
+  
+  const textColorClass = isTransparent ? 'text-white' : 'text-gray-900 dark:text-white';
+  const logoTextGradient = isTransparent ? 'text-white' : 'bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300';
+  const cartButtonClass = isTransparent ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
+  const menuButtonClass = isTransparent ? 'text-white' : 'text-gray-900 dark:text-white';
 
   return (
-    <nav className={`sticky top-0 z-[5000] transition-all duration-700 ${isScrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm' : (isDarkPage ? 'bg-black border-b border-transparent' : 'bg-transparent border-b border-transparent')}`}>
+    <nav className={`sticky top-0 z-[5000] transition-all duration-700 ${isScrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm' : (isTransparent ? 'bg-transparent border-b border-transparent' : 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800')}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-8">
