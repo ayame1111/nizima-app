@@ -13,7 +13,6 @@ export default function ProfileForm({ user }: ProfileFormProps) {
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [bio, setBio] = useState(user.bio || '');
-  const [slug, setSlug] = useState(user.slug || '');
   const [banner, setBanner] = useState<string | null>(user.bannerUrl);
   const [avatar, setAvatar] = useState<string | null>(user.image);
   const [socialLinks, setSocialLinks] = useState({
@@ -79,7 +78,6 @@ export default function ProfileForm({ user }: ProfileFormProps) {
 
     const formData = new FormData();
     formData.append('bio', bio);
-    formData.append('slug', slug);
     formData.append('twitter', socialLinks.twitter);
     formData.append('youtube', socialLinks.youtube);
     formData.append('website', socialLinks.website);
@@ -171,20 +169,13 @@ export default function ProfileForm({ user }: ProfileFormProps) {
 
                 {['CREATOR', 'ADMIN'].includes(user.role) && (
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username (URL Slug)</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Portfolio URL</label>
                         <div className="flex items-center">
-                            <span className="bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-200 dark:border-gray-700 rounded-l-lg px-3 py-2 text-gray-500 text-sm">
-                                avataratelier.com/creator/
+                            <span className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 text-gray-500 text-sm w-full">
+                                avataratelier.com/creator/{user.slug || user.id}
                             </span>
-                            <input 
-                                type="text" 
-                                value={slug} 
-                                onChange={(e) => setSlug(e.target.value)}
-                                className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-r-lg px-4 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"
-                                placeholder={user.id}
-                            />
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Unique username for your portfolio URL. Leave empty to use ID.</p>
+                        <p className="text-xs text-gray-500 mt-1">This is your public portfolio link.</p>
                     </div>
                 )}
 

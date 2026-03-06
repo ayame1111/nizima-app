@@ -30,6 +30,17 @@ export async function register(prevState: any, formData: FormData) {
     return { error: "Email already in use" }
   }
 
+  // Generate unique slug from name
+  let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  if (!slug) slug = `user-${Math.random().toString(36).substring(2, 7)}`;
+  
+  let uniqueSlug = slug;
+  let count = 1;
+  while (await prisma.user.findUnique({ where: { slug: uniqueSlug } })) {
+    uniqueSlug = `${slug}-${count}`;
+    count++;
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10)
 
   await prisma.user.create({
@@ -37,6 +48,7 @@ export async function register(prevState: any, formData: FormData) {
       email: normalizedEmail,
       password: hashedPassword,
       name,
+      slug: uniqueSlug,
     },
   })
 

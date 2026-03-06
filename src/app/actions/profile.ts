@@ -22,7 +22,6 @@ export async function updateProfile(formData: FormData) {
   }
 
   const bio = formData.get("bio") as string;
-  const slug = formData.get("slug") as string;
   const twitter = formData.get("twitter") as string;
   const youtube = formData.get("youtube") as string;
   const website = formData.get("website") as string;
@@ -41,35 +40,18 @@ export async function updateProfile(formData: FormData) {
     };
 
     // Check for slug uniqueness if provided and changed
-    let slugToUpdate = undefined;
-    if (slug) {
-        // Simple regex validation for slug
-        if (!/^[a-zA-Z0-9_-]+$/.test(slug)) {
-            return { error: "Invalid username format. Use letters, numbers, hyphens, and underscores only." };
-        }
-
-        const existingUser = await prisma.user.findUnique({
-            where: { slug },
-        });
-
-        if (existingUser && existingUser.id !== session.user.id) {
-            return { error: "Username is already taken." };
-        }
-        slugToUpdate = slug;
-    }
+    // Slug update removed as per requirements
 
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
         bio,
-        slug: slugToUpdate,
         socialLinks: socialLinks,
       },
     });
 
     revalidatePath("/profile");
-    revalidatePath(`/creator/${slugToUpdate || session.user.id}`);
-    if (slugToUpdate) revalidatePath(`/creator/${slugToUpdate}`);
+    revalidatePath(`/creator/${session.user.slug || session.user.id}`);
     return { success: true };
   } catch (error) {
     console.error("Profile update error:", error);
