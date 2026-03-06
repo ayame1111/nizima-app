@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { updatePassword } from "@/app/actions/account";
-import { Download, Package } from "lucide-react";
+import { Heart, Download, Package } from "lucide-react";
 import { Order, Product, User } from "@prisma/client";
 
 export default async function AccountPage() {
@@ -33,9 +33,15 @@ export default async function AccountPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-8">
-           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">My Account</h1>
-           <p className="text-gray-500 dark:text-gray-400">Manage your profile and purchases.</p>
+        <div className="mb-8 flex justify-between items-center">
+           <div>
+               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">My Account</h1>
+               <p className="text-gray-500 dark:text-gray-400">Manage your profile and purchases.</p>
+           </div>
+           <Link href="/favorites" className="flex items-center gap-2 px-4 py-2 bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 rounded-lg font-bold hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-colors">
+               <Heart size={18} className="fill-current" />
+               <span>My Favorites</span>
+           </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

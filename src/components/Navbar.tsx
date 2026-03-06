@@ -71,6 +71,7 @@ export default function Navbar({ session }: { session: any }) {
                           <div className="absolute -top-2 left-0 w-full h-2"></div>
                           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2">
                             <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">My Account</Link>
+                            <Link href="/favorites" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">Favorites</Link>
                             
                             {/* Creator Dashboard Link - Only for Creators/Admins */}
                             {session?.user && (['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
 import { auth } from '@/auth';
+import { getStoragePaths } from '@/lib/paths';
 
 // Simple API Key check for demo purposes
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'admin-secret';
@@ -42,8 +43,9 @@ export async function DELETE(
     }
 
     // Delete files
-    const publicUploadDir = path.join(process.cwd(), 'public/uploads', id);
-    const secureStorageDir = path.join(process.cwd(), 'storage/uploads', id);
+    const { publicUploadsDir, secureStorageDir: storageBaseDir } = getStoragePaths();
+    const publicUploadDir = path.join(publicUploadsDir, id);
+    const secureStorageDir = path.join(storageBaseDir, id);
 
     if (fs.existsSync(publicUploadDir)) {
       fs.rmSync(publicUploadDir, { recursive: true, force: true });
@@ -150,7 +152,9 @@ export async function PATCH(
     dataToUpdate.mediaUrls = existingMediaUrls;
 
     if (mediaFiles && mediaFiles.length > 0) {
-        const publicUploadDir = path.join(process.cwd(), 'public/uploads', id);
+        const { publicUploadsDir } = getStoragePaths();
+        const publicUploadDir = path.join(publicUploadsDir, id);
+        
         if (!fs.existsSync(publicUploadDir)) {
             fs.mkdirSync(publicUploadDir, { recursive: true });
         }
@@ -162,13 +166,25 @@ export async function PATCH(
                  if (media.size > 50 * 1024 * 1024) continue; // Skip large files
 
                  try {
-                     const mediaBuffer = Buffer.from(await media.arrayBuffer());
-                     const mediaExt = path.extname(media.name) || '.bin';
-                     const mediaFilename = `media-${Date.now()}-${Math.random().toString(36).substring(7)}${mediaExt}`;
-                     const mediaPath = path.join(publicUploadDir, mediaFilename);
+                     let mediaBuffer: Buffer | null = null;
+                     if (typeof media.arrayBuffer === 'function') {
+                         mediaBuffer = Buffer.from(await media.arrayBuffer());
+                     } else if (media.stream) {
+                         const chunks = [];
+                         for await (const chunk of media.stream()) {
+                             chunks.push(chunk);
+                         }
+                         mediaBuffer = Buffer.concat(chunks);
+                     }
                      
-                     fs.writeFileSync(mediaPath, mediaBuffer);
-                     dataToUpdate.mediaUrls.push(`/file-proxy/${id}/${mediaFilename}`);
+                     if (mediaBuffer) {
+                        const mediaExt = path.extname(media.name) || '.bin';
+                        const mediaFilename = `media-${Date.now()}-${Math.random().toString(36).substring(7)}${mediaExt}`;
+                        const mediaPath = path.join(publicUploadDir, mediaFilename);
+                        
+                        fs.writeFileSync(mediaPath, mediaBuffer);
+                        dataToUpdate.mediaUrls.push(`/file-proxy/${id}/${mediaFilename}`);
+                     }
                  } catch (e) {
                      console.error('Failed to save additional media', e);
                  }
@@ -206,7 +222,9 @@ export async function PATCH(
         return NextResponse.json({ error: 'Invalid icon file type' }, { status: 400 });
       }
 
-      const publicUploadDir = path.join(process.cwd(), 'public/uploads', id);
+      const { publicUploadsDir } = getStoragePaths();
+      const publicUploadDir = path.join(publicUploadsDir, id);
+      
       if (!fs.existsSync(publicUploadDir)) {
         fs.mkdirSync(publicUploadDir, { recursive: true });
       }
@@ -218,7 +236,7 @@ export async function PATCH(
       const buffer = Buffer.from(await icon.arrayBuffer());
       fs.writeFileSync(iconPath, buffer);
       
-      dataToUpdate.iconUrl = `/uploads/${id}/${iconFileName}`;
+      dataToUpdate.iconUrl = `/file-proxy/${id}/${iconFileName}`;
     }
 
     const updatedProduct = await prisma.product.update({
