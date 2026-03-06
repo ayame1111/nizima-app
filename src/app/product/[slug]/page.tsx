@@ -70,23 +70,23 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-5 border border-gray-100 dark:border-gray-800 w-full transition-colors duration-300">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Left: Preview (Larger area) */}
-          <div className="lg:col-span-3 bg-gray-100 dark:bg-gray-950 relative h-[400px] sm:h-[500px] lg:h-auto lg:min-h-[600px] border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 flex items-center justify-center w-full transition-colors duration-300">
+          <div className="lg:col-span-3 bg-gray-100 rounded-3xl shadow-xl overflow-hidden relative h-[400px] sm:h-[500px] lg:h-auto lg:min-h-[600px] flex items-center justify-center w-full border border-gray-100 dark:border-gray-800">
             {product.previewUrl ? (
               <LazyLive2DViewer modelUrl={product.previewUrl} className="w-full h-full" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-500">No Preview Available</div>
             )}
             <div className="absolute bottom-6 left-0 right-0 flex justify-center pointer-events-none px-4 text-center">
-              <span className="bg-white/80 dark:bg-black/60 backdrop-blur-md px-5 py-2.5 rounded-full text-xs md:text-sm font-medium text-gray-900 dark:text-white/90 shadow-lg border border-gray-200 dark:border-white/10 transition-colors duration-300">
+              <span className="bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full text-xs md:text-sm font-medium text-gray-900 shadow-lg border border-gray-200 transition-colors duration-300">
                 Click to Interact & Control
               </span>
             </div>
           </div>
           
           {/* Right: Details */}
-          <div className="lg:col-span-2 p-8 lg:p-10 flex flex-col bg-white dark:bg-gray-900 transition-colors duration-300">
+          <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-3xl shadow-xl overflow-hidden p-8 lg:p-10 flex flex-col border border-gray-100 dark:border-gray-800 transition-colors duration-300">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-5">
                  <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${product.isSold ? 'bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30' : 'bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30'}`}>

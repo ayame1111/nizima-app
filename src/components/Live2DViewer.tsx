@@ -205,7 +205,7 @@ export default function Live2DViewer({ modelUrl, interactive = true, className }
             transition-all duration-300 ease-in-out
             ${isOpen 
                 ? 'fixed inset-0 z-[9999] bg-[#1a1a1a] flex items-center justify-center' 
-                : `relative w-full h-full group bg-gray-900 rounded-xl overflow-hidden border border-gray-800 ${className}`
+                : `relative w-full h-full group rounded-xl overflow-hidden ${className}`
             }
         `}
       >
