@@ -2,13 +2,16 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 import { auth } from '@/auth';
+import { getIp } from '@/lib/ip';
 
 export async function POST(req: Request) {
   try {
     const session = await auth();
     const userId = session?.user?.id;
+    const ip = await getIp();
+    const userAgent = req.headers.get('user-agent') || 'unknown';
 
-    const { productId, productIds, paypalOrderId, payerEmail, transactionId } = await req.json();
+    const { productId, productIds, paypalOrderId, payerEmail, transactionId, amount } = await req.json();
 
     const itemsToProcess = productIds || (productId ? [productId] : []);
 
@@ -18,11 +21,11 @@ export async function POST(req: Request) {
 
     // Start transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx) => {
-      const orders = [];
+      // 1. Validate Products & Calculate Total
       const products = [];
+      let totalAmount = 0;
 
       for (const pId of itemsToProcess) {
-          // 1. Check if product exists and is available
           const product = await tx.product.findUnique({
             where: { id: pId },
           });
@@ -34,41 +37,49 @@ export async function POST(req: Request) {
           if (product.isSold) {
             throw new Error(`Product ${product.title} is already sold`);
           }
-
-          // 2. Create Order
-          const order = await tx.order.create({
-            data: {
-              productId: pId,
-              buyerEmail: payerEmail || 'unknown@example.com',
-              status: 'COMPLETED',
-              transactionId: transactionId || paypalOrderId,
-              userId: userId, // Link to logged-in user
-            },
-          });
-
-          // 3. Mark product as sold
-          const updatedProduct = await tx.product.update({
-            where: { id: pId },
-            data: { isSold: true },
-          });
           
-          orders.push(order);
-          products.push(updatedProduct);
+          products.push(product);
+          totalAmount += product.price;
       }
 
-      return { orders, products };
+      // 2. Create Single Order with multiple Items
+      const order = await tx.order.create({
+        data: {
+          paymentId: paypalOrderId,
+          status: 'COMPLETED',
+          amount: amount ? parseFloat(amount) : totalAmount, // Use provided amount or calculated
+          buyerEmail: payerEmail || 'unknown@example.com',
+          userId: userId,
+          purchaseIp: ip,
+          userAgent: userAgent,
+          items: {
+            create: products.map(p => ({
+                productId: p.id,
+                price: p.price
+            }))
+          }
+        },
+      });
+
+      // 3. Mark products as sold
+      for (const product of products) {
+          await tx.product.update({
+            where: { id: product.id },
+            data: { isSold: true },
+          });
+      }
+
+      return { order, products };
     });
 
-    // Generate download links
-    const downloadLinks = result.orders.map(order => 
-        `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/download/${order.id}`
-    );
+    // Generate download link (single link for the order)
+    const downloadLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/download/${result.order.id}`;
 
     // 4. Send email (summary)
     if (payerEmail) {
-        const productListHtml = result.products.map((p, index) => `
+        const productListHtml = result.products.map(p => `
             <li>
-                <strong>${p.title}</strong> - <a href="${downloadLinks[index]}">Download</a>
+                <strong>${p.title}</strong>
             </li>
         `).join('');
 
@@ -81,16 +92,22 @@ export async function POST(req: Request) {
                 <ul>
                     ${productListHtml}
                 </ul>
+                <p><strong>Total Paid: $${result.order.amount}</strong></p>
                 <br>
-                <p>Transaction ID: ${transactionId || paypalOrderId}</p>
+                <h3>Access Your Files</h3>
+                <p>You can download your files using the link below:</p>
+                <a href="${downloadLink}" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Download Files</a>
+                <br><br>
+                <p><small>Transaction ID: ${transactionId || paypalOrderId}</small></p>
+                <p><small>IP Address logged for security: ${ip}</small></p>
             `,
         });
     }
 
     return NextResponse.json({ 
       success: true, 
-      orderIds: result.orders.map(o => o.id),
-      downloadUrls: downloadLinks
+      orderId: result.order.id,
+      downloadUrl: downloadLink
     });
 
   } catch (error: any) {

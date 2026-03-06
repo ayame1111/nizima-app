@@ -51,7 +51,7 @@ export async function updateProfile(formData: FormData) {
     });
 
     revalidatePath("/profile");
-    revalidatePath(`/creator/${session.user.slug || session.user.id}`);
+    revalidatePath(`/creator/${(session.user as any).slug || session.user.id}`);
     return { success: true };
   } catch (error) {
     console.error("Profile update error:", error);

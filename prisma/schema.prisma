@@ -21,6 +21,11 @@ model User {
   bio           String?   // Creator bio/description
   bannerUrl     String?   // Profile banner image
   socialLinks   Json?     // Stores social media links (twitter, youtube, website, etc.)
+  
+  // Security & Tracking
+  lastLoginIp   String?
+  lastLoginAt   DateTime?
+
   resetToken    String?
   resetTokenExpiry DateTime?
   createdAt     DateTime  @default(now())
@@ -59,13 +64,49 @@ model Product {
 
 model Order {
   id            String   @id @default(uuid())
-  product       Product  @relation(fields: [productId], references: [id])
-  productId     String
-  buyerEmail    String
-  status        String   // PENDING, COMPLETED
-  transactionId String?
+  paymentId     String   // PayPal Order ID
+  amount        Float
+  status        String   // PENDING, COMPLETED, FAILED
+  buyerEmail    String?  // For guest checkout tracking
+  
+  // Tracking
+  purchaseIp    String?
+  userAgent     String?
+  
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  userId        String?
+  
   user          User?    @relation(fields: [userId], references: [id])
+  userId        String?
+  items         OrderItem[]
+  downloadLogs  DownloadLog[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  price     Float
+}
+
+model DownloadLog {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  userId    String?  // Optional, if user was logged in
+  user      User?    @relation(fields: [userId], references: [id])
+  productId String?  // Which file was downloaded
+  product   Product? @relation(fields: [productId], references: [id])
+  
+  ip        String
+  userAgent String?
+  status    String   // SUCCESS, FAILED
+  reason    String?  // Error message if failed
+  
+  downloadedAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([userId])
 }

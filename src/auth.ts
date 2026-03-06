@@ -32,6 +32,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (passwordsMatch) {
             console.log('User authenticated:', normalizedEmail);
+            // We can't easily get request headers here in NextAuth v5 authorize callback directly
+            // IP logging will be handled by a separate server action or middleware if needed
+            // But for now we will rely on the session callback or login action wrapper if we had one.
+            // Actually, we can update LastLogin in the database here but we don't have the IP easily.
+            // A better place is the jwt callback if it receives request info, or a separate login action.
+            
+            // Update last login time
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { lastLoginAt: new Date() }
+            });
+            
             return user;
           } else {
             console.log('Invalid password for:', normalizedEmail);
@@ -54,6 +66,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.sub;
         // @ts-ignore
         session.user.role = token.role;
+        // @ts-ignore
+        session.user.slug = token.slug;
       }
       return session;
     },
@@ -62,6 +76,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.sub = user.id;
             // @ts-ignore
             token.role = user.role;
+            // @ts-ignore
+            token.slug = user.slug;
         }
         return token;
     }
