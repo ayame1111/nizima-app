@@ -64,21 +64,21 @@ function DashboardContent({ user }: DashboardClientProps) {
 
   // Initialize form with existing product data if editing
   useEffect(() => {
-    if (!product) return;
+    if (!editingProduct) return;
     
-    setTitle(product.title);
-    setPrice(product.price.toString());
-    setDescription(product.description);
-    setTheme(product.theme || '');
-    setTags(product.tags ? product.tags.join(', ') : '');
-    setIsSold(product.isSold || false);
-    setPreviewUrl(product.previewUrl || null);
+    setTitle(editingProduct.title);
+    setPrice(editingProduct.price.toString());
+    setDescription(editingProduct.description);
+    setTheme(editingProduct.theme || '');
+    setTags(editingProduct.tags ? editingProduct.tags.join(', ') : '');
+    setIsSold(editingProduct.isSold || false);
+    setPreviewUrl(editingProduct.previewUrl || null);
     
     // Reset media states
+    setExistingMediaUrls(editingProduct.mediaUrls || []);
     setMediaFiles([]);
     setMediaPreviews([]);
-    setExistingMediaUrls(product.mediaUrls || []);
-  }, [product]);
+  }, [editingProduct]);
   
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
