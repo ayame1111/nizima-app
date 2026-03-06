@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ProductPurchase from '@/components/ProductPurchase';
 import LazyLive2DViewer from '@/components/LazyLive2DViewer';
+import ProductGallery from '@/components/ProductGallery';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -132,29 +133,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
         {/* Media Gallery */}
         {product.mediaUrls && product.mediaUrls.length > 0 && (
-            <div className="mt-12">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Gallery</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {product.mediaUrls.map((url, index) => (
-                        <div key={index} className="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 aspect-video relative group">
-                            {url.endsWith('.mp4') || url.endsWith('.webm') ? (
-                                <video 
-                                    src={url} 
-                                    controls 
-                                    className="w-full h-full object-contain" 
-                                    preload="metadata"
-                                />
-                            ) : (
-                                <img 
-                                    src={url} 
-                                    alt={`${product.title} screenshot ${index + 1}`} 
-                                    className="w-full h-full object-contain cursor-pointer transition-transform duration-300 group-hover:scale-105"
-                                />
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <ProductGallery mediaUrls={product.mediaUrls} />
         )}
       </div>
     </div>

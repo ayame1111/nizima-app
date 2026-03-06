@@ -28,8 +28,13 @@ function DashboardContent({ user }: DashboardClientProps) {
   const [theme, setTheme] = useState('');
   const [tags, setTags] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [mediaPreviewUrls, setMediaPreviewUrls] = useState<string[]>([]);
+  
+  // Refactored Media State
+  const [existingMedia, setExistingMedia] = useState<string[]>([]);
+  const [deletedMediaUrls, setDeletedMediaUrls] = useState<string[]>([]);
+  const [newMediaFiles, setNewMediaFiles] = useState<File[]>([]);
+  const [newMediaPreviews, setNewMediaPreviews] = useState<string[]>([]);
+  
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [products, setProducts] = useState<any[]>([]);
@@ -155,8 +160,13 @@ function DashboardContent({ user }: DashboardClientProps) {
     setTheme(product.theme || '');
     setTags(product.tags ? product.tags.join(', ') : '');
     setPreviewUrl(product.previewUrl || null);
-    setMediaFiles([]);
-    setMediaPreviewUrls(product.mediaUrls || []);
+    
+    // Reset media states
+    setExistingMedia(product.mediaUrls || []);
+    setDeletedMediaUrls([]);
+    setNewMediaFiles([]);
+    setNewMediaPreviews([]);
+    
     setUploadMode('single');
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -176,8 +186,12 @@ function DashboardContent({ user }: DashboardClientProps) {
     setPreviewUrl(null);
     setFile(null);
     setIcon(null);
-    setMediaFiles([]);
-    setMediaPreviewUrls([]);
+    
+    // Reset media
+    setExistingMedia([]);
+    setDeletedMediaUrls([]);
+    setNewMediaFiles([]);
+    setNewMediaPreviews([]);
     
     // Reset file inputs
     const fileInput = document.getElementById('file-upload') as HTMLInputElement;
@@ -274,10 +288,17 @@ function DashboardContent({ user }: DashboardClientProps) {
     if (file) formData.append('file', file);
     if (icon) formData.append('icon', icon);
     
-    // Append media files
-    if (mediaFiles.length > 0) {
-        mediaFiles.forEach(file => {
+    // Append NEW media files
+    if (newMediaFiles.length > 0) {
+        newMediaFiles.forEach(file => {
             formData.append('media', file);
+        });
+    }
+
+    // Append DELETED media URLs
+    if (deletedMediaUrls.length > 0) {
+        deletedMediaUrls.forEach(url => {
+            formData.append('deleteMedia', url);
         });
     }
 
@@ -519,11 +540,11 @@ function DashboardContent({ user }: DashboardClientProps) {
                     onChange={(e) => {
                         if (e.target.files) {
                             const newFiles = Array.from(e.target.files);
-                            setMediaFiles(prev => [...prev, ...newFiles]);
+                            setNewMediaFiles(prev => [...prev, ...newFiles]);
                             
                             // Create local preview URLs for new files
                             const newUrls = newFiles.map(file => URL.createObjectURL(file));
-                            setMediaPreviewUrls(prev => [...prev, ...newUrls]);
+                            setNewMediaPreviews(prev => [...prev, ...newUrls]);
                         }
                     }}
                     className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-2 rounded-lg text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-400 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/50 transition-all"
@@ -534,32 +555,59 @@ function DashboardContent({ user }: DashboardClientProps) {
                 </p>
                 
                 {/* Media Preview Grid */}
-                {mediaPreviewUrls.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2 mt-2">
-                        {mediaPreviewUrls.map((url, index) => (
-                            <div key={index} className="relative aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                                {url.endsWith('.mp4') || url.endsWith('.webm') ? (
-                                    <video src={url} className="w-full h-full object-cover" />
-                                ) : (
-                                    <img src={url} alt={`Media ${index}`} className="w-full h-full object-cover" />
-                                )}
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setMediaPreviewUrls(prev => prev.filter((_, i) => i !== index));
-                                        setMediaFiles(prev => prev.filter((_, i) => i !== index));
-                                    }}
-                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                                >
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                    </svg>
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                    {/* Existing Media */}
+                    {existingMedia.map((url, index) => (
+                        <div key={`existing-${index}`} className="relative aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                            {url.endsWith('.mp4') || url.endsWith('.webm') ? (
+                                <video src={url} className="w-full h-full object-cover" />
+                            ) : (
+                                <img src={url} alt={`Existing Media ${index}`} className="w-full h-full object-cover" />
+                            )}
+                            <div className="absolute top-1 left-1 bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded shadow">Existing</div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setExistingMedia(prev => prev.filter((_, i) => i !== index));
+                                    setDeletedMediaUrls(prev => [...prev, url]);
+                                }}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors shadow"
+                            >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    ))}
+
+                    {/* New Media */}
+                    {newMediaPreviews.map((url, index) => (
+                        <div key={`new-${index}`} className="relative aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                            {/* Check file type from newMediaFiles if possible, or guess from blob url (not reliable for extension) */}
+                            {/* Ideally we check the file type in newMediaFiles[index] */}
+                            {newMediaFiles[index]?.type.startsWith('video/') ? (
+                                <video src={url} className="w-full h-full object-cover" />
+                            ) : (
+                                <img src={url} alt={`New Media ${index}`} className="w-full h-full object-cover" />
+                            )}
+                             <div className="absolute top-1 left-1 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded shadow">New</div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setNewMediaPreviews(prev => prev.filter((_, i) => i !== index));
+                                    setNewMediaFiles(prev => prev.filter((_, i) => i !== index));
+                                }}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors shadow"
+                            >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    ))}
+                </div>
                 </div>
 
                 {!editingProduct && (
