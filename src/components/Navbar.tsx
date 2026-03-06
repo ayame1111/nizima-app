@@ -32,6 +32,9 @@ export default function Navbar({ session }: { session: any }) {
   const logoTextGradient = isTransparent ? 'text-white' : 'bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300';
   const cartButtonClass = isTransparent ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
   const menuButtonClass = isTransparent ? 'text-white' : 'text-gray-900 dark:text-white';
+  const loginButtonClass = isTransparent 
+    ? 'text-gray-900 bg-white hover:bg-gray-100' 
+    : 'text-white bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200';
 
   return (
     <nav className={`sticky top-0 z-[5000] transition-all duration-700 ${isScrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm' : (isTransparent ? 'bg-transparent border-b border-transparent' : 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800')}`}>
@@ -103,7 +106,7 @@ export default function Navbar({ session }: { session: any }) {
                       </div>
                   </div>
               ) : (
-                  <Link href="/login" className={`text-sm font-bold px-4 py-2 rounded-lg transition-colors duration-700 ${isScrolled ? 'text-white bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200' : 'text-gray-900 bg-white hover:bg-gray-100'}`}>
+                  <Link href="/login" className={`text-sm font-bold px-4 py-2 rounded-lg transition-colors duration-700 ${loginButtonClass}`}>
                       Login
                   </Link>
               )}
