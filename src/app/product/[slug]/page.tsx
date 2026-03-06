@@ -105,8 +105,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               {/* Creator Link */}
               <div className="flex items-center gap-2 mb-6">
                 <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                    {product.creator.image ? (
-                        <img src={product.creator.image} alt={product.creator.name || 'Creator'} className="w-full h-full object-cover" />
+                    {product.creator?.image ? (
+                        <img src={product.creator?.image} alt={product.creator?.name || 'Creator'} className="w-full h-full object-cover" />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-500">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -114,8 +114,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                     )}
                 </div>
                 <span className="text-gray-500 dark:text-gray-400 text-sm">Created by</span>
-                <Link href={`/creator/${product.creator.id}`} className="font-semibold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    {product.creator.name || 'Unknown Artist'}
+                <Link href={`/creator/${product.creator?.id}`} className="font-semibold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    {product.creator?.name || 'Unknown Artist'}
                 </Link>
               </div>
 

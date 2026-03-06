@@ -61,7 +61,7 @@ export default function ProductCard({ product, favoriteIds }: ProductCardProps) 
             
             <div className="flex items-center gap-2 mb-3">
                 {product.creator?.image ? (
-                    <img src={product.creator.image} className="w-5 h-5 rounded-full object-cover" alt={product.creator.name || 'Creator'} />
+                    <img src={product.creator?.image} className="w-5 h-5 rounded-full object-cover" alt={product.creator?.name || 'Creator'} />
                 ) : (
                     <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold text-gray-500 dark:text-gray-400">
                         {(product.creator?.name || 'U').charAt(0)}
