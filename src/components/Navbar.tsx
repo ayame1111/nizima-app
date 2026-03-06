@@ -71,6 +71,7 @@ export default function Navbar({ session }: { session: any }) {
                           <div className="absolute -top-2 left-0 w-full h-2"></div>
                           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2">
                             <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">My Account</Link>
+                            <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">Profile</Link>
                             <Link href="/favorites" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">Favorites</Link>
                             
                             {/* Creator Dashboard Link - Only for Creators/Admins */}
@@ -146,6 +147,7 @@ export default function Navbar({ session }: { session: any }) {
                         <>
                             <div className="border-t border-gray-100 dark:border-gray-800 my-2"></div>
                             <Link href="/account" className="block px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md">My Account</Link>
+                            <Link href="/profile" className="block px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md">Profile</Link>
                             <button 
                                 onClick={() => signOut({ callbackUrl: '/' })}
                                 className="w-full text-left block px-3 py-2 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"

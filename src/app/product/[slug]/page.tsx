@@ -72,30 +72,25 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
           {/* Left: Preview (Larger area) */}
-          <div className="lg:col-span-3">
-             <div className="bg-gray-900 dark:bg-gray-100 rounded-3xl shadow-xl overflow-hidden relative h-[400px] sm:h-[500px] lg:h-auto lg:min-h-[600px] flex items-center justify-center w-full border border-gray-100 dark:border-gray-800">
+          <div className="lg:col-span-3 flex flex-col">
+             <div className="bg-gray-900 dark:bg-gray-100 rounded-3xl shadow-xl overflow-hidden relative flex-grow min-h-[500px] flex items-center justify-center w-full border border-gray-100 dark:border-gray-800">
                 {product.previewUrl ? (
-                <LazyLive2DViewer modelUrl={product.previewUrl} className="w-full h-full" />
+                <LazyLive2DViewer modelUrl={product.previewUrl} className="w-full h-full absolute inset-0" />
                 ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-500">No Preview Available</div>
                 )}
-                <div className="absolute bottom-6 left-0 right-0 flex justify-center pointer-events-none px-4 text-center">
+                <div className="absolute bottom-6 left-0 right-0 flex justify-center pointer-events-none px-4 text-center z-10">
                 <span className="bg-gray-800/80 dark:bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full text-xs md:text-sm font-medium text-white dark:text-gray-900 shadow-lg border border-gray-700 dark:border-gray-200 transition-colors duration-300">
                     Click to Interact & Control
                 </span>
                 </div>
              </div>
-
-             {/* Description moved here, under the viewer */}
-             <div className="mt-8 bg-white dark:bg-gray-900 rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-800">
-                <ExpandableDescription description={product.description} />
-             </div>
           </div>
           
           {/* Right: Details */}
-          <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-3xl shadow-xl overflow-hidden p-8 lg:p-10 flex flex-col border border-gray-100 dark:border-gray-800 transition-colors duration-300 h-fit sticky top-24">
+          <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-3xl shadow-xl overflow-hidden p-8 lg:p-10 flex flex-col border border-gray-100 dark:border-gray-800 transition-colors duration-300 h-full">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-5">
                  <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${product.isSold ? 'bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30' : 'bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30'}`}>
@@ -106,6 +101,24 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                  </span>
               </div>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight tracking-tight transition-colors duration-300">{product.title}</h1>
+              
+              {/* Creator Link */}
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                    {product.creator.image ? (
+                        <img src={product.creator.image} alt={product.creator.name || 'Creator'} className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-500">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        </div>
+                    )}
+                </div>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">Created by</span>
+                <Link href={`/creator/${product.creator.id}`} className="font-semibold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    {product.creator.name || 'Unknown Artist'}
+                </Link>
+              </div>
+
               <div className="text-3xl font-light text-gray-600 dark:text-gray-200 mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 transition-colors duration-300">
                 {formatCurrency(product.price)}
               </div>
@@ -133,6 +146,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             </div>
           </div>
         </div>
+        
+        {/* Description Row */}
+        <div className="mt-8 bg-white dark:bg-gray-900 rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-800">
+            <ExpandableDescription description={product.description} />
+        </div>
+
 
         {/* Media Gallery */}
         {product.mediaUrls && product.mediaUrls.length > 0 && (
