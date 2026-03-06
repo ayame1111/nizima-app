@@ -582,44 +582,53 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
             model.scale.set(1);
             
             // Check for valid dimensions
-            if (model.width === 0 || model.height === 0) {
-                // Retry later if dimensions are not ready, but limit retries to prevent infinite loops
-                if (resizeRetries < 10) {
-                    resizeRetries++;
-                    console.log(`[Live2DViewer] Model dimensions 0, retrying (${resizeRetries}/10)`);
-                    setTimeout(() => {
-                        if (mounted) requestAnimationFrame(resize);
-                    }, 100);
-                }
-                return;
+        if (model.width === 0 || model.height === 0) {
+            // Retry later if dimensions are not ready, but limit retries to prevent infinite loops
+            if (resizeRetries < 10) {
+                resizeRetries++;
+                console.log(`[Live2DViewer] Model dimensions 0, retrying (${resizeRetries}/10)`);
+                setTimeout(() => {
+                    if (mounted) requestAnimationFrame(resize);
+                }, 100);
             }
-            
-            // Reset retries on success
-            resizeRetries = 0;
-            
-            // Calculate scale to fit 85% of container (slightly larger)
-            const scaleX = (w * 0.85) / model.width;
-            const scaleY = (h * 0.85) / model.height;
-            
-            let scale = Math.min(scaleX, scaleY);
-            
-            // CAP SCALE to prevent gigantic models
-            // If the model is very small, don't scale it up too much (max 2.5x)
-            // If the model is huge, scale it down (which min(scaleX, scaleY) does)
-            scale = Math.min(scale, 2.5);
-            
-            model.scale.set(scale);
-            
-            // Re-center model
-            if (model.anchor) {
-                model.anchor.set(0.5);
-                model.x = w / 2;
-                model.y = h / 2;
-            } else {
-                model.x = (w - model.width) / 2;
-                model.y = (h - model.height) / 2;
-            }
-        };
+            return;
+        }
+        
+        // Reset retries on success
+        resizeRetries = 0;
+        
+        // Calculate scale to fit 85% of container (slightly larger)
+        const scaleX = (w * 0.85) / model.width;
+        const scaleY = (h * 0.85) / model.height;
+        
+        let scale = Math.min(scaleX, scaleY);
+        
+        // CAP SCALE to prevent gigantic models
+        // If the model is very small, don't scale it up too much (max 2.5x)
+        // If the model is huge, scale it down (which min(scaleX, scaleY) does)
+        scale = Math.min(scale, 2.5);
+        
+        // --- FIX FOR SMALL MODELS ---
+        // If the calculated scale is too small relative to container size (e.g. less than 20% width coverage), boost it
+        const coverageX = (model.width * scale) / w;
+        if (coverageX < 0.3) {
+             console.log(`[Live2DViewer] Scale boost triggered (Coverage: ${coverageX.toFixed(2)})`);
+             scale = Math.min(scale * 2, 2.5); // Double it, but still cap at 2.5
+        }
+        // -----------------------------
+        
+        model.scale.set(scale);
+        
+        // Re-center model
+        if (model.anchor) {
+            model.anchor.set(0.5);
+            model.x = w / 2;
+            model.y = h / 2;
+        } else {
+            model.x = (w - model.width) / 2;
+            model.y = (h - model.height) / 2;
+        }
+    };
 
         const init = async () => {
             try {
