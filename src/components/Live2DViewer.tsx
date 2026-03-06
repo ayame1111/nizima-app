@@ -633,9 +633,9 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                 
                 // CRITICAL OVERRIDE FOR V7 BETA
                 // The library checks `MaskSpriteManager.MAX_TEXTURES` in some versions
-                if (live2dExports.MaskSpriteManager) {
+                if (live2dExports && (live2dExports as any).MaskSpriteManager) {
                      try {
-                         (live2dExports.MaskSpriteManager as any).MAX_TEXTURES = 16;
+                         ((live2dExports as any).MaskSpriteManager as any).MAX_TEXTURES = 16;
                          console.log('[Live2DViewer] Patched MaskSpriteManager.MAX_TEXTURES');
                      } catch(e) {}
                 }

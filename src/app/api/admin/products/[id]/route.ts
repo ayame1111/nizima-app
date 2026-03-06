@@ -99,38 +99,52 @@ export async function PATCH(
     }
 
     const formData = await req.formData();
-    const title = formData.get('title') as string;
-    const description = formData.get('description') as string;
-    const price = parseFloat(formData.get('price') as string);
-    const sex = formData.get('sex') as string;
-    const eyeColor = formData.get('eyeColor') as string;
-    const hairColor = formData.get('hairColor') as string;
-    const bodyType = formData.get('bodyType') as string;
-    const theme = formData.get('theme') as string;
-    const tagsStr = formData.get('tags') as string;
+    const dataToUpdate: any = {};
+
+    const title = formData.get('title');
+    if (title !== null) dataToUpdate.title = title;
+
+    const description = formData.get('description');
+    if (description !== null) dataToUpdate.description = description;
+
+    const priceStr = formData.get('price');
+    if (priceStr !== null) {
+        const price = parseFloat(priceStr as string);
+        if (!isNaN(price)) dataToUpdate.price = price;
+    }
+
+    const sex = formData.get('sex');
+    if (sex !== null) dataToUpdate.sex = sex;
+
+    const eyeColor = formData.get('eyeColor');
+    if (eyeColor !== null) dataToUpdate.eyeColor = eyeColor;
+
+    const hairColor = formData.get('hairColor');
+    if (hairColor !== null) dataToUpdate.hairColor = hairColor;
+
+    const bodyType = formData.get('bodyType');
+    if (bodyType !== null) dataToUpdate.bodyType = bodyType;
+
+    const theme = formData.get('theme');
+    if (theme !== null) dataToUpdate.theme = theme;
+
+    const tagsStr = formData.get('tags');
+    if (tagsStr !== null) {
+         dataToUpdate.tags = (tagsStr as string).split(',').map(t => t.trim()).filter(Boolean);
+    }
+
     const status = formData.get('status') as string;
     const icon = formData.get('icon') as File | null;
-
-    const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
-
-    const dataToUpdate: any = {
-      title,
-      description,
-      price,
-      sex,
-      eyeColor,
-      hairColor,
-      bodyType,
-      theme,
-      tags,
-    };
 
     // Only Admin can update status directly
     if (status && isSessionAdmin) {
         dataToUpdate.status = status;
     } else if (!isSessionAdmin) {
         // If creator edits, reset to PENDING for re-approval
-        dataToUpdate.status = 'PENDING';
+        // Only if they are actually changing something else
+        if (Object.keys(dataToUpdate).length > 0) {
+            dataToUpdate.status = 'PENDING';
+        }
     }
 
     // Handle Icon Update
