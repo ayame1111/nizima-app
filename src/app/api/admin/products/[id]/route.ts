@@ -134,16 +134,29 @@ export async function PATCH(
     }
 
     const status = formData.get('status') as string;
+    const adminNote = formData.get('adminNote') as string | null;
     const icon = formData.get('icon') as File | null;
 
     // Only Admin can update status directly
     if (status && isSessionAdmin) {
         dataToUpdate.status = status;
+        if (status === 'REJECTED' && adminNote) {
+            dataToUpdate.adminNote = adminNote;
+        } else if (status === 'APPROVED') {
+            // Clear rejection note if approved
+            dataToUpdate.adminNote = null;
+        }
     } else if (!isSessionAdmin) {
         // If creator edits, reset to PENDING for re-approval
         // Only if they are actually changing something else
         if (Object.keys(dataToUpdate).length > 0) {
             dataToUpdate.status = 'PENDING';
+            // Clear previous rejection note on re-submission
+            dataToUpdate.adminNote = null;
+        } else if (status === 'PENDING') {
+            // Explicit re-application without changes (e.g. "Reapply" button)
+            dataToUpdate.status = 'PENDING';
+            dataToUpdate.adminNote = null;
         }
     }
 

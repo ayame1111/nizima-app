@@ -99,6 +99,23 @@ function DashboardContent({ user }: DashboardClientProps) {
     }
   };
 
+  const handleReapply = async (id: string) => {
+    if (!confirm('Are you sure you want to reapply for evaluation?')) return;
+    
+    try {
+      const formData = new FormData();
+      formData.append('status', 'PENDING');
+      
+      await axios.patch(`/api/admin/products/${id}`, formData);
+      
+      setMessage('Application resubmitted successfully');
+      fetchProducts();
+    } catch (error) {
+      console.error('Reapplication failed', error);
+      setMessage('Failed to resubmit application');
+    }
+  };
+
   const handleBatchFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
         const newFiles = Array.from(e.target.files).map(file => ({
@@ -669,6 +686,12 @@ function DashboardContent({ user }: DashboardClientProps) {
                                     </div>
                                 </div>
                                 
+                                {product.status === 'REJECTED' && product.adminNote && (
+                                    <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 p-3 rounded-lg text-sm text-red-600 dark:text-red-400">
+                                        <span className="font-bold">Rejection Reason:</span> {product.adminNote}
+                                    </div>
+                                )}
+                                
                                 <div className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                                     {product.description}
                                 </div>
@@ -676,6 +699,14 @@ function DashboardContent({ user }: DashboardClientProps) {
                                 <div className="flex justify-between items-center pt-3 border-t border-gray-50 dark:border-gray-700">
                                     <span className="font-bold text-lg text-gray-900 dark:text-white">${product.price}</span>
                                     <div className="flex gap-2">
+                                        {product.status === 'REJECTED' && (
+                                            <button
+                                                onClick={() => handleReapply(product.id)}
+                                                className="text-xs bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 text-yellow-600 dark:text-yellow-400 px-3 py-1.5 rounded-lg transition-colors font-medium border border-yellow-100 dark:border-yellow-900/30"
+                                            >
+                                                Reapply
+                                            </button>
+                                        )}
                                         <button
                                             onClick={() => handleEdit(product)}
                                             className="text-xs bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-lg transition-colors font-medium border border-blue-100 dark:border-blue-900/30"

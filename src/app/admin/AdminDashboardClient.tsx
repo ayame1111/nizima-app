@@ -28,11 +28,22 @@ export default function AdminDashboardClient() {
   }, []);
 
   const handleStatusUpdate = async (id: string, status: 'APPROVED' | 'REJECTED') => {
-    if (!confirm(`Are you sure you want to ${status.toLowerCase()} this product?`)) return;
+    let adminNote = '';
+
+    if (status === 'REJECTED') {
+        const reason = prompt("Please enter the reason for rejection:");
+        if (reason === null) return; // Cancelled
+        adminNote = reason;
+    } else {
+        if (!confirm(`Are you sure you want to ${status.toLowerCase()} this product?`)) return;
+    }
 
     try {
       const formData = new FormData();
       formData.append('status', status);
+      if (adminNote) {
+          formData.append('adminNote', adminNote);
+      }
       
       await axios.patch(`/api/admin/products/${id}`, formData);
       
