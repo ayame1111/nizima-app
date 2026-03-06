@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 
 interface ProductGalleryProps {
@@ -12,10 +12,51 @@ export default function ProductGallery({ mediaUrls }: ProductGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   if (!mediaUrls || mediaUrls.length === 0) return null;
 
+  // Auto-scroll loop effect
+  useEffect(() => {
+    // Only start if content overflows
+    const startAutoScroll = () => {
+      if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
+      
+      scrollIntervalRef.current = setInterval(() => {
+        if (scrollContainerRef.current) {
+          const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+          
+          // If content fits, no need to scroll
+          if (scrollWidth <= clientWidth) return;
+
+          // Check if we've reached the end (with a small buffer)
+          if (scrollLeft + clientWidth >= scrollWidth - 10) {
+            // Loop back to start smoothly
+            scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            // Scroll forward one item width approx
+            scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+          }
+        }
+      }, 3000); 
+    };
+
+    startAutoScroll();
+
+    return () => {
+        if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
+    };
+  }, [mediaUrls]);
+
+  const stopAutoScroll = () => {
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current);
+      scrollIntervalRef.current = null;
+    }
+  };
+
   const scroll = (direction: 'left' | 'right') => {
+    stopAutoScroll(); // Stop auto-scroll on manual interaction
     if (scrollContainerRef.current) {
         const scrollAmount = 300; // Approximate width of one item
         const currentScroll = scrollContainerRef.current.scrollLeft;

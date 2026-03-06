@@ -144,17 +144,35 @@ export async function PATCH(
     const adminNote = formData.get('adminNote') as string | null;
     const icon = formData.get('icon') as File | null;
     
-    // Handle Media Updates (Append new files)
-    const mediaFiles = formData.getAll('media');
-    let existingMediaUrls: string[] = product.mediaUrls || [];
-
-    // Optional: Handle deletion of specific media via 'deleteMedia' field
-    const deleteMedia = formData.getAll('deleteMedia') as string[];
-    if (deleteMedia && deleteMedia.length > 0) {
-        existingMediaUrls = existingMediaUrls.filter(url => !deleteMedia.includes(url));
-        // Note: Ideally we should delete the actual files from disk too, but skipping for simplicity
+    // Handle Media Updates
+    const mediaFiles = [];
+    const formDataEntries = Array.from(formData.entries());
+    for (const [key, value] of formDataEntries) {
+        if (key.startsWith('media_') && value instanceof File) {
+            mediaFiles.push(value);
+        }
     }
-    dataToUpdate.mediaUrls = existingMediaUrls;
+
+    const existingMediaUrlsJson = formData.get('existingMediaUrls') as string;
+    let existingMediaUrls: string[] = [];
+    
+    if (existingMediaUrlsJson) {
+        try {
+            existingMediaUrls = JSON.parse(existingMediaUrlsJson);
+        } catch (e) {
+            console.error('Failed to parse existingMediaUrls', e);
+            existingMediaUrls = product.mediaUrls || [];
+        }
+    } else {
+         // Fallback if not provided (e.g. partial update)
+         existingMediaUrls = product.mediaUrls || [];
+    }
+
+    // Filter out deleted media (logic moved to client sending explicit list of what to KEEP)
+    // So we just trust existingMediaUrls from client, but verify they belong to this product
+    existingMediaUrls = existingMediaUrls.filter(url => product.mediaUrls.includes(url));
+    
+    const finalMediaUrls = [...existingMediaUrls];
 
     if (mediaFiles && mediaFiles.length > 0) {
         const { publicUploadsDir } = getStoragePaths();
@@ -164,38 +182,27 @@ export async function PATCH(
             fs.mkdirSync(publicUploadDir, { recursive: true });
         }
 
-        for (const mediaEntry of mediaFiles) {
-             const media = (mediaEntry && typeof mediaEntry === 'object' && 'name' in mediaEntry) ? (mediaEntry as any) : null;
-             
-             if (media && media.size > 0) {
+        for (const media of mediaFiles) {
+             if (media.size > 0) {
                  if (media.size > 50 * 1024 * 1024) continue; // Skip large files
 
                  try {
-                     let mediaBuffer: Buffer | null = null;
-                     if (typeof media.arrayBuffer === 'function') {
-                         mediaBuffer = Buffer.from(await media.arrayBuffer());
-                     } else if (media.stream) {
-                         const chunks = [];
-                         for await (const chunk of media.stream()) {
-                             chunks.push(chunk);
-                         }
-                         mediaBuffer = Buffer.concat(chunks);
-                     }
-                     
-                     if (mediaBuffer) {
-                        const mediaExt = path.extname(media.name) || '.bin';
-                        const mediaFilename = `media-${Date.now()}-${Math.random().toString(36).substring(7)}${mediaExt}`;
-                        const mediaPath = path.join(publicUploadDir, mediaFilename);
-                        
-                        fs.writeFileSync(mediaPath, mediaBuffer);
-                        dataToUpdate.mediaUrls.push(`/file-proxy/${id}/${mediaFilename}`);
-                     }
+                    const buffer = Buffer.from(await media.arrayBuffer());
+                    const mediaExt = path.extname(media.name) || '.bin';
+                    // Use timestamp + random to avoid collisions
+                    const mediaFilename = `media-${Date.now()}-${Math.random().toString(36).substring(7)}${mediaExt}`;
+                    const mediaPath = path.join(publicUploadDir, mediaFilename);
+                    
+                    fs.writeFileSync(mediaPath, buffer);
+                    finalMediaUrls.push(`/file-proxy/${id}/${mediaFilename}`);
                  } catch (e) {
                      console.error('Failed to save additional media', e);
                  }
              }
         }
     }
+    
+    dataToUpdate.mediaUrls = finalMediaUrls;
 
     // Only Admin can update status directly
     if (status && isSessionAdmin) {

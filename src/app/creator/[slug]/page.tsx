@@ -5,10 +5,17 @@ import Link from 'next/link';
 import { Twitter, Youtube, Globe, Instagram, Package, User as UserIcon } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const user = await prisma.user.findUnique({
-    where: { id },
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  
+  // Try to find by slug first, then ID for backward compatibility
+  const user = await prisma.user.findFirst({
+    where: { 
+        OR: [
+            { slug: slug },
+            { id: slug }
+        ]
+    },
   });
 
   if (!user) return { title: 'Creator Not Found' };
@@ -19,11 +26,17 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export default async function CreatorPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function CreatorPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   
-  const user = await prisma.user.findUnique({
-    where: { id },
+  // Try to find by slug first, then ID for backward compatibility
+  const user = await prisma.user.findFirst({
+    where: { 
+        OR: [
+            { slug: slug },
+            { id: slug }
+        ]
+    },
   });
 
   if (!user) {
@@ -33,7 +46,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
   // Fetch creator's products
   const products = await prisma.product.findMany({
     where: { 
-        creatorId: id,
+        creatorId: user.id, // Use the found user's ID
         status: 'APPROVED', // Only show approved products
     },
     orderBy: { createdAt: 'desc' },
@@ -44,8 +57,8 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
-      {/* Banner */}
-      <div className="h-48 md:h-64 lg:h-80 w-full relative bg-gray-200 dark:bg-gray-800 overflow-hidden">
+      {/* Banner - Updated to 16:9 aspect ratio */}
+      <div className="w-full relative bg-gray-200 dark:bg-gray-800 overflow-hidden aspect-video max-h-[500px]">
         {user.bannerUrl ? (
             <img 
                 src={user.bannerUrl} 

@@ -118,7 +118,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                     )}
                 </div>
                 <span className="text-gray-500 dark:text-gray-400 text-sm">Sold by</span>
-                <Link href={`/creator/${product.creator?.id}`} className="font-semibold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                <Link href={`/creator/${product.creator?.slug || product.creator?.id}`} className="font-semibold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                     {product.creator?.name || 'Unknown Artist'}
                 </Link>
               </div>

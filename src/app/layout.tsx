@@ -5,6 +5,7 @@ import { Providers } from "@/components/Providers";
 import { auth } from "@/auth";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import ReportWidget from "@/components/ReportWidget";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default async function RootLayout({
           <main className="flex-grow">
             {children}
           </main>
+          <ReportWidget />
         </Providers>
       </body>
     </html>

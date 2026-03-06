@@ -14,6 +14,7 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String    @unique
+  slug          String?   @unique // Custom username/slug for profile URL
   password      String?
   image         String?
   role          String    @default("USER") // USER, CREATOR, ADMIN

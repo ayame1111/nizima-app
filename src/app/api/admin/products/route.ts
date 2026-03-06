@@ -323,15 +323,19 @@ export async function POST(req: Request) {
     }
 
     // Handle Media Uploads (Screenshots, GIFs, Videos)
-    const mediaFiles = formData.getAll('media');
+    const mediaFiles = [];
+    const formDataEntries = Array.from(formData.entries());
+    for (const [key, value] of formDataEntries) {
+        if (key.startsWith('media_') && value instanceof File) {
+            mediaFiles.push(value);
+        }
+    }
     const mediaUrls: string[] = [];
 
     if (mediaFiles && mediaFiles.length > 0) {
         console.log(`Processing ${mediaFiles.length} media files...`);
-        for (const mediaEntry of mediaFiles) {
-             const media = (mediaEntry && typeof mediaEntry === 'object' && 'name' in mediaEntry) ? (mediaEntry as any) : null;
-             
-             if (media && media.size > 0) {
+        for (const media of mediaFiles) {
+             if (media.size > 0) {
                  // Validate file type (image or video)
                  if (!media.type.startsWith('image/') && !media.type.startsWith('video/')) {
                      console.warn(`Skipping invalid media type: ${media.type}`);
@@ -345,27 +349,15 @@ export async function POST(req: Request) {
                  }
 
                  try {
-                     let mediaBuffer: Buffer | null = null;
-                     if (typeof media.arrayBuffer === 'function') {
-                         mediaBuffer = Buffer.from(await media.arrayBuffer());
-                     } else if (media.stream) {
-                         const chunks = [];
-                         for await (const chunk of media.stream()) {
-                             chunks.push(chunk);
-                         }
-                         mediaBuffer = Buffer.concat(chunks);
-                     }
-
-                     if (mediaBuffer) {
-                         const mediaExt = path.extname(media.name) || '.bin';
-                         // Generate unique filename to prevent collisions
-                         const mediaFilename = `media-${uuidv4().substring(0, 8)}${mediaExt}`;
-                         const mediaPath = path.join(publicUploadDir, mediaFilename);
-                         
-                         fs.writeFileSync(mediaPath, mediaBuffer);
-                         mediaUrls.push(`/file-proxy/${productId}/${mediaFilename}`);
-                         console.log('Media saved to:', mediaPath);
-                     }
+                     const mediaBuffer = Buffer.from(await media.arrayBuffer());
+                     const mediaExt = path.extname(media.name) || '.bin';
+                     // Generate unique filename to prevent collisions
+                     const mediaFilename = `media-${uuidv4().substring(0, 8)}${mediaExt}`;
+                     const mediaPath = path.join(publicUploadDir, mediaFilename);
+                     
+                     fs.writeFileSync(mediaPath, mediaBuffer);
+                     mediaUrls.push(`/file-proxy/${productId}/${mediaFilename}`);
+                     console.log('Media saved to:', mediaPath);
                  } catch (mediaErr) {
                      console.error(`Failed to save media ${media.name}:`, mediaErr);
                  }
