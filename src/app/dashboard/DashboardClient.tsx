@@ -27,6 +27,7 @@ function DashboardContent({ user }: DashboardClientProps) {
   const [bodyType, setBodyType] = useState('');
   const [theme, setTheme] = useState('');
   const [tags, setTags] = useState('');
+  const [isSold, setIsSold] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   
   // Refactored Media State
@@ -159,6 +160,7 @@ function DashboardContent({ user }: DashboardClientProps) {
     setBodyType(product.bodyType || '');
     setTheme(product.theme || '');
     setTags(product.tags ? product.tags.join(', ') : '');
+    setIsSold(product.isSold || false);
     setPreviewUrl(product.previewUrl || null);
     
     // Reset media states
@@ -183,6 +185,7 @@ function DashboardContent({ user }: DashboardClientProps) {
     setBodyType('');
     setTheme('');
     setTags('');
+    setIsSold(false);
     setPreviewUrl(null);
     setFile(null);
     setIcon(null);
@@ -285,6 +288,7 @@ function DashboardContent({ user }: DashboardClientProps) {
     formData.append('bodyType', bodyType);
     formData.append('theme', theme);
     formData.append('tags', tags);
+    formData.append('isSold', isSold.toString());
     if (file) formData.append('file', file);
     if (icon) formData.append('icon', icon);
     
@@ -515,6 +519,19 @@ function DashboardContent({ user }: DashboardClientProps) {
                         </div>
                         <input type="hidden" value={tags} name="tags" />
                     </div>
+                </div>
+
+                <div className="flex items-center gap-2 mb-2">
+                    <input 
+                        type="checkbox" 
+                        id="isSold" 
+                        checked={isSold} 
+                        onChange={(e) => setIsSold(e.target.checked)} 
+                        className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 w-4 h-4"
+                    />
+                    <label htmlFor="isSold" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Mark as Sold (Already Sold)
+                    </label>
                 </div>
                 
                 <div>

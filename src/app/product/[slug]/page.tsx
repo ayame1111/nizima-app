@@ -5,6 +5,7 @@ import ProductPurchase from '@/components/ProductPurchase';
 import LazyLive2DViewer from '@/components/LazyLive2DViewer';
 import ProductGallery from '@/components/ProductGallery';
 import ExpandableDescription from '@/components/ExpandableDescription';
+import AdminControls from '@/components/AdminControls';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -74,6 +75,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <AdminControls productId={product.id} />
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
           {/* Left: Preview (Larger area) */}
           <div className="lg:col-span-3 flex flex-col">

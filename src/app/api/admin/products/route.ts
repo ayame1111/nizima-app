@@ -62,6 +62,7 @@ export async function POST(req: Request) {
     const theme = formData.get('theme') as string;
     const tagsString = formData.get('tags') as string;
     const tags = tagsString ? tagsString.split(',').map(tag => tag.trim()).filter(Boolean) : [];
+    const isSold = formData.get('isSold') === 'true';
 
     const fileEntry = formData.get('file');
     // More flexible check: if it has a 'name' (string) and 'size' (number), it's likely a File-like object
@@ -391,7 +392,7 @@ export async function POST(req: Request) {
             fileUrl: path.join(secureStorageDir, 'model.zip'), // Store absolute path for secure access
             iconUrl,
             mediaUrls, // Save media URLs
-            isSold: false,
+            isSold: isSold,
             status: isSessionAdmin ? 'APPROVED' : 'PENDING',
             // @ts-ignore
             creatorId: session?.user?.id || null,

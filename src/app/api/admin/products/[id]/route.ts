@@ -135,6 +135,11 @@ export async function PATCH(
          dataToUpdate.tags = (tagsStr as string).split(',').map(t => t.trim()).filter(Boolean);
     }
 
+    const isSold = formData.get('isSold');
+    if (isSold !== null) {
+        dataToUpdate.isSold = isSold === 'true';
+    }
+
     const status = formData.get('status') as string;
     const adminNote = formData.get('adminNote') as string | null;
     const icon = formData.get('icon') as File | null;
