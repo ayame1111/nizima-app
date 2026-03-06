@@ -149,16 +149,15 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
         
-        {/* Description Row */}
-        <div className="mt-8 bg-white dark:bg-gray-900 rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-800">
-            <ExpandableDescription description={product.description} />
-        </div>
-
-
         {/* Media Gallery */}
         {product.mediaUrls && product.mediaUrls.length > 0 && (
             <ProductGallery mediaUrls={product.mediaUrls} />
         )}
+
+        {/* Description Row */}
+        <div className="mt-8 bg-white dark:bg-gray-900 rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-800">
+            <ExpandableDescription description={product.description} />
+        </div>
       </div>
     </div>
   );

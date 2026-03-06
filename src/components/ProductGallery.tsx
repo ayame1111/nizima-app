@@ -77,7 +77,7 @@ export default function ProductGallery({ mediaUrls }: ProductGalleryProps) {
             {mediaUrls.map((url, index) => (
             <div 
                 key={index} 
-                className="flex-shrink-0 w-80 md:w-96 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 aspect-video relative group/item cursor-pointer snap-center"
+                className="flex-shrink-0 w-40 md:w-48 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 aspect-video relative group/item cursor-pointer snap-center"
                 onClick={() => openLightbox(index)}
             >
                 {url.endsWith('.mp4') || url.endsWith('.webm') ? (

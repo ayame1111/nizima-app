@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, Save, Loader2, User as UserIcon } from 'lucide-react';
+import { Camera, Save, Loader2, User as UserIcon, CheckCircle2 } from 'lucide-react';
 
 interface ProfileFormProps {
   user: any;
@@ -11,6 +11,7 @@ interface ProfileFormProps {
 export default function ProfileForm({ user }: ProfileFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const [bio, setBio] = useState(user.bio || '');
   const [banner, setBanner] = useState<string | null>(user.bannerUrl);
   const [avatar, setAvatar] = useState<string | null>(user.image);
@@ -38,6 +39,8 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       if (data.success) {
         setBanner(data.url);
         router.refresh();
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
       }
     } catch (err) {
       console.error('Banner upload failed', err);
@@ -61,6 +64,8 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       if (data.success) {
         setAvatar(data.url);
         router.refresh();
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
       }
     } catch (err) {
       console.error('Avatar upload failed', err);
@@ -88,7 +93,8 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         
         if (result.success) {
             router.refresh();
-            // Show success toast
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 3000);
         }
     } catch (error) {
         console.error('Update failed', error);
@@ -103,26 +109,29 @@ export default function ProfileForm({ user }: ProfileFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Banner & Avatar Section */}
-        <div className="relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 h-48 md:h-64 border border-gray-200 dark:border-gray-700">
-            {banner ? (
-                <img src={banner} alt="Profile Banner" className="w-full h-full object-cover" />
-            ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    No Banner Image
+        <div className="relative group mb-16">
+            {/* Banner Container */}
+            <div className="rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 h-48 md:h-64 border border-gray-200 dark:border-gray-700 relative">
+                {banner ? (
+                    <img src={banner} alt="Profile Banner" className="w-full h-full object-cover" />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        No Banner Image
+                    </div>
+                )}
+                
+                {/* Banner Upload Overlay */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <label className="cursor-pointer bg-white/90 text-gray-900 px-4 py-2 rounded-full font-medium shadow-lg hover:bg-white transition-colors flex items-center gap-2">
+                        <Camera size={18} /> Change Banner
+                        <input type="file" className="hidden" accept="image/*" onChange={handleBannerUpload} />
+                    </label>
                 </div>
-            )}
-            
-            {/* Banner Upload Overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <label className="cursor-pointer bg-white/90 text-gray-900 px-4 py-2 rounded-full font-medium shadow-lg hover:bg-white transition-colors flex items-center gap-2">
-                    <Camera size={18} /> Change Banner
-                    <input type="file" className="hidden" accept="image/*" onChange={handleBannerUpload} />
-                </label>
             </div>
 
             {/* Avatar - Absolute Positioned */}
             <div className="absolute -bottom-12 left-8 md:left-12">
-                <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white dark:border-gray-900 bg-white dark:bg-gray-800 overflow-hidden group/avatar">
+                <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white dark:border-gray-900 bg-white dark:bg-gray-800 overflow-hidden group/avatar shadow-lg">
                     {avatar ? (
                         <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -142,7 +151,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             </div>
         </div>
 
-        <div className="pt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Main Info */}
             <div className="md:col-span-2 space-y-6">
                 <div>
@@ -230,6 +239,15 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             </button>
         </div>
       </form>
+
+      {/* Toast Notification */}
+      <div className={`fixed bottom-8 right-8 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 z-50 ${showToast ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
+        <CheckCircle2 className="text-green-500" size={24} />
+        <div>
+            <h4 className="font-bold">Success</h4>
+            <p className="text-sm opacity-90">Profile updated successfully!</p>
+        </div>
+      </div>
     </div>
   );
 }
