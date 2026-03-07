@@ -20,11 +20,20 @@ export async function POST(req: Request) {
 
     const { returnUrl, refreshUrl } = await req.json();
 
-    const accountLink = await stripe.accountLinks.create({
+    // @ts-ignore - V2 types might not be fully exposed
+    const accountLink = await stripe.v2.core.accountLinks.create({
       account: user.stripeAccountId,
-      refresh_url: refreshUrl || `${process.env.NEXTAUTH_URL}/dashboard`,
-      return_url: returnUrl || `${process.env.NEXTAUTH_URL}/dashboard`,
-      type: 'account_onboarding',
+      use_case: {
+        type: 'account_onboarding',
+        account_onboarding: {
+          configurations: [
+            'recipient',
+            'merchant',
+          ],
+          refresh_url: refreshUrl || `${process.env.NEXTAUTH_URL}/dashboard`,
+          return_url: returnUrl || `${process.env.NEXTAUTH_URL}/dashboard`,
+        },
+      },
     });
 
     return NextResponse.json({ url: accountLink.url });

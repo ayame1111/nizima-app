@@ -25,19 +25,32 @@ export async function POST(req: Request) {
     }
 
     // Create a new connected account with V2 API properties
-    const account = await stripe.accounts.create({
-      controller: {
-        fees: {
-          payer: 'application',
-        },
-        losses: {
-          payments: 'application',
-        },
-        stripe_dashboard: {
-          type: 'express',
+    // @ts-ignore - V2 types might not be fully exposed yet in all editors
+    const account = await stripe.v2.core.accounts.create({
+      display_name: user.name || 'Nizima Creator',
+      contact_email: user.email,
+      configuration: {
+        merchant: {
+          simulate_accept_tos_obo: true,
         },
       },
-      email: user.email || undefined,
+      defaults: {
+        responsibilities: {
+          losses_collector: 'application',
+          fees_collector: 'application',
+        },
+      },
+      dashboard: 'express',
+      include: [
+        'configuration.merchant',
+        'configuration.recipient',
+        'identity',
+        'defaults',
+        'configuration.customer',
+      ],
+      identity: {
+        country: 'US', // Default to US for now, or fetch from user profile if available
+      },
       metadata: {
         userId: user.id,
       },
