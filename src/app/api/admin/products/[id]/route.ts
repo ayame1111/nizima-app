@@ -160,10 +160,13 @@ export async function PATCH(
 
     const existingMediaUrlsJson = formData.get('existingMediaUrls') as string;
     let existingMediaUrls: string[] = [];
+    let mediaUpdated = false;
     
     if (existingMediaUrlsJson) {
         try {
             existingMediaUrls = JSON.parse(existingMediaUrlsJson);
+            // Only flag as updated if explicitly sent
+            mediaUpdated = true;
         } catch (e) {
             console.error('Failed to parse existingMediaUrls', e);
             existingMediaUrls = product.mediaUrls || [];
@@ -180,6 +183,7 @@ export async function PATCH(
     const finalMediaUrls = [...existingMediaUrls];
 
     if (mediaFiles && mediaFiles.length > 0) {
+        mediaUpdated = true;
         const { publicUploadsDir } = getStoragePaths();
         const publicUploadDir = path.join(publicUploadsDir, id);
         
@@ -207,7 +211,9 @@ export async function PATCH(
         }
     }
     
-    dataToUpdate.mediaUrls = finalMediaUrls;
+    if (mediaUpdated) {
+        dataToUpdate.mediaUrls = finalMediaUrls;
+    }
 
     // Only Admin can update status directly
     if (status && isSessionAdmin) {
