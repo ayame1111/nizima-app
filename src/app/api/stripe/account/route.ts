@@ -29,6 +29,9 @@ export async function POST(req: Request) {
     const account = await stripe.v2.core.accounts.create({
       display_name: user.name || 'Nizima Creator',
       contact_email: user.email,
+      configuration: {
+        merchant: {},
+      },
       defaults: {
         responsibilities: {
           losses_collector: 'application',
