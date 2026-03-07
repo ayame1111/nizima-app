@@ -30,7 +30,7 @@ export default function Navbar({ session }: { session: any }) {
   
   const textColorClass = isTransparent ? 'text-white' : 'text-gray-900 dark:text-white';
   const logoTextGradient = isTransparent ? 'text-white' : 'bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300';
-  const cartButtonClass = isTransparent ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
+  const cartButtonClass = isTransparent ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20' : 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
   const menuButtonClass = isTransparent ? 'text-white' : 'text-gray-900 dark:text-white';
   const loginButtonClass = isTransparent 
     ? 'text-gray-900 bg-white hover:bg-gray-100' 
