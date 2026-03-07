@@ -28,6 +28,7 @@ model User {
 
   resetToken    String?
   resetTokenExpiry DateTime?
+  stripeAccountId String?   // Stripe Connect Account ID
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   favorites     Product[] @relation("UserFavorites")
@@ -54,6 +55,8 @@ model Product {
   tags        String[] // General tags
   status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
   adminNote   String?  // Reason for rejection or other admin notes
+  stripeProductId String? // Stripe Product ID
+  stripePriceId   String? // Stripe Price ID
   mediaUrls   String[] // Array of URLs for additional screenshots, gifs, videos
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

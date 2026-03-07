@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import PayPalButton from './PayPalButton';
+import axios from 'axios';
 import { useCart } from '@/context/CartContext';
-import { ShoppingCart, Check } from 'lucide-react';
+import { ShoppingCart, Check, Loader2, CreditCard } from 'lucide-react';
 
 interface ProductPurchaseProps {
   product: {
@@ -18,10 +18,31 @@ interface ProductPurchaseProps {
 
 export default function ProductPurchase({ product }: ProductPurchaseProps) {
   const [purchased, setPurchased] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState('');
   const { addToCart, isInCart } = useCart();
 
   const inCart = isInCart(product.id);
+
+  const handleBuyNow = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post('/api/stripe/checkout', {
+        productId: product.id,
+      });
+      const { url } = response.data;
+      if (url) {
+        window.location.href = url;
+      } else {
+        alert('Failed to start checkout. Please try again.');
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      alert(error.response?.data?.error || 'Failed to initiate checkout.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (product.isSold) {
     return (
@@ -77,17 +98,21 @@ export default function ProductPurchase({ product }: ProductPurchaseProps) {
             </div>
         </div>
 
-        <PayPalButton 
-          amount={product.price} 
-          productId={product.id} 
-          onSuccess={(data) => {
-            console.log('Purchase successful:', data);
-            setPurchased(true);
-            if (data.downloadUrl) {
-                setDownloadUrl(data.downloadUrl);
-            }
-          }}
-        />
+        <button 
+          onClick={handleBuyNow}
+          disabled={loading}
+          className="w-full bg-[#635BFF] hover:bg-[#5851E1] text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="animate-spin" size={20} /> Processing...
+            </>
+          ) : (
+            <>
+              <CreditCard size={20} /> Buy with Stripe
+            </>
+          )}
+        </button>
     </div>
   );
 }

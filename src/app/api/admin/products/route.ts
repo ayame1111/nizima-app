@@ -6,6 +6,7 @@ import AdmZip from 'adm-zip';
 import { v4 as uuidv4 } from 'uuid';
 import { auth } from '@/auth';
 import { getStoragePaths } from '@/lib/paths';
+import { stripe } from '@/lib/stripe';
 
 // Simple API Key check for demo purposes
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'admin-secret';
@@ -365,6 +366,38 @@ export async function POST(req: Request) {
         }
     }
 
+    // Create Stripe Product
+    let stripeProductId = null;
+    let stripePriceId = null;
+
+    try {
+        console.log('Creating Stripe product...');
+        const stripeProduct = await stripe.products.create({
+            name: title,
+            description: description || undefined,
+            default_price_data: {
+                currency: 'usd',
+                unit_amount: Math.round(price * 100), // cents
+            },
+            metadata: {
+                productId: productId,
+                creatorId: session?.user?.id || '',
+            }
+        });
+        stripeProductId = stripeProduct.id;
+        stripePriceId = stripeProduct.default_price as string;
+        console.log('Stripe product created:', stripeProductId);
+    } catch (stripeError) {
+        console.error('Stripe Product Creation Failed:', stripeError);
+        // Clean up uploaded files
+        try {
+            fs.rmSync(publicUploadDir, { recursive: true, force: true });
+            fs.rmSync(secureStorageDir, { recursive: true, force: true });
+        } catch(cleanupErr) { console.error('Cleanup error:', cleanupErr); }
+        
+        return NextResponse.json({ error: 'Failed to create product in payment system' }, { status: 500 });
+    }
+
     // Create product in DB
     try {
         const product = await prisma.product.create({
@@ -374,6 +407,8 @@ export async function POST(req: Request) {
             title,
             description,
             price,
+            stripeProductId, // Add Stripe ID
+            stripePriceId,   // Add Stripe Price ID
             sex,
             eyeColor,
             hairColor,

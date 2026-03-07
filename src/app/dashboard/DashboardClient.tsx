@@ -89,6 +89,10 @@ function DashboardContent({ user }: DashboardClientProps) {
   const [products, setProducts] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(false);
   
+  // Stripe State
+  const [stripeStatus, setStripeStatus] = useState<any>(null);
+  const [stripeLoading, setStripeLoading] = useState(false);
+
   // Batch Upload State
   interface BatchFile {
     id: string;
@@ -120,8 +124,43 @@ function DashboardContent({ user }: DashboardClientProps) {
             }
     } else {
         fetchProducts();
+        fetchStripeStatus();
     }
   }, [user, router]);
+
+  const fetchStripeStatus = async () => {
+    try {
+      const response = await axios.get('/api/stripe/account');
+      setStripeStatus(response.data);
+    } catch (error) {
+      console.error('Failed to fetch Stripe status:', error);
+    }
+  };
+
+  const handleConnectStripe = async () => {
+    setStripeLoading(true);
+    try {
+      // 1. Create Account (or get existing)
+      const accountRes = await axios.post('/api/stripe/account');
+      const accountId = accountRes.data.accountId;
+
+      // 2. Create Onboarding Link
+      const onboardRes = await axios.post('/api/stripe/onboard', { accountId });
+      const { url } = onboardRes.data;
+
+      // 3. Redirect
+      if (url) {
+        window.location.href = url;
+      } else {
+        alert('Failed to get onboarding URL');
+      }
+    } catch (error: any) {
+      console.error('Stripe Connect Error:', error);
+      alert(error.response?.data?.error || 'Failed to connect Stripe');
+    } finally {
+      setStripeLoading(false);
+    }
+  };
 
   const fetchProducts = async () => {
     setLoadingList(true);
@@ -398,6 +437,41 @@ function DashboardContent({ user }: DashboardClientProps) {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Stripe Status Section */}
+            <div className="lg:col-span-2 bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-colors duration-300">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            Payout Settings
+                        </h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Connect with Stripe to receive payments for your sales.
+                        </p>
+                    </div>
+                    <div>
+                        {stripeStatus?.details_submitted && stripeStatus?.payouts_enabled ? (
+                            <div className="flex items-center gap-2 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-lg border border-green-100 dark:border-green-800">
+                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span className="font-medium text-sm">Payouts Enabled</span>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={handleConnectStripe}
+                                disabled={stripeLoading}
+                                className="bg-[#635BFF] hover:bg-[#5851E1] text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {stripeLoading ? 'Connecting...' : (stripeStatus?.connected ? 'Complete Onboarding' : 'Connect Stripe')}
+                            </button>
+                        )}
+                    </div>
+                </div>
+                {stripeStatus?.connected && (!stripeStatus?.details_submitted || !stripeStatus?.payouts_enabled) && (
+                    <div className="mt-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/30 p-3 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
+                        <span className="font-bold">Action Required:</span> Please complete the onboarding process to enable payouts.
+                    </div>
+                )}
+            </div>
+
             {/* Upload Form */}
             <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm h-fit transition-colors duration-300">
             <div className="flex justify-between items-center mb-4">
