@@ -28,28 +28,24 @@ export default function Navbar({ session }: { session: any }) {
   // Dynamic styles based on scroll state
   // Only transparent on Home and Admin pages AND when at the top
   const isTransparent = !isScrolled && (isHomePage || isDarkPage);
+
+  // Determine if we should force white text (only for dark admin pages when transparent)
+  // For Home page, we want adaptive text because the hero is light in light mode
+  const forceWhiteText = !isScrolled && isDarkPage;
   
-  // When scrolled OR on light pages, use dark text (unless in dark mode)
-  // When transparent (top of home/admin), use white text
-  // BUT: If isTransparent is true, we want white text because we assume a dark hero.
-  // If isTransparent is false, we want standard text (gray-900 in light, white in dark).
-  const textColorClass = isTransparent ? 'text-white' : 'text-gray-900 dark:text-white';
+  const textColorClass = forceWhiteText ? 'text-white' : 'text-gray-900 dark:text-white';
   
-  // LOGO: If transparent, white. If not, Gradient (but gradient needs background clip).
-  // The issue might be that in light mode, if the gradient fails or text-transparent fails, it might default to something else?
-  // Or maybe the user is seeing the 'text-white' class applied when it shouldn't be.
-  
-  const logoTextGradient = isTransparent 
+  const logoTextGradient = forceWhiteText 
     ? 'text-white' 
     : 'text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300';
 
-  const cartButtonClass = isTransparent 
+  const cartButtonClass = forceWhiteText 
     ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20' 
     : 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
     
-  const menuButtonClass = isTransparent ? 'text-white' : 'text-gray-900 dark:text-white';
+  const menuButtonClass = forceWhiteText ? 'text-white' : 'text-gray-900 dark:text-white';
   
-  const loginButtonClass = isTransparent 
+  const loginButtonClass = forceWhiteText 
     ? 'text-gray-900 bg-white hover:bg-gray-100' 
     : 'text-white bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200';
 
