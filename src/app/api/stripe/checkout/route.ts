@@ -50,8 +50,8 @@ export async function POST(req: Request) {
           destination: product.creator.stripeAccountId,
         },
       },
-      success_url: `${process.env.NEXTAUTH_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/product/${product.id}`,
+      success_url: `${process.env.NEXTAUTH_URL.replace(/\/$/, '')}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXTAUTH_URL.replace(/\/$/, '')}/product/${product.id}`,
       metadata: {
         productId: product.id,
         userId: session?.user?.id || 'guest',

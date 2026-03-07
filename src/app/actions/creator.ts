@@ -21,7 +21,7 @@ export async function submitCreatorApplication(prevState: any, formData: FormDat
   const validatedFields = ApplicationSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
-    return { error: "Please fill in all fields correctly." };
+    return { error: validatedFields.error.errors[0].message };
   }
 
   const { portfolio, experience, motivation } = validatedFields.data;
@@ -35,7 +35,7 @@ export async function submitCreatorApplication(prevState: any, formData: FormDat
   try {
       // Email to Admin
       await sendEmail({
-        to: process.env.SMTP_USER || "admin@avataratelier.com", // Send to admin
+        to: "contact@avataratelier.com", // Send to admin contact
         subject: `New Creator Application: ${session.user.name || session.user.email}`,
         html: `
             <h1>New Creator Application</h1>

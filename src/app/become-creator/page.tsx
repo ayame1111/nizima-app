@@ -55,11 +55,12 @@ export default function BecomeCreatorPage() {
                     <div>
                         <label className="block text-sm font-bold text-gray-700 mb-2">Portfolio / Work Samples</label>
                         <p className="text-xs text-gray-500 mb-2">
-                            Please provide links to your previous Live2D works (Twitter, YouTube, ArtStation, or Google Drive folder).
+                            Please provide links to your previous Live2D works (Twitter, YouTube, ArtStation, or Google Drive folder). Minimum 10 characters.
                         </p>
                         <textarea 
                             name="portfolio" 
                             required 
+                            minLength={10}
                             rows={4}
                             placeholder="https://twitter.com/my_art&#10;https://drive.google.com/..."
                             className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none"
@@ -76,10 +77,11 @@ export default function BecomeCreatorPage() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Why do you want to join?</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Why do you want to join? (min 10 characters)</label>
                         <textarea 
                             name="motivation" 
                             required 
+                            minLength={10}
                             rows={3}
                             className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none"
                         ></textarea>
