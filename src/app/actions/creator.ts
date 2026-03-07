@@ -21,7 +21,7 @@ export async function submitCreatorApplication(prevState: any, formData: FormDat
   const validatedFields = ApplicationSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
-    return { error: validatedFields.error.errors[0].message };
+    return { error: validatedFields.error.issues[0].message };
   }
 
   const { portfolio, experience, motivation } = validatedFields.data;
