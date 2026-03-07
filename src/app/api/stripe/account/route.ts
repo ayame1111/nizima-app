@@ -19,8 +19,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // If user already has an account, return it
+    // If user already has an account, ensure it has the correct configurations
     if (user.stripeAccountId) {
+      try {
+        // @ts-ignore - Ensure existing accounts get the new configurations
+        await stripe.v2.core.accounts.update(user.stripeAccountId, {
+          configuration: {
+            merchant: {},
+            recipient: {},
+          },
+        });
+      } catch (e) {
+        console.warn('Failed to update existing account config (might already be set):', e);
+      }
       return NextResponse.json({ accountId: user.stripeAccountId });
     }
 
