@@ -24,9 +24,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Creator is not setup for payments' }, { status: 400 });
     }
 
-    // Platform fee (15%)
+    // Platform fee (15%) + Stripe fees (2.9% + 30 cents) approx
     const priceInCents = Math.round(product.price * 100);
-    const applicationFee = Math.round(priceInCents * 0.15);
+    const platformFee = Math.round(priceInCents * 0.15);
+    
+    // Estimate Stripe fees (standard US rate: 2.9% + 30 cents)
+    // Note: Actual fees may vary by country/card type.
+    // It's safer to deduct a fixed buffer or let the creator bear the cost by reducing the transfer amount.
+    const estimatedStripeFee = Math.round(priceInCents * 0.029) + 30;
+    
+    // Total Application Fee = Platform Fee + Estimated Stripe Fee
+    // This ensures we collect enough to cover our 15% revenue + the Stripe cost
+    const totalApplicationFee = platformFee + estimatedStripeFee;
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -45,7 +54,7 @@ export async function POST(req: Request) {
         },
       ],
       payment_intent_data: {
-        application_fee_amount: applicationFee,
+        application_fee_amount: totalApplicationFee,
         transfer_data: {
           destination: product.creator.stripeAccountId,
         },

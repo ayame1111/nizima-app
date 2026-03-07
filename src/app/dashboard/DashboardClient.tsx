@@ -190,6 +190,25 @@ function DashboardContent({ user }: DashboardClientProps) {
     }
   };
 
+  const handleToggleVisibility = async (product: any) => {
+    try {
+      const formData = new FormData();
+      // Default to true if undefined, so toggle makes it false
+      const currentVisibility = product.isVisible !== false;
+      formData.append('isVisible', (!currentVisibility).toString());
+      
+      await axios.patch(`/api/admin/products/${product.id}`, formData);
+      
+      setProducts(products.map(p => 
+        p.id === product.id ? { ...p, isVisible: !currentVisibility } : p
+      ));
+      setMessage(currentVisibility ? 'Product hidden from marketplace' : 'Product is now visible');
+    } catch (error) {
+      console.error('Failed to toggle visibility:', error);
+      alert('Failed to update product visibility');
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this product? This cannot be undone.')) return;
     
@@ -954,6 +973,11 @@ function DashboardContent({ user }: DashboardClientProps) {
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end gap-1">
+                                        {product.isVisible === false && (
+                                            <span className="px-2 py-1 rounded text-xs font-bold bg-gray-50 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700">
+                                                HIDDEN
+                                            </span>
+                                        )}
                                         <span className={`px-2 py-1 rounded text-xs font-bold ${product.isSold ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800' : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-800'}`}>
                                             {product.isSold ? 'SOLD' : 'AVAILABLE'}
                                         </span>
@@ -1002,6 +1026,16 @@ function DashboardContent({ user }: DashboardClientProps) {
                                         >
                                             View
                                         </a>
+                                        <button
+                                            onClick={() => handleToggleVisibility(product)}
+                                            className={`text-xs px-3 py-1.5 rounded-lg transition-colors font-medium border ${
+                                                product.isVisible !== false 
+                                                ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-800' 
+                                                : 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-900/30'
+                                            }`}
+                                        >
+                                            {product.isVisible !== false ? 'Hide' : 'Unhide'}
+                                        </button>
                                         <button
                                             onClick={() => handleDelete(product.id)}
                                             className="text-xs bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 dark:text-red-400 px-3 py-1.5 rounded-lg transition-colors font-medium border border-red-100 dark:border-red-900/30 hover:border-red-200 dark:hover:border-red-800"

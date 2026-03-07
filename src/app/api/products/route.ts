@@ -7,6 +7,7 @@ export async function GET(req: Request) {
       where: {
         isSold: false,
         status: 'APPROVED',
+        isVisible: true,
       },
       orderBy: {
         createdAt: 'desc',

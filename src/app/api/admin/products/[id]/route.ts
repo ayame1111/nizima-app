@@ -140,6 +140,11 @@ export async function PATCH(
         dataToUpdate.isSold = isSold === 'true';
     }
 
+    const isVisible = formData.get('isVisible');
+    if (isVisible !== null) {
+        dataToUpdate.isVisible = isVisible === 'true';
+    }
+
     const status = formData.get('status') as string;
     const adminNote = formData.get('adminNote') as string | null;
     const icon = formData.get('icon') as File | null;
@@ -215,8 +220,11 @@ export async function PATCH(
         }
     } else if (!isSessionAdmin) {
         // If creator edits, reset to PENDING for re-approval
-        // Only if they are actually changing something else
-        if (Object.keys(dataToUpdate).length > 0) {
+        // Only if they are actually changing something else (excluding isVisible)
+        const significantChanges = { ...dataToUpdate };
+        delete significantChanges.isVisible;
+
+        if (Object.keys(significantChanges).length > 0) {
             dataToUpdate.status = 'PENDING';
             // Clear previous rejection note on re-submission
             dataToUpdate.adminNote = null;
