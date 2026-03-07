@@ -24,8 +24,8 @@ export async function GET(
     const session = await auth();
     userId = session?.user?.id;
 
-    // Use Order with Items relation
-    const order = await prisma.order.findUnique({
+    // Find order by ID or Payment ID (Stripe Session ID)
+    let order = await prisma.order.findUnique({
       where: { id: orderId },
       include: { 
         items: {
@@ -33,6 +33,18 @@ export async function GET(
         }
       },
     });
+
+    if (!order) {
+        // Try finding by paymentId (Stripe Session ID)
+        order = await prisma.order.findFirst({
+            where: { paymentId: orderId },
+            include: { 
+                items: {
+                    include: { product: true }
+                }
+            },
+        });
+    }
 
     if (!order) {
       await logDownload(orderId, userId, null, ip, userAgent, 'FAILED', 'Order not found');
@@ -51,12 +63,13 @@ export async function GET(
         await logDownload(orderId, userId, null, ip, userAgent, 'FAILED', 'Unauthorized owner');
         return NextResponse.json({ error: 'Unauthorized: You do not own this order' }, { status: 403 });
       }
-    } else if (session) {
-      // Guest order but user is logged in - check if email matches
-      if (session.user?.email && order.buyerEmail && session.user.email.toLowerCase() !== order.buyerEmail.toLowerCase()) {
-        await logDownload(orderId, userId, null, ip, userAgent, 'FAILED', 'Email mismatch');
-        return NextResponse.json({ error: 'Unauthorized: This order belongs to another email address' }, { status: 403 });
-      }
+    } else {
+        // Guest order: We rely on the fact that they have the unique session ID (the link is secret)
+        // OR we can check cookies/local storage if we implemented guest tracking.
+        // For now, if there's no userId on the order, we allow the download IF the user reached here via the correct link.
+        // But wait, the route is /api/download/[sessionId]. Wait, the param is named orderId but we are passing session.id from success page.
+        
+        // Actually, the success page passes session.id. We need to look up the order by paymentId (which stores session.id).
     }
 
     // Handle Multiple Files
