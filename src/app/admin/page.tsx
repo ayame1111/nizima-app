@@ -27,9 +27,14 @@ export default async function AdminPage() {
                 <p className="text-gray-400">Manage products and system settings.</p>
             </div>
             
-            <Link href="/admin/users" className="bg-blue-900/50 border border-blue-800 text-blue-300 px-4 py-2 rounded-lg hover:bg-blue-900/80 transition-colors font-medium">
-                Manage Users
-            </Link>
+            <div className="flex gap-3">
+                <Link href="/admin/orders" className="bg-purple-900/50 border border-purple-800 text-purple-300 px-4 py-2 rounded-lg hover:bg-purple-900/80 transition-colors font-medium">
+                    Orders & Analytics
+                </Link>
+                <Link href="/admin/users" className="bg-blue-900/50 border border-blue-800 text-blue-300 px-4 py-2 rounded-lg hover:bg-blue-900/80 transition-colors font-medium">
+                    Manage Users
+                </Link>
+            </div>
         </div>
         
         <AdminDashboardClient />

@@ -92,6 +92,9 @@ function DashboardContent({ user }: DashboardClientProps) {
   // Stripe State
   const [stripeStatus, setStripeStatus] = useState<any>(null);
   const [stripeLoading, setStripeLoading] = useState(false);
+  
+  // Analytics State
+  const [analytics, setAnalytics] = useState<any>(null);
 
   // Batch Upload State
   interface BatchFile {
@@ -125,8 +128,18 @@ function DashboardContent({ user }: DashboardClientProps) {
     } else {
         fetchProducts();
         fetchStripeStatus();
+        fetchAnalytics();
     }
   }, [user, router]);
+
+  const fetchAnalytics = async () => {
+    try {
+        const response = await axios.get('/api/creator/analytics');
+        setAnalytics(response.data);
+    } catch (error) {
+        console.error('Failed to fetch analytics:', error);
+    }
+  };
 
   const fetchStripeStatus = async () => {
     try {
@@ -423,6 +436,13 @@ function DashboardContent({ user }: DashboardClientProps) {
 
 
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-12 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -436,6 +456,38 @@ function DashboardContent({ user }: DashboardClientProps) {
           </Link>
         </div>
         
+        {/* Analytics Section */}
+        {analytics && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">Net Earnings</h3>
+                        <span className="text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-xs font-bold">Paid</span>
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">{formatCurrency(analytics.totalRevenue)}</div>
+                    <p className="text-xs text-gray-400 mt-1">After platform fees (15%)</p>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Sales</h3>
+                        <span className="text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded text-xs font-bold">Count</span>
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">{analytics.totalSales}</div>
+                    <p className="text-xs text-gray-400 mt-1">Models sold</p>
+                </div>
+
+                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">Portfolio</h3>
+                        <span className="text-purple-500 bg-purple-50 dark:bg-purple-900/20 px-2 py-1 rounded text-xs font-bold">Total</span>
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">{analytics.productsCount}</div>
+                    <p className="text-xs text-gray-400 mt-1">Models uploaded</p>
+                </div>
+            </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Stripe Status Section */}
             <div className="lg:col-span-2 bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-colors duration-300">
