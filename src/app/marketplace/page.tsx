@@ -35,6 +35,10 @@ export default async function MarketplacePage({
   }
 
   const products = await prisma.product.findMany({
+    where: {
+      status: 'APPROVED',
+      isVisible: true,
+    },
     orderBy,
     include: {
       creator: true,

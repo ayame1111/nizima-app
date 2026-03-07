@@ -30,7 +30,10 @@ export default async function Home() {
   }
 
   const latestArrivals = await prisma.product.findMany({
-    where: { status: 'APPROVED' },
+    where: { 
+        status: 'APPROVED',
+        isVisible: true
+    },
     take: 12,
     orderBy: { createdAt: 'desc' },
     include: {
@@ -41,7 +44,8 @@ export default async function Home() {
   const mostLiked = await prisma.product.findMany({
     where: { 
       status: 'APPROVED',
-      isSold: false 
+      isSold: false,
+      isVisible: true
     },
     take: 12,
     orderBy: {

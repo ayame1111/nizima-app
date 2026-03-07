@@ -59,7 +59,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   // @ts-ignore
   const isAdmin = session?.user?.role === 'ADMIN';
 
-  if (product.status !== 'APPROVED' && !isCreator && !isAdmin) {
+  if ((product.status !== 'APPROVED' || product.isVisible === false) && !isCreator && !isAdmin) {
     notFound();
   }
 
