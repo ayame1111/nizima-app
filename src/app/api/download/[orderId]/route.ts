@@ -1,19 +1,22 @@
+
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
 import { auth } from '@/auth';
-import { getIp } from '@/lib/ip';
-import JSZip from 'jszip'; // Need to install jszip if not already, or use another way to bundle multiple files
+import JSZip from 'jszip';
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
-  const ip = await getIp();
   const userAgent = req.headers.get('user-agent') || 'unknown';
+  // Simple IP extraction
+  const forwarded = req.headers.get('x-forwarded-for');
+  const ip = forwarded ? forwarded.split(',')[0] : '127.0.0.1';
+
   let orderId = '';
-  let userId = undefined;
+  let userId: string | undefined = undefined;
 
   try {
     const resolvedParams = await params;
@@ -86,8 +89,6 @@ export async function GET(
     } 
     
     // If multiple items, bundle them into one ZIP
-    // Note: Since products are already ZIPs, we are zipping ZIPs.
-    // Ideally we would stream this, but for now we buffer.
     const zip = new JSZip();
     let hasFiles = false;
 
@@ -97,7 +98,6 @@ export async function GET(
             const safeName = `${item.product.title.replace(/[^a-z0-9]/gi, '_')}.zip`;
             zip.file(safeName, fileData);
             hasFiles = true;
-            // Log each product download in the bundle
             await logDownload(orderId, userId, item.product.id, ip, userAgent, 'SUCCESS', 'Bundled download');
         } else {
             console.error(`File missing for product ${item.product.id}`);
