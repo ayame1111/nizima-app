@@ -24,9 +24,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Creator is not setup for payments' }, { status: 400 });
     }
 
-    // Platform fee (e.g., 10%)
+    // Platform fee (15%)
     const priceInCents = Math.round(product.price * 100);
-    const applicationFee = Math.round(priceInCents * 0.10);
+    const applicationFee = Math.round(priceInCents * 0.15);
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'payment',
