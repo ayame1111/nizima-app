@@ -31,6 +31,7 @@ export async function POST(req: Request) {
       contact_email: user.email,
       configuration: {
         merchant: {},
+        recipient: {},
       },
       defaults: {
         responsibilities: {
