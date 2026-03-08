@@ -147,19 +147,19 @@ export default async function Home() {
                 <div>
                     <h4 className="font-bold text-gray-900 dark:text-white mb-4">Marketplace</h4>
                     <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                        <li><Link href="#" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Browse All</Link></li>
-                        <li><Link href="#" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">New Arrivals</Link></li>
-                        <li><Link href="#" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Top Rated</Link></li>
-                        <li><Link href="#" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Free Assets</Link></li>
+                        <li><Link href="/marketplace?price=free" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Free Assets</Link></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 className="font-bold text-gray-900 dark:text-white mb-4">Support</h4>
+                    <h4 className="font-bold text-gray-900 dark:text-white mb-4">Support & Legal</h4>
                     <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                        <li><Link href="#" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Help Center</Link></li>
-                        <li><Link href="#" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Terms of Service</Link></li>
-                        <li><Link href="#" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Privacy Policy</Link></li>
-                        <li><Link href="#" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Contact Us</Link></li>
+                        <li><Link href="/help" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Help Center</Link></li>
+                        <li><Link href="/terms" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Terms of Service</Link></li>
+                        <li><Link href="/privacy" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Privacy Policy</Link></li>
+                        <li><Link href="/refund-policy" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Refund Policy</Link></li>
+                        <li><Link href="/seller-agreement" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Seller Agreement</Link></li>
+                        <li><Link href="/cookies-policy" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Cookies Policy</Link></li>
+                        <li><Link href="/contact" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Contact Us</Link></li>
                     </ul>
                 </div>
                 <div>

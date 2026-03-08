@@ -18,6 +18,9 @@ export default function ContentEditorPage() {
   const availablePages = [
     { slug: 'terms', label: 'Terms of Service' },
     { slug: 'privacy', label: 'Privacy Policy' },
+    { slug: 'refund-policy', label: 'Refund Policy' },
+    { slug: 'seller-agreement', label: 'Seller Agreement' },
+    { slug: 'cookies-policy', label: 'Cookies Policy' },
     { slug: 'help', label: 'Help Center' },
     { slug: 'contact', label: 'Contact Us' },
   ];
