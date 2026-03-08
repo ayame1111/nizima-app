@@ -64,6 +64,7 @@ export async function POST(req: Request) {
       metadata: {
         productId: product.id,
         userId: session?.user?.id || 'guest',
+        refundWaived: 'true', // Record legal consent
       },
     });
 

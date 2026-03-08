@@ -43,6 +43,7 @@ export async function POST(req: Request) {
                 buyerEmail: session.customer_details?.email || undefined,
                 userId: userId && userId !== 'guest' ? userId : undefined,
                 purchaseIp: 'webhook', // We don't have IP here
+                refundWaived: session.metadata?.refundWaived === 'true',
                 items: {
                     create: {
                         productId: productId,
