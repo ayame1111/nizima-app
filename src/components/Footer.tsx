@@ -17,24 +17,24 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-gray-900 dark:text-white mb-4">Marketplace</h4>
             <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-              <li><Link href="/creators" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Top Creators</Link></li>
-              <li><Link href="/marketplace" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Browse All</Link></li>
-              <li><Link href="/marketplace?price=free" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Free Assets</Link></li>
-              <li><Link href="/become-creator" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Become a Seller</Link></li>
-              <li><Link href="/buyer-guide" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Buyer Guide</Link></li>
-              <li><Link href="/seller-guide" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Seller Guide</Link></li>
+              <li><Link href="/creators" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Top Creators</Link></li>
+              <li><Link href="/marketplace" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Browse All</Link></li>
+              <li><Link href="/marketplace?price=free" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Free Assets</Link></li>
+              <li><Link href="/become-creator" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Become a Seller</Link></li>
+              <li><Link href="/buyer-guide" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Buyer Guide</Link></li>
+              <li><Link href="/seller-guide" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Seller Guide</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-gray-900 dark:text-white mb-4">Support & Legal</h4>
             <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-              <li><Link href="/faq" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">FAQ</Link></li>
-              <li><Link href="/terms" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Terms of Service</Link></li>
-              <li><Link href="/privacy" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/refund-policy" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Refund Policy</Link></li>
-              <li><Link href="/seller-agreement" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Seller Agreement</Link></li>
-              <li><Link href="/cookies-policy" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Cookies Policy</Link></li>
-              <li><Link href="/contact" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Contact Us</Link></li>
+              <li><Link href="/faq" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">FAQ</Link></li>
+              <li><Link href="/terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/refund-policy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Refund Policy</Link></li>
+              <li><Link href="/seller-agreement" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Seller Agreement</Link></li>
+              <li><Link href="/cookies-policy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Cookies Policy</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contact Us</Link></li>
             </ul>
           </div>
         </div>
