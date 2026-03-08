@@ -537,11 +537,14 @@ function DashboardContent({ user }: DashboardClientProps) {
                     </div>
                 </div>
                 {stripeStatus?.connected && (!stripeStatus?.details_submitted || !stripeStatus?.payouts_enabled) && (
-                    <div className="mt-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/30 p-3 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
-                        <span className="font-bold">Action Required:</span> Please complete the onboarding process to enable payouts.
+                            <div className="mt-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/30 p-3 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
+                                <span className="font-bold">Action Required:</span> Please complete the onboarding process to enable payouts.
+                            </div>
+                        )}
+                        <div className="mt-4 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-800">
+                            <p><strong>Note:</strong> A standard Stripe processing fee (approx. 2.9% + $0.30) is deducted from the final payout amount for each transaction.</p>
+                        </div>
                     </div>
-                )}
-            </div>
 
             {/* Upload Form */}
             <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm h-fit transition-colors duration-300">
