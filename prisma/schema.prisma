@@ -123,3 +123,11 @@ model DownloadLog {
   @@index([userId])
   @@index([productId])
 }
+
+model PageContent {
+  id        String   @id @default(cuid())
+  slug      String   @unique // e.g., 'terms', 'privacy', 'help'
+  title     String
+  content   String   @db.Text // HTML or Markdown content
+  updatedAt DateTime @updatedAt
+}

@@ -34,6 +34,9 @@ export default async function AdminPage() {
                 <Link href="/admin/users" className="bg-blue-900/50 border border-blue-800 text-blue-300 px-4 py-2 rounded-lg hover:bg-blue-900/80 transition-colors font-medium">
                     Manage Users
                 </Link>
+                <Link href="/admin/content" className="bg-gray-800 border border-gray-700 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                    Content CMS
+                </Link>
             </div>
         </div>
         
