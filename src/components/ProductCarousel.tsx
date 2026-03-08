@@ -169,7 +169,7 @@ export default function ProductCarousel({ products, favoriteIds }: ProductCarous
                     
                     <div className="p-5 flex flex-col flex-grow">
                         <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate pr-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" title={product.title}>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate pr-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" title={product.title}>
                                 {product.title}
                             </h3>
                         </div>

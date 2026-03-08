@@ -27,7 +27,7 @@ export default function ExpandableDescription({ description }: ExpandableDescrip
       {shouldTruncate && (
         <button 
           onClick={() => setIsExpanded(!isExpanded)}
-          className="mt-2 text-sm font-bold text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 flex items-center gap-1 transition-colors"
+          className="mt-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1 transition-colors"
         >
           {isExpanded ? (
             <>Show Less <ChevronUp size={16} /></>

@@ -14,7 +14,7 @@ export default function BecomeCreatorPage() {
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white text-gray-900">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -33,7 +33,7 @@ export default function BecomeCreatorPage() {
             {!session ? (
                 <div className="text-center py-8">
                     <p className="mb-6 text-gray-600">You need to be logged in to apply.</p>
-                    <Link href="/login" className="bg-purple-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-purple-700 transition-colors">
+                    <Link href="/login" className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-indigo-700 transition-colors">
                         Log In to Apply
                     </Link>
                 </div>
@@ -46,7 +46,7 @@ export default function BecomeCreatorPage() {
                     <p className="text-gray-600 mb-6">
                         Thank you for applying. Our team will review your portfolio and get back to you shortly via email.
                     </p>
-                    <Link href="/" className="text-purple-600 font-bold hover:underline">
+                    <Link href="/" className="text-indigo-600 font-bold hover:underline">
                         Return Home
                     </Link>
                 </div>
@@ -59,7 +59,7 @@ export default function BecomeCreatorPage() {
                                 type="text"
                                 name="sellerName" 
                                 required 
-                                className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                 placeholder="Your brand name"
                             />
                         </div>
@@ -69,7 +69,7 @@ export default function BecomeCreatorPage() {
                                 type="text"
                                 name="contactInfo" 
                                 required 
-                                className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                 placeholder="email@example.com or user#1234"
                             />
                         </div>
@@ -85,7 +85,7 @@ export default function BecomeCreatorPage() {
                             required 
                             rows={3}
                             placeholder="https://twitter.com/my_art&#10;https://vgen.co/my_profile"
-                            className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                            className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                         ></textarea>
                     </div>
 
@@ -99,7 +99,7 @@ export default function BecomeCreatorPage() {
                             required 
                             rows={5}
                             placeholder="1. https://link-to-image.com - Full Model (Art+Rig)&#10;2. https://youtube.com/video - Rig Only"
-                            className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                            className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                         ></textarea>
                     </div>
 
@@ -112,7 +112,7 @@ export default function BecomeCreatorPage() {
                                         type="checkbox" 
                                         name="modelTypes" 
                                         value={type} 
-                                        className="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"
+                                        className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
                                     />
                                     <span className="text-sm text-gray-600">{type}</span>
                                 </div>
@@ -127,13 +127,13 @@ export default function BecomeCreatorPage() {
                                 type="text"
                                 name="style" 
                                 required 
-                                className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                 placeholder="Anime, dark, fantasy, furry..."
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-2">Price Range</label>
-                            <select name="priceRange" className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            <select name="priceRange" className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                                 <option value="Under $100">Under $100</option>
                                 <option value="$100 - $500">$100 - $500</option>
                                 <option value="$500 - $1000">$500 - $1000</option>
@@ -152,7 +152,7 @@ export default function BecomeCreatorPage() {
                             required 
                             minLength={10}
                             rows={3}
-                            className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                            className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                         ></textarea>
                     </div>
 
@@ -162,10 +162,10 @@ export default function BecomeCreatorPage() {
                                 type="checkbox" 
                                 id="seller-agreement" 
                                 required 
-                                className="mt-1 w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"
+                                className="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
                             />
                             <label htmlFor="seller-agreement" className="text-sm text-gray-600">
-                                I agree to the <Link href="/seller-agreement" className="text-purple-600 hover:underline" target="_blank">Seller Agreement</Link> and <Link href="/terms" className="text-purple-600 hover:underline" target="_blank">Terms of Service</Link>.
+                                I agree to the <Link href="/seller-agreement" className="text-indigo-600 hover:underline" target="_blank">Seller Agreement</Link> and <Link href="/terms" className="text-indigo-600 hover:underline" target="_blank">Terms of Service</Link>.
                             </label>
                         </div>
                     </div>

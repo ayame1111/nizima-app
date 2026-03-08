@@ -77,7 +77,7 @@ export default function Navbar({ session }: { session: any }) {
                           {session.user?.image ? (
                               <img src={session.user.image} className="w-8 h-8 rounded-full border-2 border-white/20 transition-all duration-700" />
                           ) : (
-                              <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-700 ${isScrolled ? 'bg-purple-100 text-purple-600' : 'bg-white/10 text-white border border-white/20'}`}>
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-700 ${isScrolled ? 'bg-indigo-100 text-indigo-600' : 'bg-white/10 text-white border border-white/20'}`}>
                                   <User size={16} />
                               </div>
                           )}
@@ -158,7 +158,7 @@ export default function Navbar({ session }: { session: any }) {
                 )}
 
                 {session?.user && (['CREATOR', 'ADMIN'].includes((session.user as any).role)) && (
-                        <Link href="/dashboard" className="block px-3 py-2 text-base font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-md">
+                        <Link href="/dashboard" className="block px-3 py-2 text-base font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-md">
                             Creator Dashboard
                         </Link>
                     )}

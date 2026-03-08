@@ -100,7 +100,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                  <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${product.isSold ? 'bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30' : 'bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30'}`}>
                    {product.isSold ? 'Sold Out' : 'Available'}
                  </span>
-                 <span className="bg-purple-50 text-purple-600 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                 <span className="bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                    One-of-a-kind
                  </span>
               </div>
@@ -118,7 +118,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                     )}
                 </div>
                 <span className="text-gray-500 dark:text-gray-400 text-sm">Sold by</span>
-                <Link href={`/creator/${product.creator?.slug || product.creator?.id}`} className="font-semibold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                <Link href={`/creator/${product.creator?.slug || product.creator?.id}`} className="font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                     {product.creator?.name || 'Unknown Artist'}
                 </Link>
               </div>

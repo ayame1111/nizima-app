@@ -103,7 +103,7 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
           <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
               {options.map(option => (
                   <label key={option} className="flex items-center gap-2 cursor-pointer group">
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${current.includes(option) ? 'bg-purple-600 border-purple-600' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 group-hover:border-purple-400'}`}>
+                      <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${current.includes(option) ? 'bg-indigo-600 border-indigo-600' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 group-hover:border-indigo-400'}`}>
                           {current.includes(option) && <ChevronDown size={12} className="text-white" />} 
                           {/* Reusing ChevronDown as a checkmark replacement or just use simple styling */}
                           {current.includes(option) && (
@@ -138,7 +138,7 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
                         placeholder="Search models..." 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-gray-100 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:border-purple-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-all text-gray-900 dark:text-white placeholder-gray-500"
+                        className="w-full bg-gray-100 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-all text-gray-900 dark:text-white placeholder-gray-500"
                     />
                 </div>
                 <button 
@@ -175,7 +175,7 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
                                         name="sex" 
                                         checked={sexFilter === option}
                                         onChange={() => setSexFilter(option)}
-                                        className="text-purple-600 focus:ring-purple-500 border-gray-300 dark:border-gray-600 dark:bg-gray-800"
+                                        className="text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 dark:bg-gray-800"
                                     />
                                     <span className={`text-sm ${sexFilter === option ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-600 dark:text-gray-400'}`}>{option}</span>
                                 </label>
@@ -194,7 +194,7 @@ export default function MarketplaceClient({ initialProducts, userId, favoriteIds
                                 step="100"
                                 value={priceRange[1]}
                                 onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                             />
                             <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                                 <span>${priceRange[0]}</span>

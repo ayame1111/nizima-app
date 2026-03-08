@@ -185,7 +185,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                         rows={5}
                         value={bio}
                         onChange={(e) => setBio(e.target.value)}
-                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"
+                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                         placeholder="Tell us about yourself..."
                     />
                     <p className="text-xs text-gray-500 mt-1 text-right">{bio.length}/500</p>
@@ -202,7 +202,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                         type="url"
                         value={socialLinks.twitter}
                         onChange={(e) => setSocialLinks({...socialLinks, twitter: e.target.value})}
-                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                         placeholder="https://twitter.com/..."
                     />
                 </div>
@@ -213,7 +213,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                         type="url"
                         value={socialLinks.youtube}
                         onChange={(e) => setSocialLinks({...socialLinks, youtube: e.target.value})}
-                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                         placeholder="https://youtube.com/..."
                     />
                 </div>
@@ -224,7 +224,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                         type="url"
                         value={socialLinks.instagram}
                         onChange={(e) => setSocialLinks({...socialLinks, instagram: e.target.value})}
-                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                         placeholder="https://instagram.com/..."
                     />
                 </div>
@@ -235,7 +235,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                         type="url"
                         value={socialLinks.website}
                         onChange={(e) => setSocialLinks({...socialLinks, website: e.target.value})}
-                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                         placeholder="https://..."
                     />
                 </div>
@@ -246,7 +246,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             <button 
                 type="submit" 
                 disabled={loading}
-                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
             >
                 {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
                 Save Changes

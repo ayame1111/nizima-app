@@ -499,7 +499,7 @@ function DashboardContent({ user }: DashboardClientProps) {
                 <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                         <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">Portfolio</h3>
-                        <span className="text-purple-500 bg-purple-50 dark:bg-purple-900/20 px-2 py-1 rounded text-xs font-bold">Total</span>
+                        <span className="text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded text-xs font-bold">Total</span>
                     </div>
                     <div className="text-3xl font-bold text-gray-900 dark:text-white">{analytics.productsCount}</div>
                     <p className="text-xs text-gray-400 mt-1">Models uploaded</p>

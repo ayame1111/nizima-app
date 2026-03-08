@@ -16,17 +16,17 @@ function LoginForm() {
           <input type="hidden" name="redirectTo" value={callbackUrl} />
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email</label>
-            <input name="email" type="email" required className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white transition-all" />
+            <input name="email" type="email" required className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-900 dark:text-white transition-all" />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Password</label>
-            <input name="password" type="password" required className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white transition-all" />
+            <input name="password" type="password" required className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-900 dark:text-white transition-all" />
           </div>
 
           {errorMessage && <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-100 dark:border-red-800">{errorMessage}</p>}
 
           <div className="flex justify-end">
-            <Link href="/forgot-password" className="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium">
+            <Link href="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">
               Forgot Password?
             </Link>
           </div>
@@ -55,7 +55,7 @@ export default function LoginPage() {
         </Suspense>
 
         <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-          Don't have an account? <Link href="/register" className="text-purple-600 dark:text-purple-400 font-bold hover:text-purple-700 dark:hover:text-purple-300">Register</Link>
+          Don't have an account? <Link href="/register" className="text-indigo-600 dark:text-indigo-400 font-bold hover:text-indigo-700 dark:hover:text-indigo-300">Register</Link>
         </p>
       </div>
     </div>

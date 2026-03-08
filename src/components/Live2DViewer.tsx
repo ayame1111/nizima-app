@@ -1745,7 +1745,7 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                     <div className="p-6 border-b border-gray-800">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="font-bold text-white flex items-center gap-2 text-sm uppercase tracking-wider">
-                                <Smile size={16} className="text-purple-400" />
+                                <Smile size={16} className="text-indigo-400" />
                                 <span>Expressions</span>
                                 <span className="text-[10px] font-normal text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">{expressions.length}</span>
                             </h3>
@@ -1764,7 +1764,7 @@ function Live2DCanvas({ modelUrl, interactive, isOpen, onToggleFullscreen, class
                                         className={`
                                             text-xs py-2 px-3 rounded transition-all text-left truncate flex items-center justify-between group
                                             ${isActive 
-                                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/20 ring-1 ring-purple-400' 
+                                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20 ring-1 ring-indigo-400' 
                                                 : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'}
                                         `}
                                     >

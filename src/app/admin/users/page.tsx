@@ -132,7 +132,7 @@ export default async function AdminUsersPage({
                                         <option value="CREATOR">Creator</option>
                                         <option value="ADMIN">Admin</option>
                                     </select>
-                                    <button type="submit" className="text-xs bg-white text-black px-3 py-1 rounded hover:bg-gray-200 font-bold">
+                                    <button type="submit" className="text-indigo-600 hover:bg-indigo-50 p-2 rounded transition-colors">
                                         Update
                                     </button>
                                 </form>

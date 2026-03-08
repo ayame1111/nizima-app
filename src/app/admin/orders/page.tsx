@@ -148,12 +148,12 @@ export default function AdminOrdersPage() {
                                     {formatCurrency(order.amount)}
                                 </td>
                                 <td className="p-4">
-                                    <span className={`px-2 py-1 rounded text-xs font-bold ${
-                                        order.status === 'COMPLETED' ? 'bg-green-900/30 text-green-400 border border-green-900' :
-                                        order.status === 'PENDING' ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-900' :
-                                        'bg-red-900/30 text-red-400 border border-red-900'
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                        order.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                        order.status === 'processing' ? 'bg-blue-100 text-blue-700' :
+                                        'bg-indigo-50 text-indigo-600'
                                     }`}>
-                                        {order.status}
+                                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                                     </span>
                                 </td>
                                 <td className="p-4 text-gray-500">

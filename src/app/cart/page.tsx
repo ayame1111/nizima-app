@@ -90,18 +90,31 @@ export default function CartPage() {
                                     </div>
                                 )}
                             </div>
-                            <div className="flex-grow min-w-0">
-                                <h3 className="font-bold text-gray-900 dark:text-white truncate">{item.title}</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{item.creatorName || 'Unknown Artist'}</p>
-                                <p className="text-purple-600 dark:text-purple-400 font-bold mt-1">${item.price.toFixed(2)}</p>
+                            <div className="flex-grow">
+                                <div className="flex justify-between items-start mb-1">
+                                    <Link href={`/product/${item.slug}`} className="text-lg font-bold text-gray-900 dark:text-white hover:text-indigo-800 dark:hover:text-indigo-400 transition-colors">
+                                        {item.title}
+                                    </Link>
+                                    <button 
+                                        onClick={() => removeFromCart(item.id)}
+                                        className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                                        aria-label="Remove item"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
+                                <Link href={`/creator/${item.creator?.id}`} className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline mb-2 block">
+                                    {item.creator?.name || 'Unknown Creator'}
+                                </Link>
+                                <div className="flex justify-between items-center mt-4">
+                                    <span className="text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">
+                                        Commercial License
+                                    </span>
+                                    <span className="text-xl font-bold text-gray-900 dark:text-white">
+                                        ${item.price.toFixed(2)}
+                                    </span>
+                                </div>
                             </div>
-                            <button 
-                                onClick={() => removeFromCart(item.id)}
-                                className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                title="Remove"
-                            >
-                                <Trash2 size={20} />
-                            </button>
                         </div>
                     ))}
                 </div>

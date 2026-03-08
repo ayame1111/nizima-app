@@ -67,7 +67,7 @@ export default async function Home() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gray-50 dark:bg-gray-950 pt-16 pb-20 lg:pt-24 lg:pb-28 transition-colors duration-300">
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-30 pointer-events-none">
-            <div className="absolute -top-[50%] -left-[20%] w-[80%] h-[80%] rounded-full bg-purple-200 dark:bg-purple-900 blur-[120px]" />
+            <div className="absolute -top-[50%] -left-[20%] w-[80%] h-[80%] rounded-full bg-indigo-200 dark:bg-indigo-900 blur-[120px]" />
             <div className="absolute top-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-blue-200 dark:bg-blue-900 blur-[100px]" />
         </div>
 
@@ -104,7 +104,7 @@ export default async function Home() {
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest Arrivals</h2>
               <p className="text-gray-500 dark:text-gray-400">Freshly rigged models ready for debut.</p>
             </div>
-            <Link href="/marketplace?sort=newest" className="text-purple-600 dark:text-purple-400 font-semibold hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1 group">
+            <Link href="/marketplace?sort=newest" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 group">
               View all <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -122,7 +122,7 @@ export default async function Home() {
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Most Liked</h2>
               <p className="text-gray-500 dark:text-gray-400">Popular models loved by the community.</p>
             </div>
-            <Link href="/marketplace?sort=popular" className="text-purple-600 dark:text-purple-400 font-semibold hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1 group">
+            <Link href="/marketplace?sort=popular" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 group">
               View all <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>

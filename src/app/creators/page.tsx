@@ -67,7 +67,7 @@ export default async function CreatorsPage() {
                                 )}
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                     {creator.name || 'Unknown Artist'}
                                 </h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -80,7 +80,7 @@ export default async function CreatorsPage() {
                             {creator.bio || "No bio available."}
                         </p>
 
-                        <div className="flex items-center text-purple-600 dark:text-purple-400 text-sm font-bold mt-auto">
+                        <div className="flex items-center text-indigo-600 dark:text-indigo-400 text-sm font-bold mt-auto">
                             View Profile <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
                         </div>
                     </div>

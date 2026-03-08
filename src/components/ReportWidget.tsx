@@ -37,7 +37,7 @@ export default function ReportWidget() {
         {/* Toggle Button */}
         <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`fixed bottom-6 right-6 z-[90] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center ${isOpen ? 'bg-gray-200 text-gray-800 rotate-90' : 'bg-purple-600 text-white hover:bg-purple-700'}`}
+            className={`fixed bottom-6 right-6 z-[90] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center ${isOpen ? 'bg-gray-200 text-gray-800 rotate-90' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
             title="Report an issue"
         >
             {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
@@ -45,11 +45,11 @@ export default function ReportWidget() {
 
         {/* Form Container */}
         <div className={`fixed bottom-24 right-6 z-[90] w-80 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden transition-all duration-300 origin-bottom-right ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-10 pointer-events-none'}`}>
-            <div className="bg-purple-600 p-4 text-white">
+            <div className="bg-indigo-600 p-4 text-white">
                 <h3 className="font-bold flex items-center gap-2">
                     <Mail size={18} /> Contact Support
                 </h3>
-                <p className="text-xs text-purple-100 mt-1">Found a bug or have feedback?</p>
+                <p className="text-xs text-indigo-100 mt-1">Found a bug or have feedback?</p>
             </div>
             
             <div className="p-4">
@@ -68,7 +68,7 @@ export default function ReportWidget() {
                             <select 
                                 value={type}
                                 onChange={(e) => setType(e.target.value)}
-                                className="w-full text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white"
+                                className="w-full text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
                             >
                                 <option value="bug">Report a Bug</option>
                                 <option value="feature">Feature Request</option>
@@ -85,7 +85,7 @@ export default function ReportWidget() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="name@example.com"
-                                className="w-full text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white"
+                                className="w-full text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
                             />
                         </div>
 
@@ -97,7 +97,7 @@ export default function ReportWidget() {
                                 onChange={(e) => setMessage(e.target.value)}
                                 rows={3}
                                 placeholder="Describe the issue..."
-                                className="w-full text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white resize-none"
+                                className="w-full text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-900 dark:text-white resize-none"
                             />
                         </div>
 
@@ -110,7 +110,7 @@ export default function ReportWidget() {
                         </button>
                         
                         <p className="text-[10px] text-center text-gray-400 dark:text-gray-500 mt-2">
-                            Emails are sent to <a href="mailto:contact@avataratelier.com" className="hover:underline text-purple-500">contact@avataratelier.com</a>
+                            Emails are sent to <a href="mailto:contact@avataratelier.com" className="hover:underline text-indigo-500">contact@avataratelier.com</a>
                         </p>
                     </form>
                 )}

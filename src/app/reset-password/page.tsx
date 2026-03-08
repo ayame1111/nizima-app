@@ -47,7 +47,7 @@ function TokenForm({ dispatch, state }: { dispatch: any, state: any }) {
           <input type="hidden" name="token" value={token} />
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">New Password</label>
-            <input name="password" type="password" required minLength={6} className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white transition-all" />
+            <input name="password" type="password" required minLength={6} className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-900 dark:text-white transition-all" />
           </div>
 
           {state?.error && <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-100 dark:border-red-800">{state.error}</p>}

@@ -54,7 +54,7 @@ export default function ProductCard({ product, favoriteIds }: ProductCardProps) 
         
         <div className="p-4 flex flex-col flex-grow">
             <div className="flex justify-between items-start mb-2">
-                <h3 className="text-base font-bold text-gray-900 dark:text-white truncate pr-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" title={product.title}>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white truncate pr-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" title={product.title}>
                     {product.title}
                 </h3>
             </div>

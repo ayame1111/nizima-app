@@ -92,7 +92,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ slug: 
             <div className="flex-grow pb-2 md:pt-24 text-center md:text-left">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{user.name}</h1>
                 <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                    <span className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <span className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                         Creator
                     </span>
                     <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400 text-sm">
@@ -119,7 +119,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ slug: 
                     </a>
                 )}
                 {socialLinks.website && (
-                    <a href={socialLinks.website} target="_blank" rel="noopener noreferrer" className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm hover:text-purple-600 hover:shadow-md transition-all text-gray-600 dark:text-gray-300">
+                    <a href={socialLinks.website} target="_blank" rel="noopener noreferrer" className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm hover:text-indigo-600 hover:shadow-md transition-all text-gray-600 dark:text-gray-300">
                         <Globe size={20} />
                     </a>
                 )}

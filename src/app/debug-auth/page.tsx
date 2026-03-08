@@ -68,7 +68,7 @@ export default async function DebugAuthPage() {
         </section>
 
         <section className="bg-gray-900 p-6 rounded-lg border border-gray-800">
-          <h2 className="text-xl font-bold mb-4 text-purple-400">3. Request Headers</h2>
+          <h2 className="text-xl font-bold mb-4 text-indigo-400">3. Request Headers</h2>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between">
                 <span className="text-gray-400">Host:</span>

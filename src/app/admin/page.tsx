@@ -28,7 +28,7 @@ export default async function AdminPage() {
             </div>
             
             <div className="flex gap-3">
-                <Link href="/admin/orders" className="bg-purple-900/50 border border-purple-800 text-purple-300 px-4 py-2 rounded-lg hover:bg-purple-900/80 transition-colors font-medium">
+                <Link href="/admin/orders" className="bg-indigo-900/50 border border-indigo-800 text-indigo-300 px-4 py-2 rounded-lg hover:bg-indigo-900/80 transition-colors font-medium">
                     Orders & Analytics
                 </Link>
                 <Link href="/admin/users" className="bg-blue-900/50 border border-blue-800 text-blue-300 px-4 py-2 rounded-lg hover:bg-blue-900/80 transition-colors font-medium">
