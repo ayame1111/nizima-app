@@ -74,12 +74,12 @@ function DashboardContent({ user }: DashboardClientProps) {
     setPrice(editingProduct.price.toString());
     setDescription(editingProduct.description);
     setTheme(editingProduct.theme || '');
-    setTags(editingProduct.tags || '');
+    setTags(editingProduct.tags ? editingProduct.tags.join(', ') : '');
     setIsSold(editingProduct.isSold || false);
     setPreviewUrl(editingProduct.previewUrl || null);
     
     // Reset media states
-    setExistingMediaUrls(editingProduct.mediaUrls ? editingProduct.mediaUrls.split(',') : []);
+    setExistingMediaUrls(editingProduct.mediaUrls || []);
     setMediaFiles([]);
     setMediaPreviews([]);
   }, [editingProduct]);
@@ -274,12 +274,12 @@ function DashboardContent({ user }: DashboardClientProps) {
     setHairColor(product.hairColor || '');
     setBodyType(product.bodyType || '');
     setTheme(product.theme || '');
-    setTags(product.tags || '');
+    setTags(product.tags ? product.tags.join(', ') : '');
     setIsSold(product.isSold || false);
     setPreviewUrl(product.previewUrl || null);
     
     // Reset media states
-    setExistingMediaUrls(product.mediaUrls ? product.mediaUrls.split(',') : []);
+    setExistingMediaUrls(product.mediaUrls || []);
     setMediaFiles([]);
     setMediaPreviews([]);
     

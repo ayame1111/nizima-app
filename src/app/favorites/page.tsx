@@ -25,11 +25,6 @@ export default async function FavoritesPage() {
   });
 
   const favorites = user?.favorites || [];
-  const formattedFavorites = favorites.map(f => ({
-    ...f,
-    tags: f.tags ? f.tags.split(',') : [],
-    mediaUrls: f.mediaUrls ? f.mediaUrls.split(',') : []
-  }));
   const favoriteIds = favorites.map(f => f.id);
 
   return (
@@ -64,7 +59,7 @@ export default async function FavoritesPage() {
           </div>
       ) : (
           <MarketplaceClient 
-            initialProducts={formattedFavorites} 
+            initialProducts={favorites} 
             userId={session.user.id}
             favoriteIds={favoriteIds}
           />

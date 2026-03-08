@@ -45,12 +45,6 @@ export default async function MarketplacePage({
     }
   });
 
-  const formattedProducts = products.map(p => ({
-    ...p,
-    tags: p.tags ? p.tags.split(',') : [],
-    mediaUrls: p.mediaUrls ? p.mediaUrls.split(',') : []
-  }));
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
       <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
@@ -63,7 +57,7 @@ export default async function MarketplacePage({
       </div>
       
       <MarketplaceClient 
-        initialProducts={formattedProducts} 
+        initialProducts={products} 
         userId={session?.user?.id}
         favoriteIds={favoriteIds}
       />
