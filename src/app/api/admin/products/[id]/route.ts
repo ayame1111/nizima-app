@@ -132,7 +132,7 @@ export async function PATCH(
 
     const tagsStr = formData.get('tags');
     if (tagsStr !== null) {
-         dataToUpdate.tags = (tagsStr as string).split(',').map(t => t.trim()).filter(Boolean);
+         dataToUpdate.tags = (tagsStr as string).split(',').map(t => t.trim()).filter(Boolean).join(',');
     }
 
     const isSold = formData.get('isSold');
@@ -169,16 +169,17 @@ export async function PATCH(
             mediaUpdated = true;
         } catch (e) {
             console.error('Failed to parse existingMediaUrls', e);
-            existingMediaUrls = product.mediaUrls || [];
+            existingMediaUrls = product.mediaUrls ? product.mediaUrls.split(',') : [];
         }
     } else {
          // Fallback if not provided (e.g. partial update)
-         existingMediaUrls = product.mediaUrls || [];
+         existingMediaUrls = product.mediaUrls ? product.mediaUrls.split(',') : [];
     }
 
     // Filter out deleted media (logic moved to client sending explicit list of what to KEEP)
     // So we just trust existingMediaUrls from client, but verify they belong to this product
-    existingMediaUrls = existingMediaUrls.filter(url => product.mediaUrls.includes(url));
+    const currentMediaUrls = product.mediaUrls ? product.mediaUrls.split(',') : [];
+    existingMediaUrls = existingMediaUrls.filter(url => currentMediaUrls.includes(url));
     
     const finalMediaUrls = [...existingMediaUrls];
 
@@ -212,7 +213,7 @@ export async function PATCH(
     }
     
     if (mediaUpdated) {
-        dataToUpdate.mediaUrls = finalMediaUrls;
+        dataToUpdate.mediaUrls = finalMediaUrls.join(',');
     }
 
     // Only Admin can update status directly

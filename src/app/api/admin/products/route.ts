@@ -62,7 +62,8 @@ export async function POST(req: Request) {
     const bodyType = formData.get('bodyType') as string;
     const theme = formData.get('theme') as string;
     const tagsString = formData.get('tags') as string;
-    const tags = tagsString ? tagsString.split(',').map(tag => tag.trim()).filter(Boolean) : [];
+    // Store as comma-separated string for SQLite compatibility
+    const tags = tagsString ? tagsString.split(',').map(tag => tag.trim()).filter(Boolean).join(',') : '';
     const isSold = formData.get('isSold') === 'true';
 
     const fileEntry = formData.get('file');
@@ -418,7 +419,7 @@ export async function POST(req: Request) {
             previewUrl: relativePreviewUrl,
             fileUrl: path.join(secureStorageDir, 'model.zip'), // Store absolute path for secure access
             iconUrl,
-            mediaUrls, // Save media URLs
+            mediaUrls: mediaUrls.join(','), // Save media URLs as comma-separated string
             isSold: isSold,
             status: isSessionAdmin ? 'APPROVED' : 'PENDING',
             // @ts-ignore

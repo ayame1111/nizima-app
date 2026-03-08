@@ -153,7 +153,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         
         {/* Media Gallery */}
         {product.mediaUrls && product.mediaUrls.length > 0 && (
-            <ProductGallery mediaUrls={product.mediaUrls} />
+            <ProductGallery mediaUrls={product.mediaUrls.split(',')} />
         )}
 
         {/* Description Row */}

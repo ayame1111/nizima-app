@@ -21,6 +21,9 @@ export default function ContentEditorPage() {
     { slug: 'refund-policy', label: 'Refund Policy' },
     { slug: 'seller-agreement', label: 'Seller Agreement' },
     { slug: 'cookies-policy', label: 'Cookies Policy' },
+    { slug: 'faq', label: 'FAQ' },
+    { slug: 'buyer-guide', label: 'Buyer Guide' },
+    { slug: 'seller-guide', label: 'Seller Guide' },
     { slug: 'help', label: 'Help Center' },
     { slug: 'contact', label: 'Contact Us' },
   ];
