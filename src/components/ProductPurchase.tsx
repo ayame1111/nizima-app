@@ -24,7 +24,13 @@ export default function ProductPurchase({ product }: ProductPurchaseProps) {
 
   const inCart = isInCart(product.id);
 
+  const [agreed, setAgreed] = useState(false);
+
   const handleBuyNow = async () => {
+    if (!agreed) {
+        alert('You must agree to the Terms of Service and Refund Policy before purchasing.');
+        return;
+    }
     setLoading(true);
     try {
       const response = await axios.post('/api/stripe/checkout', {
@@ -98,10 +104,27 @@ export default function ProductPurchase({ product }: ProductPurchaseProps) {
             </div>
         </div>
 
+        <div className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400 mb-2">
+            <input 
+                type="checkbox" 
+                id="agreement" 
+                checked={agreed} 
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label htmlFor="agreement" className="cursor-pointer select-none">
+                I agree to the <a href="/terms" className="text-blue-500 hover:underline" target="_blank">Terms of Service</a> and acknowledge that because this is a digital downloadable product, I waive my right to a refund once the download has started.
+            </label>
+        </div>
+
         <button 
           onClick={handleBuyNow}
-          disabled={loading}
-          className="w-full bg-[#635BFF] hover:bg-[#5851E1] text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          disabled={loading || !agreed}
+          className={`w-full font-bold py-3 px-4 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2 ${
+            !agreed 
+            ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed' 
+            : 'bg-[#635BFF] hover:bg-[#5851E1] text-white'
+          }`}
         >
           {loading ? (
             <>
