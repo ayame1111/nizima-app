@@ -140,6 +140,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   price: product.price,
                   isSold: product.isSold,
                   iconUrl: product.iconUrl,
+                  slug: product.slug,
+                  creator: product.creator ? {
+                    id: product.creator.id,
+                    name: product.creator.name || 'Unknown Artist'
+                  } : undefined,
                   creatorName: product.creator?.name || 'Unknown Artist'
                 }} 
               />

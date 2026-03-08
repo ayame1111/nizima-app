@@ -12,6 +12,11 @@ interface ProductPurchaseProps {
     price: number;
     isSold: boolean;
     iconUrl?: string | null;
+    slug: string;
+    creator?: {
+      id: string;
+      name: string;
+    };
     creatorName?: string;
   };
 }

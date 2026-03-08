@@ -7,6 +7,11 @@ export interface CartItem {
   title: string;
   price: number;
   iconUrl?: string | null;
+  slug: string;
+  creator?: {
+    id: string;
+    name: string;
+  };
   creatorName?: string;
 }
 
