@@ -124,9 +124,15 @@ export default function AdminOrdersPage() {
                     </thead>
                     <tbody className="text-sm divide-y divide-gray-800">
                         {orders.map((order) => (
-                            <tr key={order.id} className="hover:bg-gray-800/30 transition-colors">
+                            <tr 
+                                key={order.id} 
+                                className="hover:bg-gray-800/30 transition-colors cursor-pointer"
+                                onClick={() => window.location.href = `/admin/orders/${order.id}`}
+                            >
                                 <td className="p-4 font-mono text-gray-500 text-xs">
-                                    {order.id.slice(-8)}
+                                    <Link href={`/admin/orders/${order.id}`} className="hover:text-blue-400 hover:underline" onClick={(e) => e.stopPropagation()}>
+                                        {order.id.slice(-8)}
+                                    </Link>
                                 </td>
                                 <td className="p-4">
                                     <div className="font-medium text-white">{order.user?.name || 'Guest'}</div>
